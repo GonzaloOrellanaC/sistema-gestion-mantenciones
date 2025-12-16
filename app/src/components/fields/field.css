@@ -1,0 +1,33 @@
+.pill-button {
+  --background: #e8f7ff;
+  --color: #0b73c6;
+  --border-radius: 12px;
+  --padding-start: 10px;
+  --padding-end: 14px;
+  height: auto;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 12px;
+  box-shadow: none;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.pill-button ion-icon {
+  font-size: 20px;
+  color: var(--color);
+}
+
+.pill-button-text {
+  color: var(--color);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.pill-preview {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #444;
+}

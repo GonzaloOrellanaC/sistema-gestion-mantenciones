@@ -1,0 +1,35 @@
+:root {
+  --bg-body: #F0F8FF;
+  --bg-sidebar: #E3F2FD;
+  --primary-light: #B3E5FC;
+  --primary-accent: #81D4FA;
+  --primary-dark: #0288D1;
+  --text-main: #37474F;
+  --text-secondary: #78909C;
+  --white: #FFFFFF;
+  --success-bg: #E0F7FA;
+  --success-text: #006064;
+  --warning-bg: #FFF3E0;
+  --warning-text: #E65100;
+  --danger-bg: #FFEBEE;
+  --danger-text: #C62828;
+  --radius: 12px;
+  --shadow-card: 0 4px 12px rgba(176, 190, 197, 0.2);
+}
+
+body { background-color: var(--bg-body); color: var(--text-main); }
+.auth-card { background: var(--white); padding: 2rem; border-radius: 16px; box-shadow: var(--shadow-card); max-width: 480px; margin: 4rem auto; }
+.logo-area { font-size: 1.2rem; font-weight: 700; color: var(--primary-dark); }
+.sidebar { width: 260px; background: var(--white); border-right: 1px solid #E1F5FE; display: flex; flex-direction: column; padding: 1.5rem; z-index: 20; }
+.nav-link { display: flex; align-items: center; padding: 0.85rem 1rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius); margin-bottom: 0.5rem; transition: 0.2s; cursor: pointer; font-weight: 500; }
+.nav-link.active, .nav-link:hover { background: var(--bg-sidebar); color: var(--primary-dark); }
+.main-wrapper { padding: 1.5rem; }
+.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+.table-container { background: var(--white); border-radius: 12px; padding: 1rem; box-shadow: var(--shadow-card); overflow-x:auto; }
+.user-avatar-sm { width: 32px; height: 32px; background: var(--primary-accent); border-radius: 50%; color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-right: 10px; }
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+.badge-active { background: var(--success-bg); color: var(--success-text); }
+.badge-pending { background: var(--warning-bg); color: var(--warning-text); }
+.btn { padding: 0.6rem 1rem; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
+.btn-primary { background: var(--primary-dark); color: white; }
+.btn-secondary { background: var(--bg-sidebar); color: var(--primary-dark); }

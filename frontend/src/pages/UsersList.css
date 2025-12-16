@@ -1,0 +1,75 @@
+.users-page {
+  padding: 16px;
+}
+
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.users-title h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+.users-sub {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Ionic toolbar header styles for users page */
+.users-header-toolbar {
+  --background: transparent;
+  padding: 0;
+  margin-bottom: 8px;
+}
+.users-toolbar-left { display:flex; flex-direction:column; }
+.toolbar-title { margin: 0; font-size: 1.25rem; }
+.toolbar-sub { font-size: 0.85rem; color: var(--text-secondary); }
+
+.users-controls {
+  margin-bottom: 12px;
+}
+.users-search-col {
+  display: flex;
+  align-items: center;
+}
+.users-search-col .input-custom { width: 100%; }
+
+.users-table .table-container {
+  overflow: auto;
+}
+.users-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--ion-background-color);
+}
+.users-table thead th {
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 600;
+  background: rgba(0,0,0,0.02);
+  font-size: 0.9rem;
+}
+.users-table tbody td {
+  padding: 10px 12px;
+  border-top: 1px solid rgba(0,0,0,0.04);
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+.users-table tbody tr:hover { background: rgba(0,0,0,0.02); }
+
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.user-avatar-sm { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--ion-color-primary); color: white; font-weight: 600; }
+.user-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-edit { color: var(--ion-color-primary); }
+
+.users-pagination { display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
+
+@media (max-width: 600px) {
+  .users-header { flex-direction: column; align-items: stretch; }
+  .users-search-col { margin-bottom: 8px; }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "SGM",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}

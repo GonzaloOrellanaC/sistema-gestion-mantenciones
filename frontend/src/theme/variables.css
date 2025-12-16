@@ -1,0 +1,11 @@
+/* For information on how to create your own theme, please refer to:
+http://ionicframework.com/docs/theming/ */
+
+:root {
+	/* Widget-specific CSS variables with sensible fallbacks */
+	--widget-bg-color: var(--ion-card-background, #ffffff);
+	--widget-border-color: rgba(0, 0, 0, 0.08);
+	--widget-header-color: var(--ion-color-primary, #0288D1);
+	--widget-content-color: #263238;
+	--widget-link-color: var(--ion-color-primary, #0288D1);
+}

@@ -1,0 +1,120 @@
+:root {
+  --primary: #0288D1;
+  --primary-dark: #01579B;
+  --bg-body: #F0F8FF;
+  --bg-white: #FFFFFF;
+  --text-main: #37474F;
+  --text-secondary: #78909C;
+  --border-light: #E3F2FD;
+  --shadow-card: 0 4px 12px rgba(176, 190, 197, 0.15);
+  --success: #66BB6A;
+  --warning: #FFA726;
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #eceff1;
+}
+
+.app-container {
+  width: 100%;
+  height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  background-color: var(--bg-body);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.gap-2 { gap: 8px; }
+.text-center { text-align: center; }
+.w-full { width: 100%; }
+.font-bold { font-weight: 700; }
+
+.view-login {
+  height: 100%;
+  padding: 2rem;
+  background: linear-gradient(135deg, #F0F8FF 0%, #BBDEFB 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-card {
+  background: var(--bg-white);
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(2, 136, 209, 0.1);
+  width: 100%;
+}
+
+.view-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 80px;
+}
+
+.header { background: var(--bg-white); padding: 3rem 1rem 1rem; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+
+.header-execution { background: var(--primary); color: white; padding: 3rem 1rem 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+.card { background: var(--bg-white); border-radius: var(--radius); padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border-light); box-shadow: var(--shadow-card); position: relative; overflow: hidden; cursor: pointer; transition: transform 0.1s; }
+.card:active { transform: scale(0.98); }
+
+.card-status-line { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
+
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+.badge-pending { background: #FFF3E0; color: #E65100; }
+.badge-progress { background: #E3F2FD; color: #0277BD; }
+.badge-done { background: #E8F5E9; color: #2E7D32; }
+
+.input-group { margin-bottom: 1rem; }
+.input-field { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid transparent; background-color: #F5F7FA; font-size: 1rem; outline: none; color: var(--text-main); transition: 0.2s; }
+.input-field:focus { background-color: var(--bg-white); border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 136, 209, 0.1); }
+
+.search-container { position: relative; margin-top: 1rem; }
+.search-input { width: 100%; padding: 10px 10px 10px 40px; border-radius: 12px; border: none; background: #F5F7FA; color: var(--text-main); }
+
+.btn { padding: 14px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+.btn-primary { background-color: var(--primary); color: white; width: 100%; box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3); }
+.btn-primary:active { background-color: var(--primary-dark); }
+
+.btn-icon { background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: none; color: white; cursor: pointer; }
+
+.fab { position: absolute; bottom: 2rem; right: 1.5rem; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 8px 16px rgba(2, 136, 209, 0.4); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; }
+.fab:active { transform: scale(0.9); }
+
+.tab-bar { position: absolute; bottom: 0; width: 100%; background: var(--bg-white); display: flex; justify-content: space-around; padding: 10px 0 25px; border-top: 1px solid var(--border-light); z-index: 20; }
+.tab-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; color: #B0BEC5; font-size: 0.7rem; font-weight: 600; cursor: pointer; }
+.tab-item.active { color: var(--primary); }
+
+.form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; margin-left: 4px; }
+.pill-button { width: 100%; padding: 12px; border-radius: 12px; background: #E1F5FE; border: 1px solid #B3E5FC; color: var(--primary); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.photo-area { border: 2px dashed #CFD8DC; border-radius: 12px; padding: 2rem; background: #FAFAFA; display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); cursor: pointer; }
+.signature-area { background: #FAFAFA; border-bottom: 2px solid #CFD8DC; height: 100px; position: relative; border-radius: 12px 12px 0 0; }
+
+/* FormRenderer helpers */
+.page-control { position: absolute; top: 8px; right: 8px; z-index: 10; display: flex; align-items: center; gap: 8px; }
+.page-button { min-width: 34px; height: 34px; border-radius: 6px; border: none; background: #ECEFF1; color: #455A64; cursor: pointer; font-weight: 700; }
+.page-count { padding: 0 8px; font-weight: 700; color: #37474F; }
+
+.photo-container { width: 100%; }
+.photo-preview-area { width: 100%; height: 220px; border-radius: 8px; border: 1px solid #ECEFF1; background: #F5F7FA; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.photo-preview-area img { max-width: 100%; max-height: 100%; object-fit: contain; margin: auto; display: block; }
+.photo-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+.camera-modal .modal-content { height: 100%; display: flex; flex-direction: column; }
+.camera-video { max-width: 100%; max-height: 100%; }

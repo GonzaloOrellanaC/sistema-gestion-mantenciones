@@ -1,0 +1,133 @@
+{
+  "info": {
+    "name": "Sistema-Gestion-Mantencion - API",
+    "_postman_id": "b7f9f6d2-0000-4000-8000-000000000000",
+    "description": "Colección Postman para las APIs del backend (desarrollo)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"changeme\",\n  \"companyName\": \"MiEmpresa\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api","auth","register"] }
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"changeme\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api","auth","login"] }
+      }
+    },
+    {
+      "name": "Templates - List",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": { "raw": "{{baseUrl}}/api/templates", "host": ["{{baseUrl}}"], "path": ["api","templates"] }
+      }
+    },
+    {
+      "name": "Templates - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Pauta ejemplo\",\n  \"description\": \"Plantilla de ejemplo\",\n  \"structure\": { \"fields\": [] }\n}" },
+        "url": { "raw": "{{baseUrl}}/api/templates", "host": ["{{baseUrl}}"], "path": ["api","templates"] }
+      }
+    },
+    {
+      "name": "Templates - Preview",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": { "raw": "{{baseUrl}}/api/templates/:id/preview?device=mobile", "host": ["{{baseUrl}}"], "path": ["api","templates",":id","preview"] }
+      }
+    },
+    {
+      "name": "WorkOrders - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"templateId\": \"<TEMPLATE_ID>\",\n  \"data\": {}\n}" },
+        "url": { "raw": "{{baseUrl}}/api/work-orders", "host": ["{{baseUrl}}"], "path": ["api","work-orders"] }
+      }
+    },
+    {
+      "name": "WorkOrders - List",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": { "raw": "{{baseUrl}}/api/work-orders", "host": ["{{baseUrl}}"], "path": ["api","work-orders"] }
+      }
+    },
+    {
+      "name": "WorkOrders - Assign",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{ \"assigneeId\": \"<USER_ID>\", \"note\": \"Asignada\" }" },
+        "url": { "raw": "{{baseUrl}}/api/work-orders/:id/assign", "host": ["{{baseUrl}}"], "path": ["api","work-orders",":id","assign"] }
+      }
+    },
+    {
+      "name": "WorkOrders - Start",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": { "raw": "{{baseUrl}}/api/work-orders/:id/start", "host": ["{{baseUrl}}"], "path": ["api","work-orders",":id","start"] }
+      }
+    },
+    {
+      "name": "Files - Upload (generic)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "" },
+            { "key": "type", "type": "text", "value": "work_order_photos" }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/api/files/upload", "host": ["{{baseUrl}}"], "path": ["api","files","upload"] }
+      }
+    },
+    {
+      "name": "WorkOrders - Attach file",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "" },
+            { "key": "type", "type": "text", "value": "work_order_photos" }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/api/work-orders/:id/attachments", "host": ["{{baseUrl}}"], "path": ["api","work-orders",":id","attachments"] }
+      }
+    }
+  ],
+  "event": [],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5102" },
+    { "key": "token", "value": "" }
+  ]
+}

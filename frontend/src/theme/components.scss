@@ -1,0 +1,103 @@
+.widget-container {
+  background-color: var(--widget-bg-color);
+  border: 1px solid var(--widget-border-color);
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+}
+  .widget-header {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--widget-header-color);
+  }
+
+  .widget-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--widget-header-color);
+    margin-bottom: 6px;
+  }
+
+  /* Unified control wrapper so every widget can use the same class */
+  .widget-control {
+    width: 100%;
+    display: block;
+
+    /* Plain HTML controls */
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      border: 1px solid var(--widget-border-color);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--widget-content-color);
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    /* Ionic components - generic targets to keep appearance consistent */
+    ion-input, ion-textarea, ion-select, .simulated-input, .simulated-textarea {
+      width: 100%;
+      display: block;
+      box-sizing: border-box;
+      font-size: 0.95rem;
+      color: var(--widget-content-color);
+    }
+
+    /* Disabled / readOnly appearance */
+    input[disabled], textarea[disabled], select[disabled], ion-input[disabled], ion-select[disabled] {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    /* Small helper/help text inside widgets */
+    .help, .note, .formats {
+      font-size: 12px;
+      color: var(--widget-content-color);
+      opacity: 0.8;
+    }
+
+    /* Action buttons inside a widget (attach, pick date, geo, etc.) */
+    .widget-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+
+      button, .btn {
+        padding: 8px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--widget-border-color);
+        background: var(--widget-header-color);
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.95rem;
+      }
+    }
+  }
+
+  .widget-content {
+    font-size: 1rem;
+    color: var(--widget-content-color);
+
+    a {
+      color: var(--widget-link-color);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }

@@ -1,0 +1,137 @@
+:root {
+    --bg-body: #F0F8FF;
+    --bg-sidebar: #E3F2FD;
+    --primary-light: #B3E5FC;
+    --primary-accent: #81D4FA;
+    --primary-dark: #0288D1;
+    --text-main: #37474F;
+    --text-secondary: #78909C;
+    --white: #FFFFFF;
+    --success-bg: #E0F7FA;
+    --success-text: #006064;
+    --danger-bg: #FFEBEE;
+    --danger-text: #C62828;
+    --radius: 12px;
+    --shadow-card: 0 4px 12px rgba(176, 190, 197, 0.2);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+body { 
+    background-color: var(--bg-body); 
+    color: var(--text-main);
+}
+
+/* --- COMPONENTES UI GENERALES --- */
+.btn { padding: 0.7rem 1.5rem; border-radius: var(--radius); border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); }
+.btn-primary { background: var(--primary-dark); color: var(--white); box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3); width: 100%; justify-content: center; }
+.btn-primary.auto-width { width: auto; }
+.btn-secondary { background: var(--bg-sidebar); color: var(--primary-dark); }
+.btn-danger { background: #FFEBEE; color: #C62828; }
+.btn-icon { padding: 0.6rem; border-radius: 8px; cursor: pointer; border: none; background: transparent; color: var(--text-secondary); font-size: 1.1rem; transition: 0.2s; }
+.btn-icon:hover, .btn-icon.active { background: var(--bg-sidebar); color: var(--primary-dark); }
+
+.form-control { width: 100%; padding: 0.8rem; border: 2px solid var(--bg-sidebar); border-radius: 10px; font-size: 0.95rem; outline: none; transition: 0.2s; background: white; }
+.form-control:focus { border-color: var(--primary-accent); }
+
+/* Switch UI */
+.switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--primary-dark); }
+input:checked + .slider:before { transform: translateX(14px); }
+
+/* --- BUILDER LAYOUT --- */
+.builder-wrapper { display: flex; flex-direction: column; height: 100%; gap: 1rem; }
+
+/* Toolbar */
+.builder-toolbar { background: var(--white); padding: 0.8rem 1.5rem; border-radius: 12px; box-shadow: var(--shadow-card); display: flex; justify-content: space-between; align-items: center; }
+.device-controls { background: var(--bg-body); border-radius: 8px; padding: 4px; display: flex; gap: 4px; }
+
+/* Contenedor Principal (Columnas) */
+.builder-container { display: flex; flex: 1; gap: 1.5rem; overflow: hidden; }
+
+/* Panel Izquierdo: Toolbox */
+.toolbox { width: 260px; background: var(--white); padding: 1.2rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.8rem; overflow-y: auto; border: 1px solid #E1F5FE; box-shadow: var(--shadow-card); }
+.toolbox-category { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-top: 0.8rem; margin-bottom: 0.4rem; letter-spacing: 0.5px; }
+.toolbox-item { background: var(--bg-body); padding: 0.9rem; border-radius: 10px; cursor: grab; font-size: 0.9rem; display: flex; align-items: center; gap: 12px; color: var(--text-main); transition: 0.2s; border: 1px solid transparent; user-select: none; }
+.toolbox-item:hover { background: var(--primary-light); transform: translateY(-2px); border-color: var(--primary-accent); box-shadow: 0 4px 8px rgba(129, 212, 250, 0.2); }
+.toolbox-item i { color: var(--primary-dark); font-size: 1.1rem; width: 20px; text-align: center; }
+
+/* Canvas Central (Responsive) */
+.canvas-area { flex: 1; background: #FAFAFA; border: 2px dashed #CFD8DC; border-radius: 16px; display: flex; justify-content: center; align-items: flex-start; padding: 1rem 2rem; overflow-y: auto; transition: 0.3s; position: relative; }
+.canvas-area.drag-over { background: #E1F5FE; border-color: var(--primary-accent); }
+
+/* Dispositivo Preview */
+.preview-device { background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); transition: width 0.3s ease; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #E0E0E0; /* constrain height so inner body scrolls instead of growing page */
+    height: calc(100vh - 300px);
+}
+
+/* App-like preview: make the preview look like the real app device UI when in 'Vista' mode */
+.preview-device.app-like { background: #F7FBFD; border-radius: 24px; box-shadow: 0 30px 80px rgba(0,0,0,0.25); border: 12px solid #263238; }
+.preview-device.app-like .device-header { background: linear-gradient(90deg, var(--primary-dark), #0369a1); color: white; padding: 0.6rem 1rem; display: flex; align-items: center; justify-content: space-between; }
+.preview-device.app-like .device-header .title { font-weight: 700; }
+.preview-device.app-like .device-body { background: #FAFCFD; padding: 1.2rem; max-height: calc(100vh - 340px); }
+
+/* Simulated controls should resemble app inputs in preview mode */
+.preview-device.app-like .simulated-input { background: white; border: 1px solid #E0E0E0; border-radius: 8px; padding: 10px; color: #263238; box-shadow: inset 0 -1px 0 rgba(0,0,0,0.03); }
+.preview-device.app-like .simulated-textarea { background: white; border: 1px solid #E0E0E0; border-radius: 8px; padding: 10px; color: #263238; box-shadow: inset 0 -1px 0 rgba(0,0,0,0.03); }
+.preview-device.app-like .canvas-field { background: transparent; border: none; box-shadow: none; padding: 0.6rem 0; }
+.preview-device.app-like .canvas-field.selected { box-shadow: inset 0 0 0 2px rgba(2,136,209,0.08); background: white; border-radius: 8px; padding: 10px; }
+
+/* Image preview controls (non-functional icons for gallery/camera) */
+.preview-image-controls { display: flex; gap: 8px; }
+.preview-image-controls .icon-btn { width: 44px; height: 44px; border-radius: 8px; border: 1px solid #E0E0E0; background: white; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.preview-image-controls .icon-btn i { color: #37474F; font-size: 18px; }
+.simulated-image-placeholder { height: 80px; background: #F5F7FA; border: 1px dashed #E0E0E0; border-radius: 8px; display:flex; align-items:center; justify-content:center; color:#90A4AE }
+
+/* Signature preview control */
+.preview-signature-control .btn { display: inline-flex; align-items: center; gap: 8px; }
+.simulated-signature-placeholder { height: 56px; background: #FFF; border: 1px dashed #E0E0E0; border-radius: 6px; display:flex; align-items:center; justify-content:center; color:#90A4AE }
+
+/* Breakpoints */
+.preview-device.mobile { width: 375px; border-radius: 30px; border: 8px solid #37474F; margin-top: 10px; margin-bottom: 10px; }
+.preview-device.tablet { width: 768px; border-radius: 20px; border: 8px solid #37474F; }
+.preview-device.desktop { width: 100%; max-width: 1000px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+
+.device-header { padding: 1rem; background: var(--bg-sidebar); border-bottom: 1px solid #E1F5FE; display: flex; justify-content: space-between; align-items: center; }
+.device-body { padding: 2rem; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: white; min-height: 200px; max-height: calc(100vh - 320px); }
+
+/* Elementos dentro del Canvas */
+.canvas-field { position: relative; padding: 15px; margin-bottom: 15px; border: 1px solid transparent; border-radius: 8px; transition: 0.2s; background: white; }
+.canvas-field:hover { border-color: var(--primary-accent); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+.canvas-field.selected { border-color: var(--primary-dark); background: var(--bg-body); box-shadow: 0 0 0 2px rgba(2, 136, 209, 0.2); }
+
+.field-actions { position: absolute; top: -10px; right: 10px; background: var(--primary-dark); border-radius: 20px; padding: 2px 8px; display: none; gap: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 5; }
+.canvas-field:hover .field-actions, .canvas-field.selected .field-actions { display: flex; }
+.action-btn { background: none; border: none; color: white; cursor: pointer; font-size: 0.8rem; padding: 4px; }
+.action-btn:hover { color: var(--primary-light); }
+
+/* Panel Derecho: Propiedades */
+.properties-panel { width: 280px; background: var(--white); padding: 0; border-radius: 16px; display: flex; flex-direction: column; border: 1px solid #E1F5FE; box-shadow: var(--shadow-card); overflow: hidden; }
+.prop-header { padding: 1rem; background: var(--bg-sidebar); border-bottom: 1px solid #E1F5FE; font-weight: 700; color: var(--primary-dark); }
+.prop-body { padding: 1.2rem; overflow-y: auto; flex: 1; }
+.prop-empty { text-align: center; color: var(--text-secondary); margin-top: 2rem; padding: 1rem; }
+.prop-group { margin-bottom: 1.2rem; }
+.prop-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 0.5rem; }
+
+/* Drag & Drop Visual Helpers */
+.gu-mirror { position: fixed !important; margin: 0 !important; z-index: 9999 !important; opacity: 0.8; pointer-events: none; }
+.gu-hide { display: none !important; }
+.gu-unselectable { user-select: none !important; }
+.gu-transit { opacity: 0.2; border: 2px dashed var(--primary-dark); }
+
+/* Simulator helpers: rows and responsive columns */
+.sim-row { display: flex; gap: 12px; align-items: stretch; width: 100%; }
+.sim-col { flex: 1 1 0; min-width: 0; }
+
+/* Default simulated field styles (used by TemplatesBuilder simulator placeholders) */
+.simulated-input { width: 100%; height: 36px; padding: 6px 8px; background: #FFF; border: 1px solid #E0E0E0; border-radius: 6px; display: flex; align-items: center; color: #607D8B; }
+.simulated-textarea { width: 100%; min-height: 72px; padding: 8px; background: #FFF; border: 1px solid #E0E0E0; border-radius: 6px; color: #607D8B; }
+
+/* Responsive column behavior inside preview device */
+.preview-device.tablet .sim-row .sim-col { width: 50%; }
+.preview-device.mobile .sim-row .sim-col { width: 100%; display: block; }
+

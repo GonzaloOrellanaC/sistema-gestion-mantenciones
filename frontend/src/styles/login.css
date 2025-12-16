@@ -1,0 +1,19 @@
+.auth-card { background: var(--white); padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 40px rgba(2, 136, 209, 0.12); width: 100%; max-width: 420px; text-align: center; }
+.auth-logo { font-size: 1.6rem; color: var(--primary-dark); margin-bottom: 1.25rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.auth-card h3 { margin-bottom: 1.25rem; color: var(--text-main); }
+.auth-links { margin-top: 1rem; font-size: 0.9rem; }
+.auth-links a { color: var(--primary-dark); text-decoration: none; font-weight: 600; cursor: pointer; }
+
+.form-field { margin-bottom: 1rem; text-align: left; }
+.form-field .input-custom { width: 100%; }
+.form-field label { display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+
+.btn.btn-primary { background: var(--primary-dark) !important; color: var(--white) !important; border-radius: 12px; padding: 0.7rem 1rem; width: 100%; }
+.btn.btn-secondary { background: var(--bg-sidebar) !important; color: var(--primary-dark) !important; border-radius: 12px; padding: 0.6rem 1rem; }
+
+/* Center the auth area on the page content */
+.auth-page-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 120px); padding: 2rem; }
+
+@media (max-width: 600px) {
+  .auth-card { padding: 1.5rem; border-radius: 12px; }
+}
