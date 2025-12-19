@@ -1,11 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { IonSplitPane, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonLabel, IonRouterOutlet, useIonRouter } from '@ionic/react';
 import { useAuth } from '../context/AuthContext';
-import { people, fileTrayFull, calendar, logOut, documentLock, documentLockOutline, barChartOutline, peopleOutline, fileTrayFullOutline, calendarOutline } from 'ionicons/icons';
+import { people, fileTrayFull, calendar, logOut, documentLock, documentLockOutline, barChartOutline, barChart, peopleOutline, fileTrayFullOutline, calendarOutline, desktopOutline, desktop, storefrontOutline, storefront, businessOutline, business } from 'ionicons/icons';
+import { useHistory, useLocation } from 'react-router-dom';
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout, token } = useAuth();
-  const router = useIonRouter()
+  const history = useHistory();
+  const location = useLocation();
+
+  const menuInitial = [
+    { label: 'Dashboard', path: '/dashboard', iconOutline: barChartOutline, iconFilled: barChart, active: false },
+    { label: 'Usuarios', path: '/users', iconOutline: peopleOutline, iconFilled: people, active: false },
+    { label: 'Roles', path: '/roles', iconOutline: documentLockOutline, iconFilled: documentLock, active: false },
+    { label: 'Órdenes', path: '/work-orders', iconOutline: calendarOutline, iconFilled: calendar, active: false },
+    { label: 'Pautas', path: '/templates', iconOutline: fileTrayFullOutline, iconFilled: fileTrayFull, active: false },
+    { label: 'Activos', path: '/assets', iconOutline: desktopOutline, iconFilled: desktop, active: false },
+    { label: 'Organización', path: '/organization', iconOutline: businessOutline, iconFilled: business, active: false },
+    { label: 'Sucursales', path: '/branches', iconOutline: storefrontOutline, iconFilled: storefront, active: false },
+  ] as Array<{ label: string; path: string; iconOutline: any; iconFilled: any; active: boolean }>;
+
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (location.pathname) {
+      console.log('Location changed:', location.pathname);
+      setMenuItems(menuInitial.map(item => {
+        if (location.pathname === item.path || location.pathname.includes(item.path)) {
+          return { ...item, active: true };
+        }
+        return { ...item, active: false };
+      }));
+      /* setMenuItems(prev => prev.map(it => ({ ...it, active: location.pathname.includes(it.path) }))); */
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    console.log({menuItems})
+  }, [menuItems])
 
   // If not authenticated, render children directly (no menu)
   if (!token) return <>{children}</>;
@@ -15,31 +47,33 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <IonMenu contentId="main" type="reveal" style={{ width: 260 }}>
         <IonContent>
           <div style={{ padding: 16 }}>
-            <div className="logo-area" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="logo-area" style={{ gap: 10, textAlign: 'center', marginBottom: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <img src="/assets/sgm-logo.svg" alt="SGM" style={{ height: 36 }} />
+              <div>
+                {/* <div style={{ fontWeight: 700, fontSize: 14 }}>SGM</div> */}
+                <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
+                  {(user as any)?.org?.name ?? ''}
+                </div>
+              </div>
             </div>
 
             <IonList>
-              <IonItem button onClick={() => {router.push('/dashboard', 'root')}}>
-                <IonIcon icon={barChartOutline} slot="start" />
-                <IonLabel>Dashboard</IonLabel>
-              </IonItem>
-              <IonItem button onClick={() => {router.push('/users', 'root')}}>
-                <IonIcon icon={peopleOutline} slot="start" />
-                <IonLabel>Usuarios</IonLabel>
-              </IonItem>
-              <IonItem button onClick={() => {router.push('/roles', 'root')}}>
-                <IonIcon icon={documentLockOutline} slot="start" />
-                <IonLabel>Roles</IonLabel>
-              </IonItem>
-              <IonItem button onClick={() => {router.push('/work-orders', 'root')}}>
-                <IonIcon icon={calendarOutline} slot="start" />
-                <IonLabel>Órdenes</IonLabel>
-              </IonItem>
-              <IonItem button onClick={() => {router.push('/templates', 'root')}}>
-                <IonIcon icon={fileTrayFullOutline} slot="start" />
-                <IonLabel>Pautas</IonLabel>
-              </IonItem>
+              {menuItems.map((it) => {
+                const iconToUse = it.active ? it.iconFilled : it.iconOutline;
+                const itemStyle = it.active ? { background: 'rgba(0,0,0,0.03)', borderRadius: 6 } : undefined;
+                return (
+                  <IonItem style={{...itemStyle, '--background': it.active ? '#E3F2FD' : undefined}} key={it.path} button onClick={() => { history.push(it.path); setMenuItems(menuInitial.map(item => {
+                    if (item.path === it.path) {
+                      return { ...item, active: true };
+                    } else {
+                      return { ...item, active: false };
+                    }
+                  }))}}>
+                    <IonIcon style={{ marginRight: 10 }} color={it.active ? 'primary' : undefined} icon={iconToUse} slot="start" />
+                    <IonLabel color={it.active ? 'primary' : undefined}>{it.label}</IonLabel>
+                  </IonItem>
+                );
+              })}
             </IonList>
 
             <div style={{ borderTop: '1px solid #E1F5FE', paddingTop: 12, marginTop: 12 }}>
@@ -52,8 +86,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{user ? 'Usuario' : ''}</div>
                 </div>
               </div>
-              <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => { logout(); router.push('/auth/login'); }}>
-                <IonIcon icon={logOut} /> Cerrar Sesión
+              <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => { logout(); history.push('/auth/login'); }}>
+                <IonIcon style={{marginRight: 10}} icon={logOut} /> Cerrar Sesión
               </button>
             </div>
           </div>

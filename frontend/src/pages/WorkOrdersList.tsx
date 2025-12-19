@@ -152,23 +152,27 @@ const WorkOrdersList: React.FC = () => {
             <div style={{ marginBottom: 12 }}>
               {loading ? <div>Cargando órdenes...</div> : (
                 <div className="table-container">
-                  <table style={{ width: '100%' }}>
+                  <table style={{ width: '100%', textAlign: 'center', borderCollapse: 'separate', borderSpacing: '0 10px' }}>
                     <thead>
                       <tr>
-                        <th>#</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th>Asignado</th>
-                        <th>Acciones</th>
+                        <th style={{ background: '#1976d2', color: '#fff', padding: '10px 8px', borderRadius: 4 }}>#</th>
+                        <th style={{ background: '#1976d2', color: '#fff', padding: '10px 8px' }}>Fecha</th>
+                        <th style={{ background: '#1976d2', color: '#fff', padding: '10px 8px' }}>Estado</th>
+                        <th style={{ background: '#1976d2', color: '#fff', padding: '10px 8px' }}>Asignado</th>
+                        <th style={{ background: '#1976d2', color: '#fff', padding: '10px 8px', borderRadius: 4 }}>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
                       {orders.map((w) => {
                         const highlight = highlightId && highlightId === w._id;
                         return (
-                          <tr key={w._id} style={{ cursor: 'pointer', background: highlight ? '#FFF9C4' : undefined }} onClick={() => history.push(`/work-orders/edit/${w._id}`)}>
-                            <td>{w.orgSeq ?? '-'}</td>
-                            <td>{
+                          <tr
+                            key={w._id}
+                            style={{ cursor: 'pointer', background: highlight ? '#FFF9C4' : '#fff', boxShadow: highlight ? '0 4px 10px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.04)' }}
+                            onClick={() => history.push(`/work-orders/edit/${w._id}`)}
+                          >
+                            <td style={{ padding: '12px 8px' }}>{w.orgSeq ?? '-'}</td>
+                            <td style={{ padding: '12px 8px' }}>{
                               (() => {
                                 const raw = (w as any).dates?.start || w.createdAt;
                                 const key = formatDateOnly(raw);
@@ -182,9 +186,9 @@ const WorkOrdersList: React.FC = () => {
                                 }
                               })()
                             }</td>
-                            <td>{w.status || (w as any).state || '-'}</td>
-                            <td>{w.assigneeId ? (assignees[w.assigneeId] || w.assigneeId) : '-'}</td>
-                            <td style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                            <td style={{ padding: '12px 8px' }}>{w.status || (w as any).state || '-'}</td>
+                            <td style={{ padding: '12px 8px' }}>{w.assigneeId ? (assignees[w.assigneeId] || w.assigneeId) : '-'}</td>
+                            <td style={{ padding: '12px 8px', display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center' }}>
                               <IonButton size="small" fill="clear" onClick={(e) => { e.stopPropagation(); history.push(`/work-orders/edit/${w._id}`); }} aria-label="Ver">
                                 <IonIcon icon={eyeOutline} />
                               </IonButton>
@@ -222,8 +226,27 @@ const WorkOrdersList: React.FC = () => {
               {daysInMonth.map((day) => {
                 const key = formatDateOnly(day);
                 const list = dateMap[key] || [];
+                const today = new Date();
+                const dayOnly = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+                const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const isPast = dayOnly < todayOnly;
+                const isToday = dayOnly.getTime() === todayOnly.getTime();
                 return (
-                  <div key={key} onClick={() => setSelectedDate(key)} style={{ minHeight: 64, padding: 8, border: selectedDate === key ? '2px solid #1976d2' : '1px solid #e0e0e0', borderRadius: 6, background: list.length ? '#F1F8FF' : undefined, cursor: 'pointer' }}>
+                  <div
+                    key={key}
+                    onClick={() => { if (!isPast) setSelectedDate(key); }}
+                    style={{
+                      minHeight: 64,
+                      padding: 8,
+                      border: selectedDate === key ? '2px solid #1976d2' : isToday ? '2px solid #FFB74D' : '1px solid #e0e0e0',
+                      borderRadius: 6,
+                      background: selectedDate === key ? undefined : (isToday ? '#FFF3E0' : (list.length ? '#F1F8FF' : undefined)),
+                      cursor: isPast ? 'not-allowed' : 'pointer',
+                      opacity: isPast ? 0.5 : 1,
+                      color: isPast ? '#9e9e9e' : undefined,
+                    }}
+                    title={isPast ? 'Día anterior - deshabilitado' : undefined}
+                  >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ fontSize: 13 }}>{day.getDate()}</div>
                       {list.length > 0 && <div style={{ background: '#1976d2', color: '#fff', padding: '2px 6px', borderRadius: 12, fontSize: 12 }}>{list.length}</div>}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle } from '@ionic/react';
 import * as templatesApi from '../api/templates';
 import type { Template } from '../api/types';
 import { useHistory } from 'react-router-dom';
@@ -63,18 +63,14 @@ const TemplatesList: React.FC = () => {
 
   return (
     <IonPage>
+      <IonHeader className="ion-no-border">
+        <IonToolbar style={{padding: '0px 10px'}}>
+          <IonTitle>Gestión de Pautas</IonTitle>
+          <div className="toolbar-sub">Crea y administra las pautas de trabajo</div>
+          <IonButton slot='end' color="primary" onClick={() => history.push('/templates/create')}>Crear Pauta</IonButton>
+        </IonToolbar>
+      </IonHeader>
       <IonContent className="users-page ion-padding">
-        <IonHeader className="users-header-toolbar ion-no-border">
-          <IonToolbar>
-            <div className="users-toolbar-left">
-              <h2 className="toolbar-title">Gestión de Pautas</h2>
-              <div className="toolbar-sub">Crea y administra las pautas de trabajo</div>
-            </div>
-            <div slot="end">
-              <IonButton color="primary" onClick={() => history.push('/templates/create')}>Crear Pauta</IonButton>
-            </div>
-          </IonToolbar>
-        </IonHeader>
 
         <div className="table-container users-table">
           <table>

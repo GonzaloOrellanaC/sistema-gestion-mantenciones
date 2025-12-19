@@ -1,5 +1,6 @@
 import User from '../models/User';
 import Role from '../models/Role';
+import Branch from '../models/Branch';
 import bcrypt from 'bcrypt';
 
 export async function createUser(orgId: any, payload: any) {
@@ -11,13 +12,19 @@ export async function createUser(orgId: any, payload: any) {
   if (assignedRole && assignedRole.orgId.toString() !== orgId.toString()) throw { status: 400, message: 'Invalid roleId' };
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({ orgId, firstName, lastName, email, passwordHash, roleId: assignedRole?._id, isAdmin: false });
-
-  // TODO: apply permissions override per-user if required (store separate field)
-  return user;
+  const userPayload: any = { orgId, firstName, lastName, email, passwordHash, roleId: assignedRole?._id, isAdmin: false };
+  if (payload.branchId) {
+    const br = await Branch.findById(payload.branchId);
+    if (!br || br.orgId.toString() !== orgId.toString()) throw { status: 400, message: 'Invalid branchId' };
+    userPayload.branchId = payload.branchId;
+  }
+  const user = await User.create(userPayload);
+  // return populated user without passwordHash
+  const populated = await User.findById(user._id).select('-passwordHash').populate('roleId').populate('branchId').lean();
+  return populated;
 }
 
-export async function listUsers(orgId: any, options?: { page?: number; limit?: number; q?: string }) {
+export async function listUsers(orgId: any, options?: { page?: number; limit?: number; q?: string; branchId?: string }) {
   const page = options?.page && options.page > 0 ? Math.floor(options.page) : 1;
   const limit = options?.limit && options.limit > 0 ? Math.min(Math.floor(options.limit), 200) : 20;
   const skip = (page - 1) * limit;
@@ -32,9 +39,12 @@ export async function listUsers(orgId: any, options?: { page?: number; limit?: n
       { email: { $regex: q, $options: 'i' } },
     ];
   }
+  if (options?.branchId) {
+    filter.branchId = options.branchId;
+  }
 
   const [items, total] = await Promise.all([
-    User.find(filter).select('-passwordHash').sort({ createdAt: -1 }).skip(skip).limit(limit).populate('roleId').lean(),
+    User.find(filter).select('-passwordHash').sort({ createdAt: -1 }).skip(skip).limit(limit).populate('roleId').populate('branchId').lean(),
     User.countDocuments(filter),
   ]);
 
@@ -42,7 +52,7 @@ export async function listUsers(orgId: any, options?: { page?: number; limit?: n
 }
 
 export async function getUser(orgId: any, userId: string) {
-  const user = await User.findOne({ _id: userId, orgId }).select('-passwordHash').populate('roleId');
+  const user = await User.findOne({ _id: userId, orgId }).select('-passwordHash').populate('roleId').populate('branchId');
   if (!user) throw { status: 404, message: 'User not found' };
   return user;
 }
@@ -57,8 +67,13 @@ export async function updateUser(orgId: any, userId: string, payload: any) {
     if (!role || role.orgId.toString() !== orgId.toString()) throw { status: 400, message: 'Invalid roleId' };
     toUpdate.roleId = payload.roleId;
   }
+  if (payload.branchId) {
+    const br = await Branch.findById(payload.branchId);
+    if (!br || br.orgId.toString() !== orgId.toString()) throw { status: 400, message: 'Invalid branchId' };
+    toUpdate.branchId = payload.branchId;
+  }
 
-  const user = await User.findOneAndUpdate({ _id: userId, orgId }, { $set: toUpdate }, { new: true }).select('-passwordHash');
+  const user = await User.findOneAndUpdate({ _id: userId, orgId }, { $set: toUpdate }, { new: true }).select('-passwordHash').populate('roleId').populate('branchId');
   if (!user) throw { status: 404, message: 'User not found' };
   return user;
 }

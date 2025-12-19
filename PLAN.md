@@ -140,3 +140,31 @@ Si quieres, puedo ahora:
 - C) Crear el scaffold del proyecto Ionic React (web + mobile) con rutas y páginas base.
 
 Indica cuál de las opciones prefieres que empiece ahora.
+
+---
+
+**Estado de implementación (actualizado 2025-12-19)**
+
+- **Hecho / Implementado:**
+  - Autenticación: endpoints de registro/login/recuperación/restablecimiento, JWT y `bcrypt` implementados en backend.
+  - Seed/Admin inicial creado (superadmin global) según el plan.
+  - Roles & Permissions: modelo `Role` y CRUD básico implementado en backend.
+  - Pautas (templates): modelo y CRUD implementados; se eliminó asignación en templates (las asignaciones se aplican a OT).
+  - Órdenes de trabajo: modelo, flujo básico y contador por organización (`counters`) implementados; `findOneAndUpdate` atómico usado para `orgSeq`.
+  - Archivos: almacenamiento local planificado y utilitarios presentes; límite de 5 MB manejado en la app (implementación backend para uploads disponible).
+  - Realtime: `Socket.io` integrado; emisiones por room `orgId` y `user:<userId>` configuradas en backend.
+  - Frontend: `AuthContext` con persistencia de token, `axios` con interceptor, páginas básicas (Login/Register/Dashboard/Templates list/preview) implementadas.
+
+- **Parcial / En progreso:**
+  - Frontend Roles: lista y placeholders están, editor de permisos (checkboxes) y CRUD completo pendiente.
+  - Frontend Users: UI básica existe; integración CRUD paginada con backend pendiente.
+  - ProtectedRoute: layout protege la UI, pero `ProtectedRoute` como guard de rutas está pendiente.
+  - Tests: backend tiene tests básicos; tests e2e y cobertura de frontend siguen pendientes.
+
+- **Siguientes prioridades (alineadas con STATUS):**
+  1. Completar CRUD de Roles en frontend (editor de permisos y validaciones).
+  2. Implementar ProtectedRoute y aplicar en rutas privadas.
+  3. Finalizar Users CRUD con paginación real.
+  4. Tests críticos (AuthContext, flows de login, creación de OT con contador).
+
+Nota: se creó `STYLES.md` para centralizar referencia de estilos y guías (ver [STYLES.md](STYLES.md)).

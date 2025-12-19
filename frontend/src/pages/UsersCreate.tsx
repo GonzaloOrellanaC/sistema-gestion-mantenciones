@@ -4,6 +4,7 @@ import { Input } from '../components/Widgets/Input.widget';
 import { Select as WidgetSelect } from '../components/Widgets/Select.widget';
 import * as usersApi from '../api/users';
 import * as rolesApi from '../api/roles';
+import * as branchesApi from '../api/branches';
 import type { Role } from '../api/types';
 import { useHistory, useParams } from 'react-router-dom';
 import './UsersList.css';
@@ -15,9 +16,10 @@ const UsersCreate: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [roleId, setRoleId] = useState<string | null>(null);
+  const [branchId, setBranchId] = useState<string | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [branches, setBranches] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
 
@@ -28,6 +30,8 @@ const UsersCreate: React.FC = () => {
         const res = await rolesApi.listRoles({ limit: 200 });
         if (!mounted) return;
         setRoles(res.items || []);
+        const br = await branchesApi.listBranches({});
+        setBranches(br.items || []);
       } catch (err) {
         console.error(err);
       }
@@ -51,6 +55,7 @@ const UsersCreate: React.FC = () => {
         setLastName(u.lastName || '');
         setEmail(u.email || '');
         setRoleId(u.roleId._id || null);
+        setBranchId(u.branchId?._id || null);
       } catch (err) {
         console.error('Error loading user', err);
         setToast({ show: true, message: 'Error cargando usuario' });
@@ -72,7 +77,6 @@ const UsersCreate: React.FC = () => {
     // In create mode password required; in edit mode we don't change password here
     if (!isEdit) {
       if (!password) { setToast({ show: true, message: 'La contraseña es requerida' }); return; }
-      if (password !== confirmPassword) { setToast({ show: true, message: 'Las contraseñas no coinciden' }); return; }
     }
 
     setSaving(true);
@@ -80,12 +84,14 @@ const UsersCreate: React.FC = () => {
       if (isEdit && params.id) {
         const payload: any = { firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim() };
         if (roleId) payload.roleId = roleId;
+          if (branchId) payload.branchId = branchId;
         await usersApi.updateUser(params.id, payload);
         setToast({ show: true, message: 'Usuario actualizado' });
         setTimeout(() => history.push('/users'), 600);
       } else {
         const payload: any = { firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), password };
         if (roleId) payload.roleId = roleId;
+          if (branchId) payload.branchId = branchId;
         await usersApi.createUser(payload);
         setToast({ show: true, message: 'Usuario creado' });
         setTimeout(() => history.push('/users'), 600);
@@ -138,6 +144,16 @@ const UsersCreate: React.FC = () => {
               placeholder="Selecciona un rol (opcional)"
             />
           </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: 'block', marginBottom: 6 }}>Sucursal</label>
+              <WidgetSelect
+                value={branchId}
+                onChange={(v) => setBranchId(v as string)}
+                options={branches.map(b => ({ label: b.name, value: b._id }))}
+                placeholder="Selecciona una sucursal (opcional)"
+              />
+            </div>
 
           <div style={{ display: 'flex', gap: 8 }}>
             <IonButton type="submit" color="primary" disabled={saving || loading}>{saving ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear')}</IonButton>

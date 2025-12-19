@@ -21,6 +21,7 @@
   import usersApi from '../api/users';
   import rolesApi from '../api/roles';
   import workOrdersApi from '../api/workOrders';
+  import * as branchesApi from '../api/branches';
   import { useHistory } from 'react-router-dom';
   import type { Template, User, Role } from '../api/types';
 
@@ -28,6 +29,8 @@
     const [templates, setTemplates] = useState<Template[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
+    const [branches, setBranches] = useState<any[]>([]);
+    const [branchId, setBranchId] = useState<string | undefined>(undefined);
 
     const [templateId, setTemplateId] = useState('');
     const [assigneeId, setAssigneeId] = useState<string | undefined>(undefined);
@@ -55,10 +58,12 @@
           const t = await templatesApi.listTemplates({ limit: 100 });
           const u = await usersApi.listUsers({ limit: 200 });
           const r = await rolesApi.listRoles({ limit: 200 });
+          const br = await branchesApi.listBranches({});
           if (!mounted) return;
           setTemplates(t.items || []);
           setUsers(u.items || []);
           setRoles(r.items || []);
+          setBranches(br.items || []);
         } catch (e: any) {
           console.error('load lists err', e);
           setToast({ show: true, message: e?.message || 'Error cargando datos' });
@@ -150,6 +155,7 @@
       if (scheduledStart) payload.scheduledStart = scheduledStart;
       if (assigneeId) payload.assigneeId = assigneeId;
       if (assigneeRole) payload.assigneeRole = assigneeRole;
+      if (branchId) payload.branchId = branchId;
 
       setLoading(true);
       try {
@@ -197,6 +203,14 @@
                       ))}
                     </IonSelect>
                   </IonItem>
+
+                    <IonItem>
+                      <IonLabel position="stacked">Sucursal (opcional)</IonLabel>
+                      <IonSelect value={branchId} placeholder="Seleccione sucursal" onIonChange={e => setBranchId(e.detail.value)}>
+                        <IonSelectOption value="">--Todas--</IonSelectOption>
+                        {branches.map(b => <IonSelectOption key={b._id} value={b._id}>{b.name}</IonSelectOption>)}
+                      </IonSelect>
+                    </IonItem>
 
                   <IonItem>
                     <IonLabel position="stacked">Título breve</IonLabel>

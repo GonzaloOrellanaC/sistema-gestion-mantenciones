@@ -4,6 +4,7 @@ import http from 'http';
 import { Server as IOServer } from 'socket.io';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 import { connectDB } from './utils/db';
 import authRoutes from './routes/auth';
 import countersRoutes from './routes/counters';
@@ -11,7 +12,18 @@ import usersRoutes from './routes/users';
 import rolesRoutes from './routes/roles';
 import templatesRoutes from './routes/templates';
 import workOrdersRoutes from './routes/workOrders';
+import dashboardRoutes from './routes/dashboard';
+import branchesRoutes from './routes/branches';
+import organizationsRoutes from './routes/organizations';
+import brandsRoutes from './routes/brands';
+import deviceModelsRoutes from './routes/deviceModels';
+import assetTypesRoutes from './routes/assetTypes';
+import assetsRoutes from './routes/assets';
+import dashboardRoutes from './routes/dashboard';
 import filesRoutes from './routes/files';
+import notificationsRoutes from './routes/notifications';
+import pushTokensRoutes from './routes/pushTokens';
+import pushRoutes from './routes/push';
 
 const app = express();
 const server = http.createServer(app);
@@ -37,7 +49,21 @@ app.use('/api/users', usersRoutes);
 app.use('/api/roles', rolesRoutes);
 app.use('/api/templates', templatesRoutes);
 app.use('/api/work-orders', workOrdersRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/brands', brandsRoutes);
+app.use('/api/branches', branchesRoutes);
+app.use('/api/organizations', organizationsRoutes);
+app.use('/api/device-models', deviceModelsRoutes);
+app.use('/api/asset-types', assetTypesRoutes);
+app.use('/api/assets', assetsRoutes);
 app.use('/api/files', filesRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/push-tokens', pushTokensRoutes);
+app.use('/api/push', pushRoutes);
+
+// Serve uploaded images publicly from backend/files/images
+const imagesPath = path.join(__dirname, '..', 'files', 'images');
+app.use('/images', express.static(imagesPath));
 
 io.on('connection', (socket) => {
   console.log('socket connected', socket.id);

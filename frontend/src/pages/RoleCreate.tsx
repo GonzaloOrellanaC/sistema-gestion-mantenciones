@@ -7,10 +7,23 @@ import { useHistory, useParams } from 'react-router-dom';
 import './UsersList.css';
 
 const AVAILABLE_PERMISSIONS = [
-  { key: 'manage_users', label: 'Gestionar Usuarios' },
-  { key: 'manage_workorders', label: 'Gestionar Órdenes' },
-  { key: 'manage_templates', label: 'Gestionar Plantillas' },
-  { key: 'view_reports', label: 'Ver Informes' },
+  { key: 'editarUsuarios', label: 'Editar Usuarios' },
+  { key: 'verPautas', label: 'Ver Pautas' },
+  { key: 'crearPautas', label: 'Crear Pautas' },
+  { key: 'editarPautas', label: 'Editar Pautas' },
+  { key: 'asignarOT', label: 'Asignar OT' },
+  { key: 'supervisar', label: 'Supervisar' },
+  { key: 'aprobarRechazar', label: 'Aprobar/Rechazar' },
+  { key: 'crearRoles', label: 'Crear Roles' },
+  { key: 'editarRoles', label: 'Editar Roles' },
+  { key: 'agregarGerencias', label: 'Agregar Gerencias' },
+  { key: 'editarGerencias', label: 'Editar Gerencias' },
+  { key: 'crearSucursales', label: 'Crear Sucursales' },
+  { key: 'editarSucursales', label: 'Editar Sucursales' },
+  { key: 'crearInsumos', label: 'Crear Insumos' },
+  { key: 'editarInsumos', label: 'Editar Insumos' },
+  { key: 'crearElementos', label: 'Crear Elementos' },
+  { key: 'editarElementos', label: 'Editar Elementos' },
 ];
 
 const RoleCreate: React.FC = () => {

@@ -67,7 +67,12 @@
 
 ---
 
-Fecha del estado: 2025-12-09
+Fecha del estado: 2025-12-19
 
 **Notas:**
 - El backend ya proporciona los endpoints necesarios para `roles` y `templates`; la mayoría del trabajo frontend es integrar y pulir UX/validaciones. Puedo encargarme de cualquiera de los puntos siguientes (arrancar servidores, crear `ProtectedRoute`, mejorar Roles UI, añadir tests). Indica cuál prefieres que haga a continuación.
+
+Notas adicionales (2025-12-19):
+- Se añadió `STYLES.md` con un resumen y referencias de estilos/tema en el repositorio raíz. Ver [STYLES.md](STYLES.md).
+- El plan (`PLAN.md`) fue actualizado para reflejar implementaciones actuales (autenticación, templates, contador por org, socket.io, frontend AuthContext y templates básicos).
+- Pendientes clave: ProtectedRoute (guardas de rutas), CRUD completo de Roles desde frontend, integración paginada de Users y tests e2e.

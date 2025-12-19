@@ -31,6 +31,17 @@ async function capacitorRequest(method: string, url: string, data?: any, config?
     const headers = Object.assign({}, (config && config.headers) || {});
     if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
 
+    // Ensure JSON content-type for object payloads when using native HTTP
+    try {
+      const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+      if (!headers['Content-Type'] && !isFormData && data !== undefined) {
+        headers['Content-Type'] = 'application/json';
+      }
+    } catch (e) {
+      // ignore (FormData may not be defined in some JS runtimes)
+      if (!headers['Content-Type'] && data !== undefined) headers['Content-Type'] = 'application/json';
+    }
+
     const options: any = {
       method: method.toUpperCase(),
       url: fullUrl,

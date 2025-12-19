@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonContent, IonCard, IonCardContent, IonGrid, IonRow, IonCol, IonList, IonItem, IonLabel } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonContent, IonCard, IonCardContent, IonGrid, IonRow, IonCol, IonList, IonItem, IonLabel, IonTitle } from '@ionic/react';
 import { useAuth } from '../context/AuthContext';
 import { getWorkOrders } from '../api/workOrders';
 import OrderCard from '../components/OrderCard';
@@ -45,15 +45,21 @@ const MyAssignations: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader className='ion-no-border'>
-        <IonToolbar style={{padding: 10}}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-            <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800 }}>Mis Órdenes</h1>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, #81D4FA, #0288D1)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{user?.firstName ? user.firstName.charAt(0) : 'U'}</div>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>
+            Mis Órdenes
+          </IonTitle>
+          <div slot='end' style={{ marginRight: 20, width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, #81D4FA, #0288D1)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+            {user?.firstName ? user.firstName.charAt(0) : 'U'}
           </div>
+          {/* <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+            <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800 }}></h1>
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, #81D4FA, #0288D1)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{user?.firstName ? user.firstName.charAt(0) : 'U'}</div>
+          </div> */}
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent>
         <div>
             {loading ? (
               <div style={{ padding: 16 }}>Cargando...</div>

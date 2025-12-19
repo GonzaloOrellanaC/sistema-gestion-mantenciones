@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle } from '@ionic/react';
 import { Input } from '../components/Widgets/Input.widget';
 import * as rolesApi from '../api/roles';
 import type { Role, PaginationResponse } from '../api/types';
@@ -65,18 +65,14 @@ const RolesList: React.FC = () => {
 
   return (
     <IonPage>
+      <IonHeader className="ion-no-border">
+        <IonToolbar style={{padding: '0px 10px'}}>
+          <IonTitle>Gestión de Roles</IonTitle>
+          <div className="toolbar-sub">Crea y administra roles y permisos</div>
+          <IonButton slot='end' color="primary" onClick={() => {history.push(`/roles/new`)}}>Nuevo Rol</IonButton>
+        </IonToolbar>
+      </IonHeader>
       <IonContent className="users-page ion-padding">
-        <IonHeader className="users-header-toolbar ion-no-border">
-          <IonToolbar>
-            <div className="users-toolbar-left">
-              <h2 className="toolbar-title">Gestión de Roles</h2>
-              <div className="toolbar-sub">Crea y administra roles y permisos</div>
-            </div>
-            <div slot="end">
-              <IonButton color="primary" onClick={() => {history.push(`/roles/new`)}}>Nuevo Rol</IonButton>
-            </div>
-          </IonToolbar>
-        </IonHeader>
 
         <div className="table-container users-table">
           <table>

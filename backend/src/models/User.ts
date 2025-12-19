@@ -7,7 +7,9 @@ export interface IUser {
   email: string;
   passwordHash: string;
   roleId?: Schema.Types.ObjectId;
+  branchId?: Schema.Types.ObjectId;
   isAdmin?: boolean;
+  isSuperAdmin?: boolean;
   createdAt?: Date;
 }
 
@@ -18,6 +20,7 @@ const UserSchema = new Schema<IUser>({
   email: { type: String, required: true },
   passwordHash: { type: String, required: true },
   roleId: { type: Schema.Types.ObjectId, ref: 'Role' },
+  branchId: { type: Schema.Types.ObjectId, ref: 'Branch' },
   isAdmin: { type: Boolean, default: false },
   isSuperAdmin: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }

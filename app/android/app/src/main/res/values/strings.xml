@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">SGM</string>
     <string name="title_activity_main">SGM</string>
-    <string name="package_name">io.ionic.starter</string>
-    <string name="custom_url_scheme">io.ionic.starter</string>
+    <string name="package_name">app.sgm.om</string>
+    <string name="custom_url_scheme">app.sgm.om</string>
 </resources>

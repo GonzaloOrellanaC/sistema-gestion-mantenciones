@@ -18,6 +18,7 @@ export async function list(req: Request, res: Response) {
     const page = req.query.page ? parseInt(req.query.page as string, 10) : undefined;
     const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
     const q = req.query.q ? String(req.query.q) : undefined;
+    const branchId = req.query.branchId ? String(req.query.branchId) : undefined;
     const users = await usersService.listUsers(orgId, { page, limit, q });
     return res.json(users);
   } catch (err: any) {

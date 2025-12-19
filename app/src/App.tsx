@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonIcon, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -43,8 +43,10 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { listOutline, personOutline } from 'ionicons/icons';
+import { listOutline, personOutline, notificationsOutline } from 'ionicons/icons';
+import NotificationToast from './components/NotificationToast';
 import MyAssignations from './pages/MyAssignations';
+import Notifications from './pages/Notifications';
 import { WorkOrderProvider } from './context/WorkOrderContext';
 
 setupIonicReact();
@@ -60,47 +62,53 @@ const App: React.FC = () => (
     <IonReactRouter>
       <AuthProvider>
         <WorkOrderProvider>
+          <NotificationToast />
           <IonTabs>
             <IonRouterOutlet>
-              <Route exact path="/" render={() => <HomeRedirect />} />
-              <Route exact path="/login">
-                <Login />
-              </Route>
-              <Route exact path="/my-assignations">
-                <ProtectedRoute>
-                  <MyAssignations />
-                </ProtectedRoute>
-              </Route>
-              <Route exact path="/work-orders">
-                <ProtectedRoute>
-                  <WorkOrdersList />
-                </ProtectedRoute>
-              </Route>
-              <Route exact path="/work-orders/:id" render={(props) => (
-                <ProtectedRoute>
-                  <WorkOrderDetail {...props} />
-                </ProtectedRoute>
-              )} />
-              <Route exact path="/work-orders/:id/edit" >
-                <ProtectedRoute>
-                  <WorkOrderEdit />
-                </ProtectedRoute>
-              </Route>
-              <Route exact path="/templates">
-                <ProtectedRoute>
-                  <TemplatesList />
-                </ProtectedRoute>
-              </Route>
-              <Route exact path="/profile">
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              </Route>
-              <Route exact path="/editar-perfil">
-                <ProtectedRoute>
-                  <EditarPerfil />
-                </ProtectedRoute>
-              </Route>
+            <Route exact path="/" render={() => <HomeRedirect />} />
+            <Route exact path="/login">
+              <Login />
+            </Route>
+            <Route exact path="/my-assignations">
+              <ProtectedRoute>
+                <MyAssignations />
+              </ProtectedRoute>
+            </Route>
+            <Route exact path="/work-orders">
+              <ProtectedRoute>
+                <WorkOrdersList />
+              </ProtectedRoute>
+            </Route>
+            <Route exact path="/work-orders/:id" render={(props) => (
+              <ProtectedRoute>
+                <WorkOrderDetail {...props} />
+              </ProtectedRoute>
+            )} />
+            <Route exact path="/work-orders/:id/edit" >
+              <ProtectedRoute>
+                <WorkOrderEdit />
+              </ProtectedRoute>
+            </Route>
+            <Route exact path="/templates">
+              <ProtectedRoute>
+                <TemplatesList />
+              </ProtectedRoute>
+            </Route>
+            <Route exact path="/profile">
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            </Route>
+            <Route exact path="/notifications">
+              <ProtectedRoute>
+                <Notifications />
+              </ProtectedRoute>
+            </Route>
+            <Route exact path="/editar-perfil">
+              <ProtectedRoute>
+                <EditarPerfil />
+              </ProtectedRoute>
+            </Route>
             </IonRouterOutlet>
             <BottomTabs />
           </IonTabs>
@@ -113,13 +121,19 @@ const App: React.FC = () => (
 export default App;
 
 const BottomTabs = () => {
-  const { token } = useAuth();
+  const { token, unreadCount } = useAuth() as any;
   if (!token) return null;
+
   return (
     <IonTabBar slot="bottom">
       <IonTabButton tab='my-assignations' href='/my-assignations'>
         <IonIcon icon={listOutline} />
         <span style={{ fontSize: 12 }}>Órdenes</span>
+      </IonTabButton>
+      <IonTabButton tab='notifications' href='/notifications'>
+        <IonIcon icon={notificationsOutline} />
+        <span style={{ fontSize: 12 }}>Notifs</span>
+        {unreadCount > 0 && <div style={{ position: 'absolute', right: 8, top: 6 }}><IonBadge color='danger'>{unreadCount}</IonBadge></div>}
       </IonTabButton>
       <IonTabButton tab='profile' href='/profile'>
         <IonIcon icon={personOutline} />
@@ -128,3 +142,12 @@ const BottomTabs = () => {
     </IonTabBar>
   )
 }
+
+const AppContainer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+
+  return (
+    <div className='safe-area'>
+      {children}
+    </div>
+  );
+};

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle } from '@ionic/react';
 import * as usersApi from '../api/users';
 import type { User } from '../api/types';
 import './UsersList.css';
@@ -54,20 +54,16 @@ const UsersList: React.FC = () => {
 
   return (
     <IonPage>
-      <IonContent className="users-page ion-padding">
-        <IonHeader className="users-header-toolbar ion-no-border">
-          <IonToolbar>
-            <div className="users-toolbar-left">
-              <h2 className="toolbar-title">Gestión de Usuarios</h2>
-              <div className="toolbar-sub">Administra tu equipo y sus roles</div>
-            </div>
-            <div slot="end">
-              <IonButton color="primary" onClick={() => { history.push('/users/new'); }}>
+        <IonHeader className="ion-no-border">
+          <IonToolbar style={{padding: '0px 10px'}}>
+            <IonTitle>Gestión de Usuarios</IonTitle>
+            <div className="toolbar-sub">Administra tu equipo y sus roles</div>
+            <IonButton slot='end' color="primary" onClick={() => { history.push('/users/new'); }}>
                 Nuevo Usuario
-              </IonButton>
-            </div>
+            </IonButton>
           </IonToolbar>
         </IonHeader>
+      <IonContent className="users-page ion-padding">
 
         {/* <IonGrid className="users-controls">
           <IonRow>
@@ -87,6 +83,7 @@ const UsersList: React.FC = () => {
                 <th>Usuario</th>
                 <th>Email</th>
                 <th>Rol</th>
+                <th>Sucursal</th>
                 <th>Creado</th>
                 <th>Acciones</th>
               </tr>
@@ -102,6 +99,7 @@ const UsersList: React.FC = () => {
                   </td>
                   <td>{u.email}</td>
                   <td>{/* TODO: resolve role name client-side via roles API */}</td>
+                  <td>{(u as any).branchId ? ((u as any).branchId.name || (u as any).branchId) : '-'}</td>
                   <td>{u.createdAt ? new Date(u.createdAt).toLocaleString() : ''}</td>
                       <td>
                         <i className="fas fa-edit user-edit" aria-hidden style={{ cursor: 'pointer' }} onClick={() => history.push(`/users/${u._id}/edit`)} />

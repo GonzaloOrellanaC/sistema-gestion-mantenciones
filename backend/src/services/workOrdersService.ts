@@ -2,6 +2,7 @@ import WorkOrder, { WorkOrderState } from '../models/WorkOrder';
 import { Types } from 'mongoose';
 import countersService from './countersService';
 import User from '../models/User';
+import Branch from '../models/Branch';
 
 interface CreateWorkOrderPayload {
   templateId?: string;
@@ -44,9 +45,19 @@ async function createWorkOrder(orgId: string, payload: CreateWorkOrderPayload, c
     }
   }
 
+  // optional branch assignment
+  let branchObjId: Types.ObjectId | undefined = undefined;
+  if ((payload as any).branchId) {
+    if (!Types.ObjectId.isValid((payload as any).branchId)) throw { status: 400, message: 'Invalid branchId' };
+    const br = await Branch.findOne({ _id: (payload as any).branchId, orgId }).lean();
+    if (!br) throw { status: 400, message: 'Branch not found' };
+    branchObjId = new Types.ObjectId((payload as any).branchId);
+  }
+
   const doc = new WorkOrder({
     orgId,
     orgSeq,
+    branchId: branchObjId,
     templateId: payload.templateId ? new Types.ObjectId(payload.templateId) : undefined,
     data: payload.data || {},
     state: initialState,
@@ -70,6 +81,7 @@ async function list(orgId: string, filter: any = {}) {
   const q: any = { orgId, deleted: { $ne: true } };
   if (filter.state) q.state = filter.state;
   if (filter.assigneeId) q.assigneeId = filter.assigneeId;
+  if (filter.branchId) q.branchId = filter.branchId;
   console.log({q})
   const docs = await WorkOrder.find(q).sort({ 'dates.created': -1 }).skip((page - 1) * limit).limit(limit).lean();
   return docs;

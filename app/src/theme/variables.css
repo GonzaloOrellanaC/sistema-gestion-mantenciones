@@ -1,2 +1,17 @@
 /* For information on how to create your own theme, please refer to:
 http://ionicframework.com/docs/theming/ */
+
+:root {
+	/* Provide fallbacks to 0 if env() not available */
+	--safe-top: env(safe-area-inset-top);
+	--safe-bottom: env(safe-area-inset-bottom);
+	--safe-left: env(safe-area-inset-left);
+	--safe-right: env(safe-area-inset-right);
+}
+
+.safe-area {
+	padding-top: var(--safe-top) !important;
+	padding-bottom: var(--safe-bottom) !important;
+	padding-left: var(--safe-left) !important;
+	padding-right: var(--safe-right) !important;
+}

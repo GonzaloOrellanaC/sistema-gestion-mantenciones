@@ -55,9 +55,14 @@ import TemplatePreview from './pages/TemplatePreview';
 import UsersList from './pages/UsersList';
 import UsersDetail from './pages/UsersDetail';
 import UsersCreate from './pages/UsersCreate';
+import BranchesList from './pages/BranchesList';
+import BranchCreate from './pages/BranchCreate';
+import Organization from './pages/Organization';
 import WorkOrdersList from './pages/WorkOrdersList';
 import WorkOrdersCreate from './pages/WorkOrdersCreate';
 import RoleCreate from './pages/RoleCreate';
+import AssetsList from './pages/AssetsList';
+import AssetCreate from './pages/AssetCreate';
 
 setupIonicReact();
 
@@ -95,9 +100,16 @@ const App: React.FC = () => (
     <Route exact path="/users" component={UsersList} />
     <Route exact path="/users/new" component={UsersCreate} />
     <Route exact path="/users/:id/edit" component={UsersCreate} />
+    <Route exact path="/branches" component={BranchesList} />
+    <Route exact path="/branches/new" component={BranchCreate} />
+    <Route exact path="/branches/:id/edit" component={BranchCreate} />
+    <Route exact path="/organization" component={Organization} />
     <Route exact path="/work-orders" component={WorkOrdersList}/>
     <Route exact path="/work-orders/create" component={WorkOrdersCreate}/>
     <Route exact path="/work-orders/edit/:id" component={WorkOrdersDetail}/>
+    <Route exact path="/assets" component={AssetsList} />
+    <Route exact path="/assets/new" component={AssetCreate} />
+    <Route exact path="/assets/:id/edit" component={AssetCreate} />
     <Route exact path="/work-orders/assign/:id" component={WorkOrderAssign}/>
     <Route exact path="/" component={Landing}/>
   </IonRouterOutlet>
