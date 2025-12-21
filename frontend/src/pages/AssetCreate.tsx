@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonButton, IonToast } from '@ionic/react';
 import assetsApi from '../api/assets';
+import FileUploader from '../components/Widgets/FileUploader.widget';
+import { useAuth } from '../context/AuthContext';
 import brandsApi from '../api/brands';
 import deviceModelsApi from '../api/deviceModels';
 import assetTypesApi from '../api/assetTypes';
@@ -14,6 +16,8 @@ const AssetCreate: React.FC = () => {
   const [modelId, setModelId] = useState('');
   const [typeId, setTypeId] = useState('');
   const [notes, setNotes] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [doc, setDoc] = useState<File | null>(null);
   const [brands, setBrands] = useState<any[]>([]);
   const [models, setModels] = useState<any[]>([]);
   const [types, setTypes] = useState<any[]>([]);
@@ -73,12 +77,30 @@ const AssetCreate: React.FC = () => {
     } catch (e:any) { setToast({ show: true, message: e?.response?.data?.message || 'Error creando modelo' }); }
   };
 
+  const { user } = useAuth();
+
   const handleSubmit = async () => {
     if (!name) { setToast({ show: true, message: 'Ingrese nombre del activo' }); return; }
     setLoading(true);
     try {
-      const payload: any = { name, serial, brandId: brandId || undefined, modelId: modelId || undefined, typeId: typeId || undefined, branchId: branchId || undefined, notes };
-      const res = await assetsApi.createAsset(payload);
+      let res: any;
+      if (photo || doc) {
+        const fd = new FormData();
+        fd.append('name', name);
+        fd.append('serial', serial);
+        if (brandId) fd.append('brandId', brandId);
+        if (modelId) fd.append('modelId', modelId);
+        if (typeId) fd.append('typeId', typeId);
+        if (branchId) fd.append('branchId', branchId);
+        fd.append('notes', notes || '');
+        if (user?.orgId) fd.append('orgId', user.orgId);
+        if (photo) fd.append('photo', photo);
+        if (doc) fd.append('doc', doc);
+        res = await assetsApi.createAsset(fd);
+      } else {
+        const payload: any = { name, serial, brandId: brandId || undefined, modelId: modelId || undefined, typeId: typeId || undefined, branchId: branchId || undefined, notes };
+        res = await assetsApi.createAsset(payload);
+      }
       if (res && res._id) {
         history.push('/assets');
         return;
@@ -156,6 +178,16 @@ const AssetCreate: React.FC = () => {
             <IonLabel position="stacked">Notas</IonLabel>
             <IonInput value={notes} onIonChange={e => setNotes(e.detail.value || '')} />
           </IonItem>
+
+          <div style={{ marginTop: 12 }}>
+            <h4>Foto del activo</h4>
+            <FileUploader accept="image" label="Foto (JPG/PNG)" onSelected={(f) => setPhoto(f)} onRemovePending={() => setPhoto(null)} />
+          </div>
+
+          <div style={{ marginTop: 12 }}>
+            <h4>Documento del activo</h4>
+            <FileUploader accept="doc" label="Documento (PDF/DOC/DOCX)" onSelected={(f) => setDoc(f)} onRemovePending={() => setDoc(null)} />
+          </div>
 
           <div style={{ marginTop: 12 }}>
             <IonButton expand="block" onClick={handleSubmit} disabled={loading}>{loading ? 'Creando...' : 'Crear Activo'}</IonButton>

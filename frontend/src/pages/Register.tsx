@@ -58,6 +58,9 @@ const Register: React.FC = () => {
               <div className="auth-card">
                 <div className="auth-logo"><img src="/assets/sgm-logo.svg" alt="SGM" style={{ height: 84 }} /></div>
                 <h3>Crea tu cuenta</h3>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10 }}>
+                  Al crear una cuenta obtendrás <strong>30 días de prueba gratuita</strong>. Después de ese periodo se requerirá suscripción para continuar usando el servicio.
+                </div>
                 <form onSubmit={submit} onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();

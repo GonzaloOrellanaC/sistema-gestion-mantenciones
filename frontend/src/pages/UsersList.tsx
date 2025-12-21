@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle } from '@ionic/react';
 import * as usersApi from '../api/users';
+import sortByName from '../utils/sort';
 import type { User } from '../api/types';
 import './UsersList.css';
 
@@ -20,7 +21,7 @@ const UsersList: React.FC = () => {
     try {
       const res = await usersApi.listUsers({ page: p, limit, q: q || undefined });
       console.log('Loaded users', res);
-      setItems(res.items || []);
+      setItems(sortByName(res.items || []));
       setTotal(res.total || 0);
       setPage(res.page || p);
     } catch (err: unknown) {

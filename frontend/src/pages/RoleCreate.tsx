@@ -6,24 +6,54 @@ import type { Role } from '../api/types';
 import { useHistory, useParams } from 'react-router-dom';
 import './UsersList.css';
 
-const AVAILABLE_PERMISSIONS = [
-  { key: 'editarUsuarios', label: 'Editar Usuarios' },
-  { key: 'verPautas', label: 'Ver Pautas' },
-  { key: 'crearPautas', label: 'Crear Pautas' },
-  { key: 'editarPautas', label: 'Editar Pautas' },
-  { key: 'asignarOT', label: 'Asignar OT' },
-  { key: 'supervisar', label: 'Supervisar' },
-  { key: 'aprobarRechazar', label: 'Aprobar/Rechazar' },
-  { key: 'crearRoles', label: 'Crear Roles' },
-  { key: 'editarRoles', label: 'Editar Roles' },
-  { key: 'agregarGerencias', label: 'Agregar Gerencias' },
-  { key: 'editarGerencias', label: 'Editar Gerencias' },
-  { key: 'crearSucursales', label: 'Crear Sucursales' },
-  { key: 'editarSucursales', label: 'Editar Sucursales' },
-  { key: 'crearInsumos', label: 'Crear Insumos' },
-  { key: 'editarInsumos', label: 'Editar Insumos' },
-  { key: 'crearElementos', label: 'Crear Elementos' },
-  { key: 'editarElementos', label: 'Editar Elementos' },
+const GROUPED_PERMISSIONS = [
+  {
+    title: 'Usuarios',
+    permissions: [
+      { key: 'editarUsuarios', label: 'Editar Usuarios' },
+      { key: 'crearUsuarios', label: 'Crear Usuarios' },
+    ],
+  },
+  {
+    title: 'Pautas',
+    permissions: [
+      { key: 'verPautas', label: 'Ver Pautas' },
+      { key: 'crearPautas', label: 'Crear Pautas' },
+      { key: 'editarPautas', label: 'Editar Pautas' },
+    ],
+  },
+  {
+    title: 'Operaciones',
+    permissions: [
+      { key: 'asignarOT', label: 'Asignar OT' },
+      { key: 'ejecutarOT', label: 'Ejecutar OT' },
+      { key: 'supervisar', label: 'Supervisar' },
+      { key: 'aprobarRechazar', label: 'Aprobar/Rechazar' },
+    ],
+  },
+  {
+    title: 'Roles & Gerencias',
+    permissions: [
+      { key: 'crearRoles', label: 'Crear Roles' },
+      { key: 'editarRoles', label: 'Editar Roles' },
+      
+    ],
+  },
+  {
+    title: 'Sucursales',
+    permissions: [
+      { key: 'crearSucursales', label: 'Crear Sucursales' },
+      { key: 'editarSucursales', label: 'Editar Sucursales' },
+    ],
+  },
+  {
+    title: 'Insumos & Elementos',
+    permissions: [
+      { key: 'crearInsumos', label: 'Crear Insumos' },
+      { key: 'editarInsumos', label: 'Editar Insumos' },
+      
+    ],
+  },
 ];
 
 const RoleCreate: React.FC = () => {
@@ -54,6 +84,17 @@ const RoleCreate: React.FC = () => {
 
   const toggle = (key: string) => {
     setPermissions(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const toggleGroup = (groupPermissions: { key: string; label: string }[]) => {
+    setPermissions(prev => {
+      const allSelected = groupPermissions.every(p => !!prev[p.key]);
+      const next = { ...prev } as Record<string, boolean>;
+      groupPermissions.forEach(p => {
+        next[p.key] = !allSelected;
+      });
+      return next;
+    });
   };
 
   const onSubmit = async (e?: React.FormEvent) => {
@@ -102,14 +143,30 @@ const RoleCreate: React.FC = () => {
 
             <div style={{ marginBottom: 12 }}>
               <div style={{ marginBottom: 8, fontWeight: 600 }}>Permisos</div>
-              <IonList>
-                {AVAILABLE_PERMISSIONS.map(p => (
-                  <IonItem key={p.key} lines="none">
-                    <IonLabel>{p.label}</IonLabel>
-                    <IonCheckbox slot="end" checked={!!permissions[p.key]} onIonChange={() => toggle(p.key)} />
-                  </IonItem>
-                ))}
-              </IonList>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+                {GROUPED_PERMISSIONS.map(group => {
+                  const allSelected = group.permissions.every(p => !!permissions[p.key]);
+                  return (
+                    <div key={group.title} style={{ padding: 8, border: '1px solid #e6e6e6', borderRadius: 6, background: 'var(--ion-background-color, #fff)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                        <div style={{ fontWeight: 600 }}>{group.title}</div>
+                        <IonCheckbox
+                          checked={allSelected}
+                          onIonChange={() => toggleGroup(group.permissions)}
+                        />
+                      </div>
+                      <IonList>
+                        {group.permissions.map(p => (
+                          <IonItem key={p.key} lines="none">
+                            <IonLabel>{p.label}</IonLabel>
+                            <IonCheckbox slot="end" checked={!!permissions[p.key]} onIonChange={() => toggle(p.key)} />
+                          </IonItem>
+                        ))}
+                      </IonList>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: 8 }}>

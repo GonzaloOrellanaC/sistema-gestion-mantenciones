@@ -63,6 +63,8 @@ import WorkOrdersCreate from './pages/WorkOrdersCreate';
 import RoleCreate from './pages/RoleCreate';
 import AssetsList from './pages/AssetsList';
 import AssetCreate from './pages/AssetCreate';
+import Supplies from './pages/Supplies';
+import SupplyCreate from './pages/SupplyCreate';
 
 setupIonicReact();
 
@@ -110,6 +112,8 @@ const App: React.FC = () => (
     <Route exact path="/assets" component={AssetsList} />
     <Route exact path="/assets/new" component={AssetCreate} />
     <Route exact path="/assets/:id/edit" component={AssetCreate} />
+    <Route exact path="/supplies" component={Supplies} />
+    <Route exact path="/supplies/new" component={SupplyCreate} />
     <Route exact path="/work-orders/assign/:id" component={WorkOrderAssign}/>
     <Route exact path="/" component={Landing}/>
   </IonRouterOutlet>

@@ -7,6 +7,15 @@ http://ionicframework.com/docs/theming/ */
 	--safe-bottom: env(safe-area-inset-bottom);
 	--safe-left: env(safe-area-inset-left);
 	--safe-right: env(safe-area-inset-right);
+
+	/* Ionic color mapping from SGM logo */
+	--ion-color-primary: #89C2D9;
+	--ion-color-primary-contrast: #FFFFFF;
+	--ion-color-secondary: #A7E3EB;
+	--ion-color-tertiary: #4A5568;
+	--ion-background-color: #FFFFFF;
+	--ion-surface-color: #F8FAFC;
+	--ion-text-color: #4A5568;
 }
 
 .safe-area {

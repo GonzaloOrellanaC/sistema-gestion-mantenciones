@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { IonSplitPane, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonLabel, IonRouterOutlet, useIonRouter } from '@ionic/react';
+import { IonSplitPane, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonLabel, IonRouterOutlet, useIonRouter, IonModal, IonButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/react';
 import { useAuth } from '../context/AuthContext';
-import { people, fileTrayFull, calendar, logOut, documentLock, documentLockOutline, barChartOutline, barChart, peopleOutline, fileTrayFullOutline, calendarOutline, desktopOutline, desktop, storefrontOutline, storefront, businessOutline, business } from 'ionicons/icons';
+import { people, fileTrayFull, calendar, logOut, documentLock, documentLockOutline, barChartOutline, barChart, peopleOutline, fileTrayFullOutline, calendarOutline, desktopOutline, desktop, storefrontOutline, storefront, businessOutline, business, constructOutline, construct } from 'ionicons/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -15,12 +15,14 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { label: 'Roles', path: '/roles', iconOutline: documentLockOutline, iconFilled: documentLock, active: false },
     { label: 'Órdenes', path: '/work-orders', iconOutline: calendarOutline, iconFilled: calendar, active: false },
     { label: 'Pautas', path: '/templates', iconOutline: fileTrayFullOutline, iconFilled: fileTrayFull, active: false },
+    { label: 'Insumos', path: '/supplies', iconOutline: constructOutline, iconFilled: construct, active: false },
     { label: 'Activos', path: '/assets', iconOutline: desktopOutline, iconFilled: desktop, active: false },
     { label: 'Organización', path: '/organization', iconOutline: businessOutline, iconFilled: business, active: false },
     { label: 'Sucursales', path: '/branches', iconOutline: storefrontOutline, iconFilled: storefront, active: false },
   ] as Array<{ label: string; path: string; iconOutline: any; iconFilled: any; active: boolean }>;
 
   const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [showTrialModal, setShowTrialModal] = useState(false);
 
   useEffect(() => {
     if (location.pathname) {
@@ -42,6 +44,13 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // If not authenticated, render children directly (no menu)
   if (!token) return <>{children}</>;
 
+  // compute trial info
+  const org = (user as any)?.org;
+  const trialEnds = org?.trialEndsAt ? new Date(org.trialEndsAt) : null;
+  const isPaid = !!org?.isPaid;
+  const now = new Date();
+  const daysLeft = trialEnds ? Math.max(0, Math.ceil((trialEnds.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : null;
+
   return (
     <IonSplitPane when="(min-width: 768px)" contentId="main">
       <IonMenu contentId="main" type="reveal" style={{ width: 260 }}>
@@ -56,6 +65,16 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </div>
               </div>
             </div>
+
+            {/* Trial banner for org admins */}
+            {user?.isAdmin && !isPaid && trialEnds && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ background: '#FFF8E1', border: '1px solid #FFECB3', padding: 10, borderRadius: 8, cursor: 'pointer' }} onClick={() => setShowTrialModal(true)}>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>Periodo de prueba activo</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{daysLeft} días restantes — Pulse para ver detalles</div>
+                </div>
+              </div>
+            )}
 
             <IonList>
               {menuItems.map((it) => {
@@ -93,6 +112,32 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
         </IonContent>
       </IonMenu>
+
+      <IonModal isOpen={showTrialModal} onDidDismiss={() => setShowTrialModal(false)}>
+        <IonCard>
+          <IonCardHeader>
+            <IonCardTitle>Periodo de prueba</IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent>
+            <div style={{ marginBottom: 8 }}>
+              Estado: <strong>{isPaid ? 'Pagado' : 'En prueba'}</strong>
+            </div>
+            {!isPaid && trialEnds && (
+              <div style={{ marginBottom: 8 }}>
+                Fecha de renovación: <strong>{trialEnds.toLocaleDateString()}</strong>
+              </div>
+            )}
+            {!isPaid && daysLeft !== null && (
+              <div style={{ marginBottom: 12 }}>
+                Días restantes de prueba: <strong>{daysLeft}</strong>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <IonButton onClick={() => setShowTrialModal(false)}>Cerrar</IonButton>
+            </div>
+          </IonCardContent>
+        </IonCard>
+      </IonModal>
 
       <IonRouterOutlet id="main" style={{ minHeight: '100vh' }}>
         {children}

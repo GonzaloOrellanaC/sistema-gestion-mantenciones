@@ -18,6 +18,9 @@ const Landing: React.FC = () => {
                         <button className="btn btn-primary" onClick={() => history.push('/auth/register')}>Comenzar (Registro)</button>
                         <button className="btn btn-secondary" onClick={() => history.push('/auth/login')}>Ya tengo cuenta</button>
                     </div>
+                    <div style={{ marginTop: 8, fontSize: 14, color: 'var(--text-secondary)' }}>
+                        Incluye <strong>30 días de prueba gratuita</strong> al crear tu organización.
+                    </div>
                     </div>
                     <div className="hero-visual">
                     <div className="mock-phone">

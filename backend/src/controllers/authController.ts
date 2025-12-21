@@ -88,7 +88,7 @@ export async function me(req: Request, res: Response) {
     try {
       if (user.orgId) {
         const org = await Organization.findById(user.orgId).lean();
-        if (org) orgData = { id: org._id, name: org.name };
+        if (org) orgData = { id: org._id, name: org.name, trialStartsAt: (org as any).trialStartsAt, trialEndsAt: (org as any).trialEndsAt, isPaid: (org as any).isPaid };
       }
     } catch (e) {
       // ignore org lookup errors

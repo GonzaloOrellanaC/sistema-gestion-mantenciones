@@ -4,6 +4,10 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\" \"npm run dev --prefix app\"",
+    "dev-frontend": "npm run dev --prefix frontend",
+    "dev-backend": "npm run dev --prefix backend",
+    "dev-app": "npm run dev --prefix app",
+    "dev-backend-frontend": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
     "start": "concurrently \"npm run start --prefix backend\" \"npm run preview --prefix frontend\""
   },
   "devDependencies": {
@@ -15,5 +19,9 @@
   ],
   "engines": {
     "node": ">=16"
+  },
+  "dependencies": {
+    "@capacitor/camera": "^8.0.0",
+    "@capacitor/filesystem": "^8.0.0"
   }
 }

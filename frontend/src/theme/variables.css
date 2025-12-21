@@ -2,10 +2,20 @@
 http://ionicframework.com/docs/theming/ */
 
 :root {
+	/* Palette mapped from SGM logo */
+	--ion-color-primary: #89C2D9;
+	--ion-color-primary-contrast: #FFFFFF;
+	--ion-color-secondary: #A7E3EB;
+	--ion-color-primary-variant: #E8F0FE;
+	--ion-color-tertiary: #4A5568;
+	--ion-background-color: #FFFFFF;
+	--ion-surface-color: #F8FAFC;
+	--ion-text-color: #4A5568;
+
 	/* Widget-specific CSS variables with sensible fallbacks */
-	--widget-bg-color: var(--ion-card-background, #ffffff);
-	--widget-border-color: rgba(0, 0, 0, 0.08);
-	--widget-header-color: var(--ion-color-primary, #0288D1);
-	--widget-content-color: #263238;
-	--widget-link-color: var(--ion-color-primary, #0288D1);
+	--widget-bg-color: var(--ion-card-background, var(--ion-background-color));
+	--widget-border-color: rgba(74,85,104,0.08);
+	--widget-header-color: var(--ion-color-primary);
+	--widget-content-color: var(--ion-text-color);
+	--widget-link-color: var(--ion-color-primary);
 }

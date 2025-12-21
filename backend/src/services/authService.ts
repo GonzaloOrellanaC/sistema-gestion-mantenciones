@@ -19,7 +19,9 @@ export async function registerUser(payload: any) {
 
   let org = await Organization.findOne({ name: companyName });
   if (!org) {
-    org = await Organization.create({ name: companyName });
+    const now = new Date();
+    const trialEnds = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    org = await Organization.create({ name: companyName, trialStartsAt: now, trialEndsAt: trialEnds, isPaid: false });
   }
 
   let adminRole = await Role.findOne({ orgId: org._id, name: 'Admin' });
@@ -32,7 +34,7 @@ export async function registerUser(payload: any) {
   const user = await User.create({ orgId: org._id, firstName, lastName, email, passwordHash, roleId: adminRole._id, isAdmin: true });
   const token = jwt.sign({ userId: user._id, orgId: org._id }, JWT_SECRET, { expiresIn: '7d' });
 
-  return { token, user: { id: user._id, email: user.email, firstName, lastName }, org: { id: org._id, name: org.name } };
+  return { token, user: { id: user._id, email: user.email, firstName, lastName }, org: { id: org._id, name: org.name, trialStartsAt: (org as any).trialStartsAt, trialEndsAt: (org as any).trialEndsAt, isPaid: (org as any).isPaid } };
 }
 
 export async function loginUser(payload: any) {
@@ -51,8 +53,16 @@ export async function loginUser(payload: any) {
   const match = await bcrypt.compare(password, user.passwordHash);
   if (!match) throw { status: 401, message: 'Invalid credentials' };
 
+  // If organization is not paid and trial has ended, prevent login
+  if (!(org as any).isPaid) {
+    const trialEnds: Date | undefined = (org as any).trialEndsAt;
+    if (trialEnds && trialEnds.getTime() < Date.now()) {
+      throw { status: 402, message: 'Trial expired. Please complete payment to continue.' };
+    }
+  }
+
   const token = jwt.sign({ userId: user._id, orgId: org._id }, JWT_SECRET, { expiresIn: '7d' });
-  return { token, user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName }, org: { id: org._id, name: org.name } } as any;
+  return { token, user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName }, org: { id: org._id, name: org.name, trialStartsAt: (org as any).trialStartsAt, trialEndsAt: (org as any).trialEndsAt, isPaid: (org as any).isPaid } } as any;
 }
 
 export async function forgotPassword(payload: any) {

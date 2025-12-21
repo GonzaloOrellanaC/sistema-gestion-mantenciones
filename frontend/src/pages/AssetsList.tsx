@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle } from '@ionic/react';
 import assetsApi from '../api/assets';
 import type { } from '../api/types';
+import { sortByName } from '../utils/sort';
 
 const AssetsList: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -14,7 +15,7 @@ const AssetsList: React.FC = () => {
     setLoading(true);
     try {
       const res = await assetsApi.listAssets({});
-      setItems(res.items || []);
+      setItems(sortByName(res.items || []));
     } catch (err: any) {
       console.error(err);
       setToast({ show: true, message: 'Error cargando activos' });

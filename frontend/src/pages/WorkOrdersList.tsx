@@ -3,6 +3,7 @@ import { IonPage, IonContent, IonButton, IonToast, IonIcon, IonPopover, IonList,
 import workOrdersApi from '../api/workOrders';
 import * as usersApi from '../api/users';
 import type { WorkOrder } from '../api/types';
+import sortByName from '../utils/sort';
 import { useHistory, useLocation } from 'react-router-dom';
 import { personOutline, eyeOutline } from 'ionicons/icons';
 import type { User } from '../api/types';
@@ -54,7 +55,7 @@ const WorkOrdersList: React.FC = () => {
         const res = await workOrdersApi.listWorkOrders({ page: 1, limit: 100 });
         console.log('Loaded work orders', res);
         if (!mounted) return;
-        setOrders(res.items || []);
+        setOrders(sortByName(res.items || []));
 
         // if url contains ?new=<id> highlight it
         try {
@@ -80,7 +81,7 @@ const WorkOrdersList: React.FC = () => {
         // also load users list for assignment popover
         try {
           const ul = await usersApi.listUsers({ limit: 500 });
-          if (mounted) setUsersList(ul.items || []);
+          if (mounted) setUsersList(sortByName(ul.items || []));
         } catch (e) {
           // ignore users list error
         }
@@ -155,11 +156,11 @@ const WorkOrdersList: React.FC = () => {
                   <table style={{ width: '100%', textAlign: 'center', borderCollapse: 'separate', borderSpacing: '0 10px' }}>
                     <thead>
                       <tr>
-                        <th style={{ background: '#1976d2', color: '#fff', padding: '10px 8px', borderRadius: 4 }}>#</th>
-                        <th style={{ background: '#1976d2', color: '#fff', padding: '10px 8px' }}>Fecha</th>
-                        <th style={{ background: '#1976d2', color: '#fff', padding: '10px 8px' }}>Estado</th>
-                        <th style={{ background: '#1976d2', color: '#fff', padding: '10px 8px' }}>Asignado</th>
-                        <th style={{ background: '#1976d2', color: '#fff', padding: '10px 8px', borderRadius: 4 }}>Acciones</th>
+                        <th style={{ background: 'var(--ion-color-primary)', color: 'var(--ion-color-primary-contrast)', padding: '10px 8px', borderRadius: 4 }}>#</th>
+                        <th style={{ background: 'var(--ion-color-primary)', color: 'var(--ion-color-primary-contrast)', padding: '10px 8px' }}>Fecha</th>
+                        <th style={{ background: 'var(--ion-color-primary)', color: 'var(--ion-color-primary-contrast)', padding: '10px 8px' }}>Estado</th>
+                        <th style={{ background: 'var(--ion-color-primary)', color: 'var(--ion-color-primary-contrast)', padding: '10px 8px' }}>Asignado</th>
+                        <th style={{ background: 'var(--ion-color-primary)', color: 'var(--ion-color-primary-contrast)', padding: '10px 8px', borderRadius: 4 }}>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -238,7 +239,7 @@ const WorkOrdersList: React.FC = () => {
                     style={{
                       minHeight: 64,
                       padding: 8,
-                      border: selectedDate === key ? '2px solid #1976d2' : isToday ? '2px solid #FFB74D' : '1px solid #e0e0e0',
+                      border: selectedDate === key ? '2px solid var(--ion-color-primary)' : isToday ? '2px solid #FFB74D' : '1px solid #e0e0e0',
                       borderRadius: 6,
                       background: selectedDate === key ? undefined : (isToday ? '#FFF3E0' : (list.length ? '#F1F8FF' : undefined)),
                       cursor: isPast ? 'not-allowed' : 'pointer',
@@ -249,7 +250,7 @@ const WorkOrdersList: React.FC = () => {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ fontSize: 13 }}>{day.getDate()}</div>
-                      {list.length > 0 && <div style={{ background: '#1976d2', color: '#fff', padding: '2px 6px', borderRadius: 12, fontSize: 12 }}>{list.length}</div>}
+                      {list.length > 0 && <div style={{ background: 'var(--ion-color-primary)', color: 'var(--ion-color-primary-contrast)', padding: '2px 6px', borderRadius: 12, fontSize: 12 }}>{list.length}</div>}
                     </div>
                     <div style={{ marginTop: 6, fontSize: 12 }}>
                       {list.slice(0,2).map((l) => (

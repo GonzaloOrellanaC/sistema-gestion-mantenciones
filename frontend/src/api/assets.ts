@@ -6,6 +6,11 @@ export async function listAssets(params?: Record<string, any>) {
 }
 
 export async function createAsset(payload: any) {
+  // if payload is FormData, send multipart
+  if (payload instanceof FormData) {
+    const { data } = await api.post('/api/assets', payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return data;
+  }
   const { data } = await api.post('/api/assets', payload);
   return data;
 }
