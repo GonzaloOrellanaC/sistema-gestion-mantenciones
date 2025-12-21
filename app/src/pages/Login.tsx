@@ -30,7 +30,7 @@ const Login: React.FC = () => {
     <IonPage className="view-login">
       <IonContent className="ion-padding" style={{ background: 'transparent' }}>
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div className="text-center" style={{ marginBottom: '2.5rem' }}>
+          <div className="text-center" >
             <div style={{ width: 90, height: 90, background: 'white', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', boxShadow: '0 8px 20px rgba(0,0,0,0.05)', color: 'var(--primary)' }}>
               <img src={isotype} height={50} />
             </div>
@@ -46,9 +46,6 @@ const Login: React.FC = () => {
               <input value={password} onChange={e => setPassword((e.target as any).value)} type="password" placeholder="Contraseña" className="input-field" />
             </div>
             <IonButton expand="block" className="btn-primary" onClick={onSubmit}>Ingresar</IonButton>
-            <div style={{ marginTop: 12 }}>
-              <IonButton expand="block" onClick={() => { setEmail('demo@demo.com'); setPassword('demo'); onSubmit(); }}>Entrar con mock</IonButton>
-            </div>
           </div>
         </div>
 
