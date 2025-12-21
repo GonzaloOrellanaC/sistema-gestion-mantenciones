@@ -21,6 +21,9 @@ export type User = {
     _id: string;
     permissions: Record<string, boolean>;
   };
+  branchId?: {
+    _id?: string;
+  } | string | null;
   orgId?: string;
   isSuperAdmin?: boolean;
   isAdmin?: boolean;

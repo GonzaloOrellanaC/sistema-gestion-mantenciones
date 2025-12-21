@@ -54,8 +54,8 @@ const UsersCreate: React.FC = () => {
         setFirstName(u.firstName || '');
         setLastName(u.lastName || '');
         setEmail(u.email || '');
-        setRoleId(u.roleId._id || null);
-        setBranchId(u.branchId?._id || null);
+        setRoleId(typeof u.roleId === 'string' ? u.roleId : (u.roleId?._id || null));
+        setBranchId(typeof u.branchId === 'string' ? u.branchId : (u.branchId?._id || null));
       } catch (err) {
         console.error('Error loading user', err);
         setToast({ show: true, message: 'Error cargando usuario' });

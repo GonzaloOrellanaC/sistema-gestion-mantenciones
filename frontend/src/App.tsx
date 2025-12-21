@@ -53,7 +53,6 @@ import TemplatesList from './pages/TemplatesList';
 import TemplatesBuilder from './pages/TemplatesBuilder';
 import TemplatePreview from './pages/TemplatePreview';
 import UsersList from './pages/UsersList';
-import UsersDetail from './pages/UsersDetail';
 import UsersCreate from './pages/UsersCreate';
 import BranchesList from './pages/BranchesList';
 import BranchCreate from './pages/BranchCreate';

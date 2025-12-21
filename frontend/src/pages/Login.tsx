@@ -53,9 +53,6 @@ const Login: React.FC = () => {
               <div className="auth-card">
                 <div className="auth-logo"><img src="/assets/sgm-logo.svg" alt="SGM" style={{ height: 100 }} /></div>
                 <h3>Bienvenido de nuevo</h3>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10 }}>
-                  Nota: Las cuentas nuevas incluyen <strong>30 días de prueba gratuita</strong>. Después de ese periodo será necesario contratar una suscripción.
-                </div>
                 <form onSubmit={submit} onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
