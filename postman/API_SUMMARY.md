@@ -3,7 +3,7 @@
 Breve referencia de los endpoints principales para uso en Postman o consumo por frontend.
 
 Variables útiles
-- `{{baseUrl}}`  Base URL del backend (ej. `http://localhost:5102`).
+- `{{baseUrl}}`  Base URL del backend (ej. `http://gonzalo.ddns.net:5102`).
 - `{{token}}`  JWT obtenido en `POST /api/auth/login` (usar en `Authorization: Bearer {{token}}`).
 
 Autenticación

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5102';
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://gonzalo.ddns.net:5102';
 
 const api = axios.create({
   baseURL,

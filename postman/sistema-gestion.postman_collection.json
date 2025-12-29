@@ -128,7 +128,7 @@
   ],
   "event": [],
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:5102" },
+    { "key": "baseUrl", "value": "http://gonzalo.ddns.net:5102" },
     { "key": "token", "value": "" }
   ]
 }

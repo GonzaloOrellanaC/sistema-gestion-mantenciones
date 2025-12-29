@@ -5,6 +5,7 @@ import { Server as IOServer } from 'socket.io';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import fs from 'fs';
 import { connectDB } from './utils/db';
 import authRoutes from './routes/auth';
 import countersRoutes from './routes/counters';
@@ -19,12 +20,12 @@ import brandsRoutes from './routes/brands';
 import deviceModelsRoutes from './routes/deviceModels';
 import assetTypesRoutes from './routes/assetTypes';
 import assetsRoutes from './routes/assets';
-import dashboardRoutes from './routes/dashboard';
 import filesRoutes from './routes/files';
 import notificationsRoutes from './routes/notifications';
 import pushTokensRoutes from './routes/pushTokens';
 import pushRoutes from './routes/push';
 
+const PORT = process.env.PORT || 5102;
 const app = express();
 const server = http.createServer(app);
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5100';
@@ -40,7 +41,18 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.get('/', (req, res) => res.json({ ok: true, version: '0.1.0' }));
+app.get('/', (req, res, next) => {
+  const candidates = [
+    path.join(__dirname, '..', 'frontend', 'dist'),
+    path.join(__dirname, '..', '..', 'frontend', 'dist'),
+    path.join(process.cwd(), 'frontend', 'dist'),
+  ];
+  const dist = candidates.find((p) => fs.existsSync(path.join(p, 'index.html')));
+  if (dist) {
+    return res.sendFile(path.join(dist, 'index.html'));
+  }
+  return res.json({ ok: true, version: '0.1.0' });
+});
 
 
 app.use('/api/auth', authRoutes);
@@ -65,6 +77,29 @@ app.use('/api/push', pushRoutes);
 const imagesPath = path.join(__dirname, '..', 'files', 'images');
 app.use('/images', express.static(imagesPath));
 
+// Try to locate frontend/dist in likely locations and serve it as static
+const frontendCandidates = [
+  path.join(__dirname, '..', 'frontend', 'dist'),
+  path.join(__dirname, '..', '..', 'frontend', 'dist'),
+  path.join(process.cwd(), 'frontend', 'dist'),
+];
+
+const frontendDist = frontendCandidates.find((p) => fs.existsSync(p));
+
+if (frontendDist) {
+  app.use(express.static(frontendDist));
+
+  app.get('*', (req, res, next) => {
+    // Don't override API, images or socket routes
+    if (req.path.startsWith('/api') || req.path.startsWith('/images') || req.path.startsWith('/socket.io')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+} else {
+  console.warn('frontend dist not found. Tried:', frontendCandidates);
+}
+
 io.on('connection', (socket) => {
   console.log('socket connected', socket.id);
   socket.on('joinOrg', (orgId: string) => {
@@ -77,8 +112,6 @@ io.on('connection', (socket) => {
 
 // expose io to controllers via app
 app.set('io', io);
-
-const PORT = process.env.PORT || 5102;
 
 connectDB()
   .then(() => {
