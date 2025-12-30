@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { IonPage, IonContent, IonButton, IonGrid, IonRow, IonCol, IonTextarea, IonToast, IonText } from '@ionic/react';
 import { Input } from '../components/Widgets/Input.widget';
+import PartSelector from '../components/Widgets/PartSelector.widget';
 import * as templatesApi from '../api/templates';
 import { useHistory } from 'react-router-dom';
 import '../styles/login.css';
@@ -9,6 +10,7 @@ const TemplatesCreate: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [structure, setStructure] = useState('{}');
+  const [partsSelection, setPartsSelection] = useState<Array<any>>([]);
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const history = useHistory();
 
@@ -21,7 +23,9 @@ const TemplatesCreate: React.FC = () => {
       return setToast({ show: true, message: 'Structure JSON inválido' });
     }
     try {
-      await templatesApi.createTemplate({ name: name.trim(), description, structure: parsed });
+      // embed selected parts into structure under `parts` key
+      const finalStructure = { ...((parsed as any) || {}), parts: partsSelection };
+      await templatesApi.createTemplate({ name: name.trim(), description, structure: finalStructure });
       setToast({ show: true, message: 'Pauta creada' });
       setTimeout(() => history.push('/templates'), 600);
     } catch (err: unknown) {
@@ -52,6 +56,11 @@ const TemplatesCreate: React.FC = () => {
                   <div className="form-field">
                     <div style={{ marginBottom: 8, fontSize: 14, color: 'var(--color-muted, #607D8B)' }}>Estructura JSON</div>
                     <IonTextarea autoGrow={true} placeholder='Ej: {"fields": []}' value={structure} onIonChange={(e: CustomEvent<{ value?: string | null }>) => setStructure(e.detail.value ?? '')} />
+                  </div>
+
+                  <div className="form-field">
+                    <div style={{ marginBottom: 8, fontSize: 14, color: 'var(--color-muted, #607D8B)' }}>Parts (optional)</div>
+                    <PartSelector onChange={(items) => setPartsSelection(items)} />
                   </div>
 
                   <div style={{ margin: '16px 0' }}>

@@ -71,8 +71,18 @@ Fecha del estado: 2025-12-19
 
 **Notas:**
 - El backend ya proporciona los endpoints necesarios para `roles` y `templates`; la mayoría del trabajo frontend es integrar y pulir UX/validaciones. Puedo encargarme de cualquiera de los puntos siguientes (arrancar servidores, crear `ProtectedRoute`, mejorar Roles UI, añadir tests). Indica cuál prefieres que haga a continuación.
+-
+## Actualizaciones recientes (2025-12-30)
 
-Notas adicionales (2025-12-19):
+- Entornos: actualizado `VITE_API_BASE_URL` y `VITE_SOCKET_URL` en `app/.env.*` y `frontend/.env.*` para apuntar a `http://gonzalo.ddns.net:5102`. Esto garantiza que web, app y archivos compilados apunten al backend desplegado.
+- Frontend: `frontend/src/api/axios.ts` actualizado para usar `http://gonzalo.ddns.net:5102` como fallback `baseURL` cuando no exista `import.meta.env.VITE_API_BASE_URL`.
+- Postman & docs: `postman/sistema-gestion.postman_collection.json` `baseUrl` y `postman/API_SUMMARY.md` actualizados a `http://gonzalo.ddns.net:5102`.
+- Git: `app/.gitignore` actualizado para ignorar `android/`, `app/android` fue removido del índice con `git rm -r --cached app/android`, se creó el commit `Ignore app/android and remove from index` y se hizo `git push origin main`. Los archivos siguen presentes localmente pero no aparecen en el control de versiones.
+- Estado operativo: los cambios mencionados están commiteados y empujados al remoto; recomiendo reconstruir el `app` y sincronizar `capacitor` si vas a generar builds con la nueva configuración de `VITE_API_BASE_URL`.
+
+Si quieres, puedo:
+- Ejecutar el build del `app` y sincronizar con Capacitor/Android con las nuevas variables.
+- Crear un pequeño checklist de verificación (arrancar backend, probar endpoint /api/auth/me, login, subir archivo).
 - Se añadió `STYLES.md` con un resumen y referencias de estilos/tema en el repositorio raíz. Ver [STYLES.md](STYLES.md).
 - El plan (`PLAN.md`) fue actualizado para reflejar implementaciones actuales (autenticación, templates, contador por org, socket.io, frontend AuthContext y templates básicos).
 - Pendientes clave: ProtectedRoute (guardas de rutas), CRUD completo de Roles desde frontend, integración paginada de Users y tests e2e.

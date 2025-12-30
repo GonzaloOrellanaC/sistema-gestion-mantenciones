@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IonSplitPane, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonLabel, IonRouterOutlet, useIonRouter, IonModal, IonButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/react';
 import { useAuth } from '../context/AuthContext';
-import { people, fileTrayFull, calendar, logOut, documentLock, documentLockOutline, barChartOutline, barChart, peopleOutline, fileTrayFullOutline, calendarOutline, desktopOutline, desktop, storefrontOutline, storefront, businessOutline, business, constructOutline, construct } from 'ionicons/icons';
+import { people, fileTrayFull, calendar, logOut, documentLock, documentLockOutline, barChartOutline, barChart, peopleOutline, fileTrayFullOutline, calendarOutline, desktopOutline, desktop, storefrontOutline, storefront, businessOutline, business, constructOutline, construct, beakerOutline, beaker } from 'ionicons/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -15,7 +15,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { label: 'Roles', path: '/roles', iconOutline: documentLockOutline, iconFilled: documentLock, active: false },
     { label: 'Órdenes', path: '/work-orders', iconOutline: calendarOutline, iconFilled: calendar, active: false },
     { label: 'Pautas', path: '/templates', iconOutline: fileTrayFullOutline, iconFilled: fileTrayFull, active: false },
-    { label: 'Insumos', path: '/supplies', iconOutline: constructOutline, iconFilled: construct, active: false },
+    { label: 'Insumos', path: '/supplies', iconOutline: beakerOutline, iconFilled: beaker, active: false },
+    { label: 'Repuestos', path: '/parts', iconOutline: constructOutline, iconFilled: construct, active: false },
     { label: 'Activos', path: '/assets', iconOutline: desktopOutline, iconFilled: desktop, active: false },
     { label: 'Organización', path: '/organization', iconOutline: businessOutline, iconFilled: business, active: false },
     { label: 'Sucursales', path: '/branches', iconOutline: storefrontOutline, iconFilled: storefront, active: false },
@@ -76,24 +77,26 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
             )}
 
-            <IonList>
-              {menuItems.map((it) => {
-                const iconToUse = it.active ? it.iconFilled : it.iconOutline;
-                const itemStyle = it.active ? { background: 'rgba(0,0,0,0.03)', borderRadius: 6 } : undefined;
-                return (
-                  <IonItem style={{...itemStyle, '--background': it.active ? '#E3F2FD' : undefined}} key={it.path} button onClick={() => { history.push(it.path); setMenuItems(menuInitial.map(item => {
-                    if (item.path === it.path) {
-                      return { ...item, active: true };
-                    } else {
-                      return { ...item, active: false };
-                    }
-                  }))}}>
-                    <IonIcon style={{ marginRight: 10 }} color={it.active ? 'primary' : undefined} icon={iconToUse} slot="start" />
-                    <IonLabel color={it.active ? 'primary' : undefined}>{it.label}</IonLabel>
-                  </IonItem>
-                );
-              })}
-            </IonList>
+            <div style={{ height: user?.isAdmin && !isPaid && trialEnds ? '60vh' : '100%', overflowY: 'auto', marginBottom: 12 }}>
+              <IonList>
+                {menuItems.map((it) => {
+                  const iconToUse = it.active ? it.iconFilled : it.iconOutline;
+                  const itemStyle = it.active ? { background: 'rgba(0,0,0,0.03)', borderRadius: 6 } : undefined;
+                  return (
+                    <IonItem style={{...itemStyle, '--background': it.active ? '#E3F2FD' : undefined}} key={it.path} button onClick={() => { history.push(it.path); setMenuItems(menuInitial.map(item => {
+                      if (item.path === it.path) {
+                        return { ...item, active: true };
+                      } else {
+                        return { ...item, active: false };
+                      }
+                    }))}}>
+                      <IonIcon style={{ marginRight: 10 }} color={it.active ? 'primary' : undefined} icon={iconToUse} slot="start" />
+                      <IonLabel color={it.active ? 'primary' : undefined}>{it.label}</IonLabel>
+                    </IonItem>
+                  );
+                })}
+              </IonList>
+            </div>
 
             <div style={{ borderTop: '1px solid #E1F5FE', paddingTop: 12, marginTop: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>

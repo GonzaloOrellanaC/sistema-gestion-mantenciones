@@ -55,6 +55,7 @@ export type WorkOrder = {
   orgSeq?: number;
   status?: string;
   assigneeId?: string;
+  assetId?: string;
   orgId?: string;
   history?: unknown[];
   createdAt?: string;

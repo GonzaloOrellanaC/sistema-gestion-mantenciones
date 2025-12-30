@@ -168,3 +168,12 @@ Indica cuál de las opciones prefieres que empiece ahora.
   4. Tests críticos (AuthContext, flows de login, creación de OT con contador).
 
 Nota: se creó `STYLES.md` para centralizar referencia de estilos y guías (ver [STYLES.md](STYLES.md)).
+
+## Actualizaciones recientes (2025-12-30)
+
+- Entornos: `VITE_API_BASE_URL` y `VITE_SOCKET_URL` actualizados para apuntar a `http://gonzalo.ddns.net:5102` en los proyectos `app` y `frontend` (`.env.development` y `.env.production` según corresponda). También se actualizó el fallback de `axios` en `frontend/src/api/axios.ts`.
+- Postman: la variable `baseUrl` en `postman/sistema-gestion.postman_collection.json` y el ejemplo en `postman/API_SUMMARY.md` ahora referencian `http://gonzalo.ddns.net:5102`.
+- Git: la carpeta `app/android` fue añadida a `app/.gitignore`, removida del índice (`git rm -r --cached app/android`) y los cambios fueron commiteados y pusheados (`Ignore app/android and remove from index`). Los archivos permanecen locales pero ya no están versionados.
+- Pequeñas correcciones y sincronizaciones: ajustes en `backend/src/index.ts` y otros archivos de configuración para respetar variables de entorno y URLs externas.
+
+Estas actualizaciones son operativas y están comprometidas en la rama `main` del repositorio.

@@ -21,6 +21,7 @@
     import templatesApi from '../api/templates';
     import usersApi from '../api/users';
     import rolesApi from '../api/roles';
+    import assetsApi from '../api/assets';
     import workOrdersApi from '../api/workOrders';
     import * as branchesApi from '../api/branches';
     import { useHistory } from 'react-router-dom';
@@ -33,6 +34,8 @@
       const [roles, setRoles] = useState<Role[]>([]);
       const [branches, setBranches] = useState<any[]>([]);
       const [branchId, setBranchId] = useState<string | undefined>(undefined);
+      const [assets, setAssets] = useState<any[]>([]);
+      const [assetId, setAssetId] = useState<string | undefined>(undefined);
 
       const [templateId, setTemplateId] = useState('');
       const [assigneeId, setAssigneeId] = useState<string | undefined>(undefined);
@@ -66,6 +69,13 @@
             setUsers(sortByName(u.items || []));
             setRoles(sortByName(r.items || []));
             setBranches(sortByName(br.items || []));
+            // load assets for selector
+            try {
+              const a = await assetsApi.listAssets({ limit: 500 });
+              if (mounted) setAssets(sortByName(a.items || []));
+            } catch (e) {
+              console.warn('no assets loaded', e);
+            }
           } catch (e: any) {
             console.error('load lists err', e);
             setToast({ show: true, message: e?.message || 'Error cargando datos' });
@@ -158,6 +168,7 @@
         if (assigneeId) payload.assigneeId = assigneeId;
         if (assigneeRole) payload.assigneeRole = assigneeRole;
         if (branchId) payload.branchId = branchId;
+        if (assetId) payload.assetId = assetId;
 
         setLoading(true);
         try {
@@ -211,6 +222,14 @@
                         <IonSelect value={branchId} placeholder="Seleccione sucursal" onIonChange={e => setBranchId(e.detail.value)}>
                           <IonSelectOption value="">--Todas--</IonSelectOption>
                           {branches.map(b => <IonSelectOption key={b._id} value={b._id}>{b.name}</IonSelectOption>)}
+                        </IonSelect>
+                      </IonItem>
+
+                      <IonItem>
+                        <IonLabel position="stacked">Activo (opcional)</IonLabel>
+                        <IonSelect value={assetId} placeholder="Seleccione activo" onIonChange={e => setAssetId(e.detail.value)}>
+                          <IonSelectOption value="">--Ninguno--</IonSelectOption>
+                          {assets.map(a => <IonSelectOption key={a._id} value={a._id}>{a.name}</IonSelectOption>)}
                         </IonSelect>
                       </IonItem>
 

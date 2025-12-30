@@ -51,7 +51,8 @@ const GROUPED_PERMISSIONS = [
     permissions: [
       { key: 'crearInsumos', label: 'Crear Insumos' },
       { key: 'editarInsumos', label: 'Editar Insumos' },
-      
+      { key: 'crearRepuestos', label: 'Crear Repuestos' },
+      { key: 'editarRepuestos', label: 'Editar Repuestos' },
     ],
   },
 ];

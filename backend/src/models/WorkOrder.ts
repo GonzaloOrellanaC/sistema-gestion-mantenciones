@@ -6,6 +6,7 @@ export interface IWorkOrder {
   orgId: Schema.Types.ObjectId;
   orgSeq: number; // unique per org
   branchId?: Schema.Types.ObjectId;
+  assetId?: Schema.Types.ObjectId;
   templateId?: Schema.Types.ObjectId;
   data?: any; // filled fields according to template
   state: WorkOrderState;
@@ -25,6 +26,7 @@ export interface IWorkOrder {
 const WorkOrderSchema = new Schema<IWorkOrder>({
   orgId: { type: Schema.Types.ObjectId, required: true, index: true },
   branchId: { type: Schema.Types.ObjectId, ref: 'Branch' },
+  assetId: { type: Schema.Types.ObjectId, ref: 'Asset' },
   orgSeq: { type: Number, required: true },
   templateId: { type: Schema.Types.ObjectId, ref: 'Template' },
   data: { type: Schema.Types.Mixed },

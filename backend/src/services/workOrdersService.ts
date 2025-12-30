@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import countersService from './countersService';
 import User from '../models/User';
 import Branch from '../models/Branch';
+import Asset from '../models/Asset';
 
 interface CreateWorkOrderPayload {
   templateId?: string;
@@ -10,6 +11,7 @@ interface CreateWorkOrderPayload {
   client?: any;
   assigneeId?: string; // optional explicit user assignment
   assigneeRole?: string; // optional role assignment (pick a user with this role)
+  assetId?: string;
   scheduledStart?: string | Date; // optional scheduled start datetime (ISO string)
 }
 
@@ -54,10 +56,20 @@ async function createWorkOrder(orgId: string, payload: CreateWorkOrderPayload, c
     branchObjId = new Types.ObjectId((payload as any).branchId);
   }
 
+  // optional asset assignment
+  let assetObjId: Types.ObjectId | undefined = undefined;
+  if ((payload as any).assetId) {
+    if (!Types.ObjectId.isValid((payload as any).assetId)) throw { status: 400, message: 'Invalid assetId' };
+    const asset = await Asset.findOne({ _id: (payload as any).assetId, orgId }).lean();
+    if (!asset) throw { status: 400, message: 'Asset not found' };
+    assetObjId = new Types.ObjectId((payload as any).assetId);
+  }
+
   const doc = new WorkOrder({
     orgId,
     orgSeq,
     branchId: branchObjId,
+    assetId: assetObjId,
     templateId: payload.templateId ? new Types.ObjectId(payload.templateId) : undefined,
     data: payload.data || {},
     state: initialState,
@@ -72,7 +84,7 @@ async function createWorkOrder(orgId: string, payload: CreateWorkOrderPayload, c
 
 async function findById(orgId: string, id: string) {
   if (!Types.ObjectId.isValid(id)) return null;
-  return WorkOrder.findOne({ _id: id, orgId }).populate('assigneeId').populate('templateId').lean();
+  return WorkOrder.findOne({ _id: id, orgId }).populate('assigneeId').populate('templateId').populate('assetId').lean();
 }
 
 async function list(orgId: string, filter: any = {}) {
@@ -81,6 +93,7 @@ async function list(orgId: string, filter: any = {}) {
   const q: any = { orgId, deleted: { $ne: true } };
   if (filter.state) q.state = filter.state;
   if (filter.assigneeId) q.assigneeId = filter.assigneeId;
+  if (filter.assetId) q.assetId = filter.assetId;
   if (filter.branchId) q.branchId = filter.branchId;
   console.log({q})
   const docs = await WorkOrder.find(q).sort({ 'dates.created': -1 }).skip((page - 1) * limit).limit(limit).lean();

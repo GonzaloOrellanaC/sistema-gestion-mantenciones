@@ -88,7 +88,7 @@ async function listWorkOrders(req: Request, res: Response) {
       const role = await Role.findById(user.roleId).lean();
       console.log({role})
       const perms: any = role?.permissions || {};
-      if (!perms['manage_templates']) return res.status(403).json({ message: 'Forbidden - insufficient permissions' });
+      if (!perms['ejecutarOT']) return res.status(403).json({ message: 'Forbidden - insufficient permissions' });
     }
 
     const docs = await workOrdersService.list(orgId.toString(), q);
