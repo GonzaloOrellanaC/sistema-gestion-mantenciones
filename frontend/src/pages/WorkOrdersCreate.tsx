@@ -6,16 +6,21 @@
       IonHeader,
       IonToolbar,
       IonTitle,
-      IonContent,
-                    <IonItem>
-                      <IonLabel position="stacked">Activo</IonLabel>
-                      <IonSelect value={assetId} placeholder="Seleccione activo" onIonChange={e => setAssetId(e.detail.value)}>
-                        {assets.map(a => <IonSelectOption key={a._id} value={a._id}>{a.name}</IonSelectOption>)}
-                      </IonSelect>
-                    </IonItem>
       IonToast,
       IonInput
     } from '@ionic/react';
+
+          IonContent,
+          IonItem,
+          IonLabel,
+          IonSelect,
+          IonSelectOption,
+          IonButton,
+          IonTextarea,
+          IonSpinner,
+          IonToast,
+          IonInput
+        } from '@ionic/react';
 
     import templatesApi from '../api/templates';
     import usersApi from '../api/users';
@@ -255,9 +260,8 @@
                       </IonItem>
 
                       <IonItem>
-                        <IonLabel position="stacked">Activo (opcional)</IonLabel>
+                        <IonLabel position="stacked">Activo</IonLabel>
                         <IonSelect value={assetId} placeholder="Seleccione activo" onIonChange={e => setAssetId(e.detail.value)}>
-                          <IonSelectOption value="">--Ninguno--</IonSelectOption>
                           {assets.map(a => <IonSelectOption key={a._id} value={a._id}>{a.name}</IonSelectOption>)}
                         </IonSelect>
                       </IonItem>
