@@ -62,6 +62,7 @@ import WorkOrdersCreate from './pages/WorkOrdersCreate';
 import RoleCreate from './pages/RoleCreate';
 import AssetsList from './pages/AssetsList';
 import AssetCreate from './pages/AssetCreate';
+import AssetDetail from './pages/AssetDetail';
 import Supplies from './pages/Supplies';
 import SupplyCreate from './pages/SupplyCreate';
 import Parts from './pages/Parts';
@@ -111,6 +112,7 @@ const App: React.FC = () => (
     <Route exact path="/work-orders/create" component={WorkOrdersCreate}/>
     <Route exact path="/work-orders/edit/:id" component={WorkOrdersDetail}/>
     <Route exact path="/assets" component={AssetsList} />
+    <Route exact path="/assets/:id" component={AssetDetail} />
     <Route exact path="/assets/new" component={AssetCreate} />
     <Route exact path="/assets/:id/edit" component={AssetCreate} />
     <Route exact path="/supplies" component={Supplies} />

@@ -93,6 +93,30 @@
         if (assigneeRole) setAssigneeId(undefined);
       }, [assigneeRole]);
 
+      // when asset selection changes, fetch asset and prefill some fields
+      useEffect(() => {
+        let mounted = true;
+        async function onAssetChange() {
+          if (!assetId) return;
+          try {
+            const res = await assetsApi.getAsset(assetId);
+            const asset = res;
+            if (!mounted) return;
+            if (asset && asset.name) setTitle((t) => (t && t.length > 0 ? t : `Mantenimiento - ${asset.name}`));
+            try {
+              const bid = asset.branchId ? (asset.branchId._id ? asset.branchId._id : asset.branchId) : null;
+              if (bid) setBranchId(String(bid));
+            } catch (e) {
+              // ignore
+            }
+          } catch (e) {
+            console.warn('error loading asset', e);
+          }
+        }
+        onAssetChange();
+        return () => { mounted = false; };
+      }, [assetId]);
+
       const history = useHistory();
 
       function monthStart(date: Date) {
