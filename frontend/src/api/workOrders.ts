@@ -18,7 +18,7 @@ export async function listWorkOrders(params?: Record<string, unknown>): Promise<
  * Payload example: { templateId, data, scheduledStart, assigneeId }
  * Returns: created WorkOrder (with orgSeq assigned)
  */
-export async function createWorkOrder(payload: { templateId: string; data?: unknown; scheduledStart?: string; assigneeId?: string; assigneeRole?: string; branchId?: string; assetId?: string }): Promise<WorkOrder> {
+export async function createWorkOrder(payload: { templateId: string; data?: unknown; scheduledStart?: string; assigneeId?: string; assigneeRole?: string; branchId?: string; assetId: string }): Promise<WorkOrder> {
   const { data } = await api.post('/api/work-orders', payload);
   return data;
 }

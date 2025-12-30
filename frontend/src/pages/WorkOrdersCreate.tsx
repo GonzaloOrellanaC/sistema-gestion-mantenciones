@@ -7,13 +7,12 @@
       IonToolbar,
       IonTitle,
       IonContent,
-      IonItem,
-      IonLabel,
-      IonSelect,
-      IonSelectOption,
-      IonButton,
-      IonTextarea,
-      IonSpinner,
+                    <IonItem>
+                      <IonLabel position="stacked">Activo</IonLabel>
+                      <IonSelect value={assetId} placeholder="Seleccione activo" onIonChange={e => setAssetId(e.detail.value)}>
+                        {assets.map(a => <IonSelectOption key={a._id} value={a._id}>{a.name}</IonSelectOption>)}
+                      </IonSelect>
+                    </IonItem>
       IonToast,
       IonInput
     } from '@ionic/react';
@@ -192,7 +191,13 @@
         if (assigneeId) payload.assigneeId = assigneeId;
         if (assigneeRole) payload.assigneeRole = assigneeRole;
         if (branchId) payload.branchId = branchId;
-        if (assetId) payload.assetId = assetId;
+        // asset is required
+        if (!assetId) {
+          setToast({ show: true, message: 'Seleccione un activo' });
+          setLoading(false);
+          return;
+        }
+        payload.assetId = assetId;
 
         setLoading(true);
         try {

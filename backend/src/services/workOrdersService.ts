@@ -11,7 +11,7 @@ interface CreateWorkOrderPayload {
   client?: any;
   assigneeId?: string; // optional explicit user assignment
   assigneeRole?: string; // optional role assignment (pick a user with this role)
-  assetId?: string;
+  assetId: string;
   scheduledStart?: string | Date; // optional scheduled start datetime (ISO string)
 }
 
@@ -56,14 +56,12 @@ async function createWorkOrder(orgId: string, payload: CreateWorkOrderPayload, c
     branchObjId = new Types.ObjectId((payload as any).branchId);
   }
 
-  // optional asset assignment
-  let assetObjId: Types.ObjectId | undefined = undefined;
-  if ((payload as any).assetId) {
-    if (!Types.ObjectId.isValid((payload as any).assetId)) throw { status: 400, message: 'Invalid assetId' };
-    const asset = await Asset.findOne({ _id: (payload as any).assetId, orgId }).lean();
-    if (!asset) throw { status: 400, message: 'Asset not found' };
-    assetObjId = new Types.ObjectId((payload as any).assetId);
-  }
+  // require asset assignment
+  if (!payload.assetId) throw { status: 400, message: 'assetId is required' };
+  if (!Types.ObjectId.isValid(payload.assetId)) throw { status: 400, message: 'Invalid assetId' };
+  const asset = await Asset.findOne({ _id: payload.assetId, orgId }).lean();
+  if (!asset) throw { status: 400, message: 'Asset not found' };
+  const assetObjId = new Types.ObjectId(payload.assetId);
 
   const doc = new WorkOrder({
     orgId,
