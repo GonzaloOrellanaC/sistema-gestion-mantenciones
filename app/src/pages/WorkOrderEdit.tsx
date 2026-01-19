@@ -10,6 +10,9 @@ import { normalizeStructure } from '../utils/structure';
 import { chevronBackOutline, cloudUploadOutline, saveOutline } from 'ionicons/icons';
 import { LoadingModal } from '../components/modals/LoadingModal';
 
+// Prevent duplicate startWorkOrder requests across component remounts (Strict Mode)
+const _startWorkOrderLocks = new Set<string>();
+
 type RouteParams = {
   id: string;
 };
@@ -48,24 +51,33 @@ const WorkOrderEdit: React.FC = () => {
         // mark order as started when user (assignee) opens this edit page and let backend append history
         try {
           if (order && order.state !== 'Iniciado' && order.state !== 'En ejecución') {
-            try {
-              const updated = await startWorkOrder(params.id);
-              // server performs transition and returns updated work order with history
-              if (updated) setOrderData(updated);
-            } catch (e) {
-              // fallback: if start endpoint fails (permissions), still update local view to keep UX
-              console.error('Error calling startWorkOrder', e);
-              const nowIso = new Date().toISOString();
-              const actorId = (user && ((user._id || user.id) as any)) || null;
-              const historyEntry: any = {
-                from: order.state || null,
-                to: 'Iniciado',
-                note: actorId ? `Iniciada por ${(user.firstName || user.name || 'usuario')}` : 'Iniciada',
-                at: { $date: nowIso }
-              };
-              if (actorId) historyEntry.userId = { $oid: actorId };
-              const newHistory = Array.isArray(order.history) ? [...order.history, historyEntry] : [historyEntry];
-              setOrderData((prev: any) => ({ ...(prev || {}), state: 'Iniciado', history: newHistory }));
+            // guard against duplicate start requests (React StrictMode may mount/unmount/remount)
+            if (!_startWorkOrderLocks.has(params.id)) {
+              _startWorkOrderLocks.add(params.id);
+              try {
+                const updated = await startWorkOrder(params.id);
+                // server performs transition and returns updated work order with history
+                if (updated) setOrderData(updated);
+              } catch (e) {
+                // on error, release lock so a retry is possible
+                _startWorkOrderLocks.delete(params.id);
+                // fallback: if start endpoint fails (permissions), still update local view to keep UX
+                console.error('Error calling startWorkOrder', e);
+                const nowIso = new Date().toISOString();
+                const actorId = (user && ((user._id || user.id) as any)) || null;
+                const historyEntry: any = {
+                  from: order.state || null,
+                  to: 'Iniciado',
+                  note: actorId ? `Iniciada por ${(user.firstName || user.name || 'usuario')}` : 'Iniciada',
+                  at: { $date: nowIso }
+                };
+                if (actorId) historyEntry.userId = { $oid: actorId };
+                const newHistory = Array.isArray(order.history) ? [...order.history, historyEntry] : [historyEntry];
+                setOrderData((prev: any) => ({ ...(prev || {}), state: 'Iniciado', history: newHistory }));
+              }
+            } else {
+              // another instance already triggered startWorkOrder for this id; skip to avoid duplicate history entries
+              console.debug('startWorkOrder already in progress for', params.id);
             }
           }
         } catch (e) {
