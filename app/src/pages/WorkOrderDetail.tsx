@@ -5,6 +5,7 @@ import { getWorkOrder } from '../api/workOrders';
 import { useAuth } from '../context/AuthContext';
 import { chevronBackOutline } from 'ionicons/icons';
 import { useWorkOrder } from '../context/WorkOrderContext';
+import { normalizeStructure } from '../utils/structure';
 
 type MatchParams = {
   id: string;
@@ -46,12 +47,12 @@ const WorkOrderDetail: React.FC<RouteComponentProps<MatchParams>> = ({ match }) 
             </IonButtons>
             <IonTitle>Detalle OT</IonTitle>
             {order && order.data && <IonBadge slot="end" 
-                style={{
-                    '--background': order.data.priority === 'baja' ? 'green' : order.data.priority === 'normal' ? 'orange' : 'red',
-                    '--color': 'white',
-                    marginRight: '12px'
-                }}
-            >{order.data.priority === 'baja' ? '1' : order.data.priority === 'normal' ? '2' : '3'}</IonBadge>}
+              style={{
+                '--background': order.data?.priority === 'baja' ? 'green' : order.data?.priority === 'normal' ? 'orange' : 'red',
+                '--color': 'white',
+                marginRight: '12px'
+              }}
+            >{order.data?.priority === 'baja' ? '1' : order.data?.priority === 'normal' ? '2' : '3'}</IonBadge>}
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
@@ -60,14 +61,14 @@ const WorkOrderDetail: React.FC<RouteComponentProps<MatchParams>> = ({ match }) 
                 <IonList>
                   <IonItem>
                     <IonLabel>
-                      <h2>#{order.orgSeq} — {order.data.title || 'Sin título'}</h2>
-                      <h3>Descripción: {order.data.description}</h3>
+                      <h2>#{order.orgSeq} — {order.data?.title || 'Sin título'}</h2>
+                      <h3>Descripción: {order.data?.description}</h3>
                       <p>Estado: {order.state}</p>
                       <p>Asignado a: {(order.assigneeId && order.assigneeId.firstName ? `${order.assigneeId.firstName} ${order.assigneeId.lastName || ''}` : '')}</p>
                     </IonLabel>
                   </IonItem>
                   <IonButton expand="block" onClick={() => {
-                    setStruct(order.templateId?.structure)
+                    setStruct(normalizeStructure(order.templateId?.structure));
                     history.push(`/work-orders/${order._id}/edit`)
                   }} style={{ margin: '1rem' }}>Ejecutar Orden</IonButton>
                 </IonList>

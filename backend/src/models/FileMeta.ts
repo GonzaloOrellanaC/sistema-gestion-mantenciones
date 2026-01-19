@@ -9,6 +9,7 @@ export interface IFileMeta {
   size?: number;
   storage?: string; // gridfs | s3 | local
   path?: string; // if using S3 or local path
+  url?: string; // public URL
   createdAt?: Date;
   meta?: any;
 }
@@ -21,6 +22,7 @@ const FileMetaSchema = new Schema<IFileMeta>({
   mimeType: { type: String },
   size: { type: Number },
   storage: { type: String, default: 'gridfs' },
+  url: { type: String },
   path: { type: String },
   createdAt: { type: Date, default: Date.now },
   meta: { type: Schema.Types.Mixed }

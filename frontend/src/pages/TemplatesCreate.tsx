@@ -4,6 +4,7 @@ import { Input } from '../components/Widgets/Input.widget';
 import PartSelector from '../components/Widgets/PartSelector.widget';
 import * as templatesApi from '../api/templates';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import '../styles/login.css';
 
 const TemplatesCreate: React.FC = () => {
@@ -13,25 +14,26 @@ const TemplatesCreate: React.FC = () => {
   const [partsSelection, setPartsSelection] = useState<Array<any>>([]);
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const history = useHistory();
+  const { t } = useTranslation();
 
   const submit = async () => {
-    if (!name.trim()) return setToast({ show: true, message: 'Nombre requerido' });
+    if (!name.trim()) return setToast({ show: true, message: t('templates.create.toasts.nameRequired') });
     let parsed: unknown = {};
     try {
       parsed = JSON.parse(structure);
     } catch {
-      return setToast({ show: true, message: 'Structure JSON inválido' });
+      return setToast({ show: true, message: t('templates.create.toasts.invalidStructure') });
     }
     try {
       // embed selected parts into structure under `parts` key
       const finalStructure = { ...((parsed as any) || {}), parts: partsSelection };
       await templatesApi.createTemplate({ name: name.trim(), description, structure: finalStructure });
-      setToast({ show: true, message: 'Pauta creada' });
+      setToast({ show: true, message: t('templates.create.toasts.created') });
       setTimeout(() => history.push('/templates'), 600);
     } catch (err: unknown) {
       console.error(err);
       type ErrWithResponse = { response?: { data?: { message?: string } } };
-      const msg = (err as ErrWithResponse)?.response?.data?.message ?? 'Error creando pauta';
+      const msg = (err as ErrWithResponse)?.response?.data?.message ?? t('templates.create.toasts.createError');
       setToast({ show: true, message: msg });
     }
   };
@@ -43,29 +45,29 @@ const TemplatesCreate: React.FC = () => {
           <IonRow className="ion-justify-content-center">
             <IonCol sizeXl="6" sizeLg="7" sizeMd="8" sizeSm="10" sizeXs="12">
               <div className="auth-card">
-                <h3>Crear Pauta</h3>
+                <h3>{t('templates.create.title')}</h3>
                 <form onSubmit={(e) => { e.preventDefault(); submit(); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); submit(); } }}>
                   <div className="form-field">
-                    <Input label="Nombre" type="text" value={name} onInput={(e: any) => setName(e.detail?.value ?? '')} name="template_name" />
+                    <Input label={t('templates.create.labels.name')} type="text" value={name} onInput={(e: any) => setName(e.detail?.value ?? '')} name="template_name" />
                   </div>
 
                   <div className="form-field">
-                    <Input label="Descripción" type="text" value={description} onInput={(e: any) => setDescription(e.detail?.value ?? '')} name="template_description" />
+                    <Input label={t('templates.create.labels.description')} type="text" value={description} onInput={(e: any) => setDescription(e.detail?.value ?? '')} name="template_description" />
                   </div>
 
                   <div className="form-field">
-                    <div style={{ marginBottom: 8, fontSize: 14, color: 'var(--color-muted, #607D8B)' }}>Estructura JSON</div>
-                    <IonTextarea autoGrow={true} placeholder='Ej: {"fields": []}' value={structure} onIonChange={(e: CustomEvent<{ value?: string | null }>) => setStructure(e.detail.value ?? '')} />
+                    <div style={{ marginBottom: 8, fontSize: 14, color: 'var(--color-muted, #607D8B)' }}>{t('templates.create.labels.structure')}</div>
+                    <IonTextarea autoGrow={true} placeholder={t('templates.create.placeholders.structureExample')} value={structure} onIonChange={(e: CustomEvent<{ value?: string | null }>) => setStructure(e.detail.value ?? '')} />
                   </div>
 
                   <div className="form-field">
-                    <div style={{ marginBottom: 8, fontSize: 14, color: 'var(--color-muted, #607D8B)' }}>Parts (optional)</div>
+                    <div style={{ marginBottom: 8, fontSize: 14, color: 'var(--color-muted, #607D8B)' }}>{t('templates.create.labels.partsOptional')}</div>
                     <PartSelector onChange={(items) => setPartsSelection(items)} />
                   </div>
 
                   <div style={{ margin: '16px 0' }}>
-                    <IonButton className="btn btn-primary" expand="block" type="submit">Crear pauta</IonButton>
-                    <IonButton className="btn btn-secondary" expand="block" fill="clear" onClick={() => history.push('/templates')}>Cancelar</IonButton>
+                    <IonButton className="btn btn-primary" expand="block" type="submit">{t('templates.create.buttons.create')}</IonButton>
+                    <IonButton className="btn btn-secondary" expand="block" fill="clear" onClick={() => history.push('/templates')}>{t('templates.create.buttons.cancel')}</IonButton>
                   </div>
                 </form>
 

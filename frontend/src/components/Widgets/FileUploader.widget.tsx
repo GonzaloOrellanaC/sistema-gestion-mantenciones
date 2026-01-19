@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IonButton, IonIcon } from '@ionic/react';
 import { trashOutline } from 'ionicons/icons';
 
@@ -20,6 +21,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ accept = 'image', cu
   const [preview, setPreview] = useState<string | null>(currentUrl || null);
   const [hasPending, setHasPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => { setPreview(currentUrl || null); }, [currentUrl]);
   useEffect(() => {
@@ -33,7 +35,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ accept = 'image', cu
     };
   }, []);
 
-  const mimeTest = (file: File) => {
+    const mimeTest = (file: File) => {
     if (accept === 'image') return /image\/(png|jpeg|jpg)/.test(file.type);
     if (accept === 'doc') return /(pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document)/.test(file.type);
     if (accept) return new RegExp(accept).test(file.type);
@@ -43,8 +45,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ accept = 'image', cu
   const handleFile = (file: File | null) => {
     setError(null);
     if (!file) return;
-    if (file.size > (maxBytes || DEFAULT_MAX)) return setError('El archivo supera el tamaño máximo');
-    if (!mimeTest(file)) return setError('Tipo de archivo no permitido');
+    if (file.size > (maxBytes || DEFAULT_MAX)) return setError(t('fileUploader.fileTooLarge'));
+    if (!mimeTest(file)) return setError(t('fileUploader.invalidType'));
 
     if (accept === 'image') {
       const url = URL.createObjectURL(file);
@@ -55,7 +57,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ accept = 'image', cu
         setHasPending(true);
         if (onSelected) onSelected(file, url);
       };
-      img.onerror = () => { URL.revokeObjectURL(url); setError('Archivo no es una imagen válida'); };
+      img.onerror = () => { URL.revokeObjectURL(url); setError(t('fileUploader.invalidImage')); };
       img.src = url;
     } else {
       // docs: no preview, just notify parent
@@ -92,18 +94,18 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ accept = 'image', cu
       {label && <div style={{ marginBottom: 6, fontWeight: 600 }}>{label}</div>}
       <div onDrop={onDrop} onDragOver={(e) => e.preventDefault()} style={{ border: '2px dashed var(--ion-color-primary)', padding: 12, borderRadius: 8, display: 'flex', gap: 12, alignItems: 'center' }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600 }}>{accept === 'image' ? 'Arrastra o selecciona una imagen' : 'Arrastra o selecciona un archivo'}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Tamaño máximo {(maxBytes/1024/1024).toFixed(2)} MB.</div>
+          <div style={{ fontWeight: 600 }}>{accept === 'image' ? t('fileUploader.dragImage') : t('fileUploader.dragFile')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('fileUploader.maxSize', { mb: (maxBytes/1024/1024).toFixed(2) })}</div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <input ref={inputRef} type="file" accept={acceptAttr} style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files ? e.target.files[0] : null)} />
-          <IonButton onClick={() => inputRef.current?.click()}>Seleccionar</IonButton>
+          <IonButton onClick={() => inputRef.current?.click()}>{t('fileUploader.select')}</IonButton>
         </div>
       </div>
       {error && <div style={{ color: 'var(--ion-color-danger)', marginTop: 8 }}>{error}</div>}
       {accept === 'image' && preview && (
         <div style={{ marginTop: 12, position: 'relative', display: 'inline-block' }}>
-          <img src={preview} alt="preview" style={{ maxWidth: '100%', maxHeight: 160, boxShadow: '0 6px 18px rgba(0,0,0,0.08)' }} />
+          <img src={preview} alt={t('fileUploader.previewAlt')} style={{ maxWidth: '100%', maxHeight: 160, boxShadow: '0 6px 18px rgba(0,0,0,0.08)' }} />
           <IonButton onClick={handleDeleteClick} color="danger" fill="clear" style={{ position: 'absolute', top: 6, right: 6 }}>
             <IonIcon icon={trashOutline} />
           </IonButton>
@@ -111,7 +113,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ accept = 'image', cu
       )}
       {accept !== 'image' && hasPending && (
         <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div>Archivo listo para subir</div>
+          <div>{t('fileUploader.fileReady')}</div>
           <IonButton onClick={handleDeleteClick} color="danger" fill="clear"><IonIcon icon={trashOutline} /></IonButton>
         </div>
       )}

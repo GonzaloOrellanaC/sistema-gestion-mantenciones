@@ -1,0 +1,14 @@
+{
+  "fileUploader": {
+    "dragImage": "Drag or select an image",
+    "dragFile": "Drag or select a file",
+    "maxSize": "Maximum size {{mb}} MB.",
+    "select": "Select",
+    "fileReady": "File ready to upload",
+    "fileTooLarge": "File exceeds maximum size",
+    "invalidType": "File type not allowed",
+    "invalidImage": "File is not a valid image",
+    "previewAlt": "preview",
+    "remove": "Remove"
+  }
+}

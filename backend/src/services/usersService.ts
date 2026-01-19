@@ -4,7 +4,7 @@ import Branch from '../models/Branch';
 import bcrypt from 'bcrypt';
 
 export async function createUser(orgId: any, payload: any) {
-  const { firstName, lastName, email, password, roleId, permissions } = payload;
+  const { firstName, lastName, email, password, roleId, permissions, photoUrl } = payload;
   if (!firstName || !lastName || !email || !password) throw { status: 400, message: 'Missing fields' };
 
   // if roleId provided ensure it belongs to org
@@ -13,6 +13,7 @@ export async function createUser(orgId: any, payload: any) {
 
   const passwordHash = await bcrypt.hash(password, 10);
   const userPayload: any = { orgId, firstName, lastName, email, passwordHash, roleId: assignedRole?._id, isAdmin: false };
+  if (photoUrl) userPayload.photoUrl = photoUrl;
   if (payload.branchId) {
     const br = await Branch.findById(payload.branchId);
     if (!br || br.orgId.toString() !== orgId.toString()) throw { status: 400, message: 'Invalid branchId' };
@@ -71,6 +72,9 @@ export async function updateUser(orgId: any, userId: string, payload: any) {
     const br = await Branch.findById(payload.branchId);
     if (!br || br.orgId.toString() !== orgId.toString()) throw { status: 400, message: 'Invalid branchId' };
     toUpdate.branchId = payload.branchId;
+  }
+  if (payload.photoUrl !== undefined) {
+    toUpdate.photoUrl = payload.photoUrl;
   }
 
   const user = await User.findOneAndUpdate({ _id: userId, orgId }, { $set: toUpdate }, { new: true }).select('-passwordHash').populate('roleId').populate('branchId');

@@ -11,7 +11,7 @@ interface Props extends FieldProps {
   onFileSelected?: (uid: string, file: File, forDynamicIndex?: number) => void;
 }
 
-const DynamicListField: React.FC<Props> = ({ uid, dynamicLists = {}, setDynamicLists, onFileSelected }) => {
+const DynamicListField: React.FC<Props> = ({ uid, dynamicLists = {}, setDynamicLists, onFileSelected, onFieldBlur, values, photos, filesMap, locations }) => {
   const items = dynamicLists[uid] || [];
   const [addingText, setAddingText] = useState(false);
   const [textVal, setTextVal] = useState('');
@@ -22,6 +22,7 @@ const DynamicListField: React.FC<Props> = ({ uid, dynamicLists = {}, setDynamicL
     if (setDynamicLists) setDynamicLists(prev => ({ ...(prev || dynamicLists || {}), [uid]: next }));
     setTextVal('');
     setAddingText(false);
+    if (onFieldBlur) onFieldBlur({ values: values || {}, photos: photos || {}, filesMap: filesMap || {}, dynamicLists: { ...(dynamicLists || {}), [uid]: next }, locations: locations || {} });
   };
 
   const openFileSelector = (id: string) => {
@@ -33,6 +34,7 @@ const DynamicListField: React.FC<Props> = ({ uid, dynamicLists = {}, setDynamicL
     const newUid = `${uid}-item-${Date.now()}`;
     const next = [...items, { type: 'image', value: '', uid: newUid }];
     if (setDynamicLists) setDynamicLists(prev => ({ ...(prev || dynamicLists || {}), [uid]: next }));
+    if (onFieldBlur) onFieldBlur({ values: values || {}, photos: photos || {}, filesMap: filesMap || {}, dynamicLists: { ...(dynamicLists || {}), [uid]: next }, locations: locations || {} });
   };
 
   const onImageFileSelected = (itemUid: string, f: File) => {
@@ -40,10 +42,9 @@ const DynamicListField: React.FC<Props> = ({ uid, dynamicLists = {}, setDynamicL
     const reader = new FileReader();
     reader.onload = () => {
       const data = reader.result as string;
-      if (setDynamicLists) setDynamicLists(prev => {
-        const list = (prev || dynamicLists)[uid] || [];
-        return { ...(prev || dynamicLists || {}), [uid]: list.map((it: any) => it.uid === itemUid ? { ...it, value: data, name: f.name } : it) };
-      });
+      const next = (dynamicLists[uid] || []).map((it: any) => it.uid === itemUid ? { ...it, value: data, name: f.name } : it);
+      if (setDynamicLists) setDynamicLists(prev => ({ ...(prev || dynamicLists || {}), [uid]: next }));
+      if (onFieldBlur) onFieldBlur({ values: values || {}, photos: photos || {}, filesMap: filesMap || {}, dynamicLists: { ...(dynamicLists || {}), [uid]: next }, locations: locations || {} });
     };
     reader.readAsDataURL(f);
   };
@@ -80,7 +81,7 @@ const DynamicListField: React.FC<Props> = ({ uid, dynamicLists = {}, setDynamicL
                       const list = (prev || dynamicLists)[uid] || [];
                       return { ...(prev || dynamicLists || {}), [uid]: list.map((it2: any) => it2.uid === itemUid ? { ...it2, value: newVal } : it2) };
                     });
-                  }} />
+                  }} onFieldBlur={onFieldBlur} />
                 </div>
               ) : it.type === 'text' ? (
                 <div style={{ position: 'relative', paddingTop: 8, borderTop: '1px solid #ECEFF1', marginTop: 8 }}>

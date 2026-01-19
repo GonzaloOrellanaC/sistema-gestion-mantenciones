@@ -1,0 +1,44 @@
+{
+  "workOrderDetail": {
+    "title": "Detalle OT",
+    "notFoundTitle": "Orden no encontrada",
+    "notFoundBody": "La orden de trabajo no existe o no se pudo cargar.",
+    "labels": {
+      "number": "OT #",
+      "state": "Estado",
+      "created": "Creado",
+      "assigned": "Asignado",
+      "scheduledStart": "Inicio proyectado",
+      "estimatedEnd": "Término estimado",
+      "technician": "Técnico",
+      "asset": "Activo",
+      "template": "Plantilla",
+      "assignedTo": "Asignado a",
+      "branch": "Sucursal",
+      "client": "Cliente",
+      "data": "Datos"
+    },
+    "columns": {
+      "details": "Detalles",
+      "parts": "Insumos y repuestos",
+      "history": "Historial"
+    },
+    "sections": {
+      "requiredParts": "Repuestos requeridos",
+      "history": "Historial",
+      "costs": "Costos"
+    },
+    "noParts": "Sin repuestos",
+    "noHistory": "Sin historial",
+    "buttons": {
+      "backToList": "Volver a lista",
+      "goToAssign": "Ir a asignar"
+    },
+    "debugRaw": "DEBUG: work order raw",
+    "parts": {
+      "quantity": "Cantidad",
+      "available": "Disponible",
+      "calculating": "calculando..."
+    }
+  }
+}

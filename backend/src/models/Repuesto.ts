@@ -6,7 +6,10 @@ export interface IRepuesto {
   assetId?: Schema.Types.ObjectId; // asset to which this spare may be attached
   name: string;
   serial?: string;
+  price?: number;
+  lotId?: Schema.Types.ObjectId;
   quantity?: number;
+  minStock?: number;
   dateEntry?: Date; // fecha de ingreso a bodega
   dateInUse?: Date; // fecha de utilización en activo
   dateRetired?: Date; // fecha de retiro del activo
@@ -22,7 +25,10 @@ const RepuestoSchema = new Schema<IRepuesto>({
   assetId: { type: Schema.Types.ObjectId, ref: 'Asset' },
   name: { type: String, required: true },
   serial: { type: String },
+  price: { type: Number, default: 0 },
+  lotId: { type: Schema.Types.ObjectId, ref: 'Lot' },
   quantity: { type: Number, default: 1 },
+  minStock: { type: Number, default: 0 },
   dateEntry: { type: Date },
   dateInUse: { type: Date },
   dateRetired: { type: Date },

@@ -1,0 +1,35 @@
+{
+  "partsList": {
+    "title": "Parts",
+    "lowOnly": "Only low stock",
+    "new": "New part",
+    "columns": {
+      "name": "Name",
+      "serial": "Serial",
+      "lot": "Lot",
+      "quantity": "Quantity",
+      "min": "Min threshold",
+      "branch": "Branch",
+      "branches": "Branches",
+      "asset": "Asset",
+      "assetCount": "Assets",
+      "lowStock": "Low stock"
+    },
+    "perPage": "Per page:",
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "pageInfo": "Page {{page}} / {{pages}} · Total: {{total}}",
+    "toasts": {
+      "loadError": "Error loading parts",
+      "deleteConfirm": "Delete this part?",
+      "deleted": "Part deleted",
+      "deleteError": "Error deleting part"
+    },
+    "popover": {
+      "assets": "Assets",
+      "noAssets": "No assets"
+    }
+  }
+}

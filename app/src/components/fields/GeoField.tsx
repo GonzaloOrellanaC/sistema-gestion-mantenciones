@@ -8,12 +8,14 @@ interface Props extends FieldProps {
   setLocations?: React.Dispatch<React.SetStateAction<Record<string, { lat: number; lon: number; alt?: number | null | undefined }>>>;
 }
 
-const GeoField: React.FC<Props> = ({ uid, locations, setLocations }) => {
+const GeoField: React.FC<Props> = ({ uid, locations, setLocations, onFieldBlur, values, photos, filesMap, dynamicLists }) => {
   const takeGeo = () => {
     if (!navigator.geolocation) return alert('Geolocalización no disponible');
     navigator.geolocation.getCurrentPosition(pos => {
       // pos.coords.altitude can be number | null — keep null when unavailable
+      const next = { ...(locations || {}), [uid]: { lat: pos.coords.latitude, lon: pos.coords.longitude, alt: pos.coords.altitude } };
       if (setLocations) setLocations(prev => ({ ...(prev || locations || {}), [uid]: { lat: pos.coords.latitude, lon: pos.coords.longitude, alt: pos.coords.altitude } }));
+      if (onFieldBlur) onFieldBlur({ values: values || {}, photos: photos || {}, filesMap: filesMap || {}, dynamicLists: dynamicLists || {}, locations: next });
     }, err => alert('Error obteniendo ubicación: ' + err.message));
   };
 

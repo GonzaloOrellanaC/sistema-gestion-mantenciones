@@ -1,0 +1,8 @@
+{
+  "main": {
+    "editProfile": "Edit profile",
+    "logout": "Logout",
+    "trialActive": "Trial period active",
+    "trialDaysRemaining": "{{days}} days remaining — Click for details"
+  }
+}

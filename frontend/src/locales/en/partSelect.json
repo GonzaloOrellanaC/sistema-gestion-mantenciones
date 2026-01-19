@@ -1,0 +1,7 @@
+{
+  "partSelect": {
+    "title": "Select part",
+    "searchPlaceholder": "Search part",
+    "empty": "No parts"
+  }
+}

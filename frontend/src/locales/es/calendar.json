@@ -1,0 +1,34 @@
+{
+  "calendar": {
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "filters": "Filtros",
+    "showBy": "Mostrar por",
+    "section": {
+      "dates": "Fechas",
+      "users": "Usuarios"
+    },
+    "firstDay": {
+      "monday": "Lunes (inicio por defecto)",
+      "sunday": "Domingo"
+    },
+    "weekdaysShort": ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"],
+    "segment": {
+      "workOrders": "Órdenes",
+      "lots": "Lotes"
+    },
+    "created": "Creado",
+    "assigned": "Asignado",
+    "scheduledStart": "Fecha inicio proyectado",
+    "purchaseDate": "Fecha de compra",
+    "lots": "Lotes",
+    "lotsTitle": "Lotes en calendario",
+    "hover": {
+      "created": "Creado",
+      "assigned": "Asignado",
+      "scheduledStart": "Inicio proyectado"
+    },
+    "moreCount": "+{{count}} más",
+    "user": "Usuario {{id}}"
+  }
+}

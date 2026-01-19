@@ -1,0 +1,68 @@
+{
+  "workOrdersCreate": {
+    "title": {
+      "create": "Create order",
+      "edit": "Edit Order #{{num}}"
+    },
+    "components": "Components",
+    "popover": {
+      "heading": "Tip: Information to generate the WO",
+      "close": "Close",
+      "items": {
+        "title": "Title: brief summary of the task.",
+        "description": "Description: instructions or context.",
+        "priority": "Priority: low/normal/high.",
+        "location": "Location or Equipment: if applicable, the place or item to intervene.",
+        "attachments": "Attachments: photos or files (separate upload).",
+        "templateFields": "Template-specific fields: create inputs that map to data."
+      }
+    },
+    "labels": {
+      "template": "Template",
+      "branch": "Branch (optional)",
+      "allBranches": "--All--",
+      "asset": "Asset",
+      "title": "Short title",
+      "titlePlaceholder": "Eg: Engine inspection",
+      "description": "Description",
+      "descriptionPlaceholder": "Detailed description of the work",
+      "priority": "Priority",
+      "priorityLow": "Low",
+      "priorityNormal": "Normal",
+      "priorityHigh": "High",
+      "urgency": "Urgency",
+      "urgencyLow": "Low",
+      "urgencyNormal": "Medium",
+      "urgencyHigh": "High",
+      "partsHeader": "Parts (reserve for the WO)",
+      "add": "Add",
+      "addInfo": "Add parts and quantities. Reservations will be attempted when creating the WO.",
+      "delete": "Delete",
+      "qty": "Qty",
+      "warehouse": "Warehouse"
+    },
+    "calendar": {
+      "weekdays": ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+      "startLabel": "Scheduled start",
+      "endLabel": "Estimated end",
+      "periodLabel": "Period"
+    },
+    "toasts": {
+      "loadError": "Could not load order for editing",
+      "pastDate": "Cannot select a date before today",
+      "selectTemplate": "Select a template",
+      "selectStart": "Select scheduled start date and time",
+      "selectAsset": "Select an asset",
+      "partsShortageAlert": "Warning: insufficient parts for this template.",
+      "errorCreatingOrder": "Error creating order",
+      "orderCreated": "Order created #{{num}}"
+    },
+    "buttons": {
+      "today": "Today",
+      "creating": "Creating...",
+      "editing": "Editing...",
+      "createOrder": "Create order",
+      "editOrder": "Edit order"
+    }
+  }
+}

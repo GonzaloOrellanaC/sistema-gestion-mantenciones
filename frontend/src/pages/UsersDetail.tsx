@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonAvatar, IonItem, IonLabel, IonButton, IonText, IonSpinner } from '@ionic/react';
 import * as usersApi from '../api/users';
+import { useTranslation } from 'react-i18next';
 
 const UsersDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const history = useHistory();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     let mounted = true;
@@ -32,13 +34,13 @@ const UsersDetail: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Usuario no encontrado</IonTitle>
+          <IonTitle>{t('usersDetail.notFoundTitle')}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <div>No se encontró el usuario.</div>
+        <div>{t('usersDetail.notFoundBody')}</div>
         <div style={{ marginTop: 12 }}>
-          <IonButton onClick={() => history.push('/users')} fill="clear">Volver</IonButton>
+          <IonButton onClick={() => history.push('/users')} fill="clear">{t('usersDetail.back')}</IonButton>
         </div>
       </IonContent>
     </IonPage>
@@ -62,23 +64,23 @@ const UsersDetail: React.FC = () => {
 
         <div style={{ marginTop: 16 }}>
           <IonItem>
-            <IonLabel><strong>Rol</strong></IonLabel>
+            <IonLabel><strong>{t('usersDetail.labels.role')}</strong></IonLabel>
             <IonText slot="end">{user.roleId || '-'}</IonText>
           </IonItem>
           <IonItem>
-            <IonLabel><strong>Creado</strong></IonLabel>
+            <IonLabel><strong>{t('usersDetail.labels.created')}</strong></IonLabel>
             <IonText slot="end">{user.createdAt ? new Date(user.createdAt).toLocaleString() : '-'}</IonText>
           </IonItem>
           {user.phone && (
             <IonItem>
-              <IonLabel><strong>Teléfono</strong></IonLabel>
+              <IonLabel><strong>{t('usersDetail.labels.phone')}</strong></IonLabel>
               <IonText slot="end">{user.phone}</IonText>
             </IonItem>
           )}
         </div>
 
         <div style={{ marginTop: 16 }}>
-          <IonButton onClick={() => history.push('/users')} fill="clear">Volver a usuarios</IonButton>
+          <IonButton onClick={() => history.push('/users')} fill="clear">{t('usersDetail.backToList')}</IonButton>
         </div>
       </IonContent>
     </IonPage>

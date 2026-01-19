@@ -1,0 +1,59 @@
+{
+  "supplies": {
+    "headers": {
+      "lot": "Lot",
+      "name": "Name",
+      "unit": "Unit",
+      "lotRemains": "Per lot"
+    },
+    "title": "Supplies",
+    "createButton": "Create Supply",
+    "lowStock": "Low stock",
+    "unit": "unit",
+    "errors": {
+      "load": "Error loading supplies"
+    },
+    "labels": {
+      "quantity": "Quantity",
+      "min": "Min threshold",
+      "branch": "Branch",
+      "created": "Created"
+    },
+    "onlyLowStock": "Only low stock",
+    "perPage": "Per page:",
+    "prev": "Previous",
+    "next": "Next",
+    "pageInfo": "Page {{page}} / {{pages}} · Total: {{total}}",
+    "create": {
+      "title": "Create Supply",
+      "labels": {
+        "name": "Name",
+        "description": "Description",
+        "quantity": "Quantity",
+        "photo": "Photo (JPG/PNG)",
+        "doc": "Document (PDF / DOC / DOCX)"
+      },
+      "toasts": {
+        "nameRequired": "Name is required",
+        "created": "Supply created",
+        "createError": "Error creating supply"
+      },
+      "buttons": {
+        "saving": "Saving...",
+        "create": "Create Supply"
+      }
+    },
+    "edit": {
+      "title": "Edit Supply",
+      "toasts": {
+        "notFound": "Supply not found",
+        "loadError": "Error loading supply",
+        "updated": "Supply updated",
+        "saveError": "Error saving supply"
+      },
+      "buttons": {
+        "save": "Save"
+      }
+    }
+  }
+}

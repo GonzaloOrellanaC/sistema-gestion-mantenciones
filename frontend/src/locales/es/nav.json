@@ -1,0 +1,16 @@
+{
+  "nav": {
+    "dashboard": "Tablero",
+    "users": "Usuarios",
+    "roles": "Roles",
+    "workOrders": "Órdenes",
+    "calendar": "Calendario",
+    "templates": "Plantillas",
+    "supplies": "Insumos",
+    "parts": "Repuestos",
+    "logistics": "Logística",
+    "assets": "Activos",
+    "organization": "Organización",
+    "branches": "Sucursales"
+  }
+}

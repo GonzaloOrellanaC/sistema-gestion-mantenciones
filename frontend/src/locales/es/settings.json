@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "title": "Ajustes",
+    "language": "Idioma",
+    "emailNotifications": "Notificaciones por correo",
+    "currency": "Moneda",
+    "currencyOptions": {
+      "USD": "USD",
+      "CLP": "CLP"
+    },
+    "savedToast": "Ajustes guardados"
+  }
+}

@@ -123,7 +123,7 @@ async function listWorkOrders(req, res) {
             const role = await Role_1.default.findById(user.roleId).lean();
             console.log({ role });
             const perms = role?.permissions || {};
-            if (!perms['manage_templates'])
+            if (!perms['ejecutarOT'])
                 return res.status(403).json({ message: 'Forbidden - insufficient permissions' });
         }
         const docs = await workOrdersService_1.default.list(orgId.toString(), q);

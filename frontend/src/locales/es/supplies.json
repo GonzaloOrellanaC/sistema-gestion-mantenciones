@@ -1,0 +1,59 @@
+{
+  "supplies": {
+    "headers": {
+      "lot": "Lote",
+      "name": "Nombre",
+      "unit": "Unidad",
+      "lotRemains": "Por lote"
+    },
+    "title": "Insumos",
+    "createButton": "Crear Insumo",
+    "lowStock": "Bajo stock",
+    "unit": "unidad",
+    "errors": {
+      "load": "Error cargando insumos"
+    },
+    "labels": {
+      "quantity": "Cantidad",
+      "min": "Umbral (min)",
+      "branch": "Sucursal",
+      "created": "Creado"
+    },
+    "onlyLowStock": "Sólo bajo stock",
+    "perPage": "Por página:",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "pageInfo": "Página {{page}} / {{pages}} · Total: {{total}}",
+    "create": {
+      "title": "Crear Insumo",
+      "labels": {
+        "name": "Nombre",
+        "description": "Descripción",
+        "quantity": "Cantidad",
+        "photo": "Foto (JPG/PNG)",
+        "doc": "Documento (PDF / DOC / DOCX)"
+      },
+      "toasts": {
+        "nameRequired": "El nombre es requerido",
+        "created": "Insumo creado",
+        "createError": "Error creando insumo"
+      },
+      "buttons": {
+        "saving": "Guardando...",
+        "create": "Crear Insumo"
+      }
+    },
+    "edit": {
+      "title": "Editar Insumo",
+      "toasts": {
+        "notFound": "Insumo no encontrado",
+        "loadError": "Error cargando insumo",
+        "updated": "Insumo actualizado",
+        "saveError": "Error guardando insumo"
+      },
+      "buttons": {
+        "save": "Guardar"
+      }
+    }
+  }
+}

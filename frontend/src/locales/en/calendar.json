@@ -1,0 +1,34 @@
+{
+  "calendar": {
+    "prev": "Previous",
+    "next": "Next",
+    "filters": "Filters",
+    "showBy": "Show by",
+    "section": {
+      "dates": "Dates",
+      "users": "Users"
+    },
+    "firstDay": {
+      "monday": "Monday (default start)",
+      "sunday": "Sunday"
+    },
+    "weekdaysShort": ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+    "segment": {
+      "workOrders": "Work Orders",
+      "lots": "Lots"
+    },
+    "created": "Created",
+    "assigned": "Assigned",
+    "scheduledStart": "Scheduled start date",
+    "purchaseDate": "Purchase date",
+    "lots": "Lots",
+    "lotsTitle": "Lots in calendar",
+    "hover": {
+      "created": "Created",
+      "assigned": "Assigned",
+      "scheduledStart": "Scheduled start"
+    },
+    "moreCount": "+{{count}} more",
+    "user": "User {{id}}"
+  }
+}

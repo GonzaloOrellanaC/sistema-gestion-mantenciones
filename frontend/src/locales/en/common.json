@@ -1,0 +1,16 @@
+{
+  "common": {
+    "userLabel": "User",
+    "languages": {
+      "title": "Languages",
+      "spanish": "Español",
+      "english": "English"
+    },
+    "close": "Close",
+    "undo": "Undo",
+    "cancel": "Cancel",
+    "save": "Save",
+    "yes": "Yes",
+    "no": "No"
+  }
+}

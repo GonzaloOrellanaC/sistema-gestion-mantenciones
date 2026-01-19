@@ -1,0 +1,8 @@
+{
+  "assetSelect": {
+    "title": "Select assets",
+    "searchPlaceholder": "Search by name or serial",
+    "cancel": "Cancel",
+    "confirm": "Confirm ({{count}})"
+  }
+}

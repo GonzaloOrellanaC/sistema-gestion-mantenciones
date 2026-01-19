@@ -1,0 +1,83 @@
+{
+  "roles": {
+    "title": "Role Management",
+    "subtitle": "Create and manage roles and permissions",
+    "newButton": "New Role",
+    "headers": {
+      "role": "Role",
+      "permissions": "Permissions",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "confirmDelete": "Delete role? This action cannot be undone.",
+    "toasts": {
+      "loadError": "Error loading roles",
+      "deleted": "Role deleted",
+      "deleteError": "Error deleting role"
+    },
+    "showing": "Showing {{count}} of {{total}}",
+    "page": "Page {{page}}",
+    "permissionsTitle": "Permissions",
+    "create": {
+      "title": "Create Role",
+      "subtitle": "Define name and permissions",
+      "placeholders": { "name": "Role name" },
+      "toasts": {
+        "nameRequired": "Name is required",
+        "updated": "Role updated",
+        "created": "Role created",
+        "createError": "Error creating role"
+      },
+      "buttons": { "saving": "Saving...", "update": "Update", "create": "Create", "back": "Back" }
+    },
+    "groups": {
+      "tablero": "Dashboard",
+      "users": "Users",
+      "templates": "Templates",
+      "operations": "Operations",
+      "management": "Roles & Management",
+      "assets": "Assets",
+      "organization": "Organization",
+      "branches": "Branches",
+      "supplies": "Supplies",
+      "parts": "Parts",
+      "lots": "Lots"
+    },
+    "permissions": {
+      "verTablero": "View Dashboard",
+      "verUsuarios": "View Users",
+      "editarUsuarios": "Edit Users",
+      "crearUsuarios": "Create Users",
+      "verPautas": "View Templates",
+      "crearPautas": "Create Templates",
+      "editarPautas": "Edit Templates",
+      "verOT": "View WOs",
+      "crearOT": "Create WOs",
+      "editarOT": "Edit WOs",
+      "asignarOT": "Assign WOs",
+      "ejecutarOT": "Execute WOs",
+      "supervisar": "Supervise",
+      "aprobarRechazar": "Approve/Reject",
+      "verRoles": "View Roles",
+      "crearRoles": "Create Roles",
+      "editarRoles": "Edit Roles",
+      "verOrganization": "View Organization",
+      "editarOrganization": "Edit Organization",
+      "verSucursales": "View Branches",
+      "crearSucursales": "Create Branches",
+      "editarSucursales": "Edit Branches",
+      "verInsumos": "View Supplies",
+      "crearInsumos": "Create Supplies",
+      "editarInsumos": "Edit Supplies",
+      "verRepuestos": "View Parts",
+      "crearRepuestos": "Create Parts",
+      "editarRepuestos": "Edit Parts",
+      "crearLotes": "Create Lots",
+      "verLotes": "View Lots",
+      "editarLotes": "Edit Lots",
+      "verActivos": "View Assets",
+        "crearActivos": "Create Assets",
+        "editarActivos": "Edit Assets"
+    }
+  }
+}

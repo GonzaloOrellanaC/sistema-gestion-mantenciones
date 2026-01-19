@@ -37,6 +37,9 @@ const mongoose_1 = __importStar(require("mongoose"));
 const OrganizationSchema = new mongoose_1.Schema({
     name: { type: String, required: true, unique: true },
     createdAt: { type: Date, default: Date.now },
-    meta: { type: mongoose_1.Schema.Types.Mixed }
+    meta: { type: mongoose_1.Schema.Types.Mixed },
+    trialStartsAt: { type: Date },
+    trialEndsAt: { type: Date },
+    isPaid: { type: Boolean, default: false }
 });
 exports.default = mongoose_1.default.model('Organization', OrganizationSchema);

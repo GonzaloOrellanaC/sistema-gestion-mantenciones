@@ -10,6 +10,7 @@ export type User = {
   firstName: string;
   lastName: string;
   email: string;
+  photoUrl?: string;
   roles?: string[];
   role?: {
     _id?: string;
@@ -65,6 +66,7 @@ export type WorkOrder = {
     end?: string | null;
     approvedAt?: string | null;
   };
+  urgency?: 'Baja'|'Media'|'Alta';
 };
 
 export type FileMeta = {

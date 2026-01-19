@@ -1,0 +1,22 @@
+{
+  "usersList": {
+    "title": "User Management",
+    "subtitle": "Manage your team and their roles",
+    "newUser": "New User",
+    "headers": {
+      "user": "User",
+      "email": "Email",
+      "role": "Role",
+      "branch": "Branch",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "toasts": {
+      "loadError": "Error loading users"
+    },
+    "showing": "Showing {{count}} of {{total}}",
+    "page": "Page",
+    "prev": "Previous",
+    "next": "Next"
+  }
+}

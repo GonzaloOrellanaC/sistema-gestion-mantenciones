@@ -1,0 +1,13 @@
+{
+  "usersDetail": {
+    "notFoundTitle": "User not found",
+    "notFoundBody": "The user was not found.",
+    "back": "Back",
+    "backToList": "Back to users",
+    "labels": {
+      "role": "Role",
+      "created": "Created",
+      "phone": "Phone"
+    }
+  }
+}

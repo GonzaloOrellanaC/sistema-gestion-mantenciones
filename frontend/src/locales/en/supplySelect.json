@@ -1,0 +1,9 @@
+{
+  "supplySelect": {
+    "title": "Select supply",
+    "searchPlaceholder": "Search supply",
+    "empty": "No supplies",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  }
+}

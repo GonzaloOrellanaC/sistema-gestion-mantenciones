@@ -1,0 +1,45 @@
+{
+  "assets": {
+    "title": "Activos",
+    "subtitle": "Lista de equipos y activos",
+    "photo_alt": "foto",
+    "headers": {
+      "photo": "Foto",
+      "name": "Nombre",
+      "serial": "Serial",
+      "brand": "Marca",
+      "model": "Modelo",
+      "type": "Tipo",
+      "branch": "Sucursal",
+      "location": "Ubicación",
+      "notes": "Notas",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "create": {
+      "labels": {
+        "name": "Nombre",
+        "serial": "Serial",
+        "brand": "Marca",
+        "branch": "Sucursal",
+        "type": "Tipo",
+        "model": "Modelo",
+        "notes": "Notas"
+      },
+      "photo": { "title": "Foto del activo", "label": "Foto (JPG/PNG)" },
+      "doc": { "title": "Documento del activo", "label": "Documento (PDF/DOC/DOCX)" },
+      "buttons": { "create": "Crear Activo", "update": "Actualizar Activo", "creating": "Creando...", "updating": "Actualizando..." },
+      "prompts": { "brandName": "Nombre de la marca", "typeName": "Nombre del tipo", "modelName": "Nombre del modelo" },
+      "toasts": { "nameRequired": "Ingrese nombre del activo", "created": "Activo creado", "createError": "Error creando activo", "selectBrandFirst": "Seleccione o cree una marca antes de crear el modelo", "selectTypeFirst": "Seleccione o cree un tipo antes de crear el modelo" }
+    },
+    "buttons": {
+      "create": "Crear Activo",
+      "bulkCreate": "Carga Masiva"
+    },
+    "edit": "Editar",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "pagination": "Página {{page}} / {{pages}} · Total: {{total}}",
+    "error_load": "Error cargando activos"
+  }
+}

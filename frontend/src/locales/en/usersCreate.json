@@ -1,0 +1,36 @@
+{
+  "usersCreate": {
+    "createTitle": "Create User",
+    "editTitle": "Edit User",
+    "createSubtitle": "Add a new user to the system",
+    "editSubtitle": "Modify user data",
+    "back": "Back",
+    "labels": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "password": "Password",
+      "role": "Role",
+      "branch": "Branch"
+    },
+    "placeholders": {
+      "roleOptional": "Select a role (optional)",
+      "branchOptional": "Select a branch (optional)"
+    },
+    "buttons": {
+      "saving": "Saving...",
+      "update": "Update",
+      "create": "Create",
+      "cancel": "Cancel"
+    },
+    "toasts": {
+      "loadError": "Error loading user",
+      "fillRequired": "Fill required fields",
+      "passwordRequired": "Password is required",
+      "updated": "User updated",
+      "created": "User created",
+      "updateError": "Error updating user",
+      "createError": "Error creating user"
+    }
+  }
+}

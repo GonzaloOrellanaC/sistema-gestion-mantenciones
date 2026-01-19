@@ -37,6 +37,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const WorkOrderSchema = new mongoose_1.Schema({
     orgId: { type: mongoose_1.Schema.Types.ObjectId, required: true, index: true },
     branchId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Branch' },
+    assetId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Asset' },
     orgSeq: { type: Number, required: true },
     templateId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Template' },
     data: { type: mongoose_1.Schema.Types.Mixed },

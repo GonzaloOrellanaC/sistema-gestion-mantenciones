@@ -1,0 +1,45 @@
+{
+  "assets": {
+    "title": "Assets",
+    "subtitle": "List of equipment and assets",
+    "photo_alt": "photo",
+    "headers": {
+      "photo": "Photo",
+      "name": "Name",
+      "serial": "Serial",
+      "brand": "Brand",
+      "model": "Model",
+      "type": "Type",
+      "branch": "Branch",
+      "location": "Location",
+      "notes": "Notes",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "create": {
+      "labels": {
+        "name": "Name",
+        "serial": "Serial",
+        "brand": "Brand",
+        "branch": "Branch",
+        "type": "Type",
+        "model": "Model",
+        "notes": "Notes"
+      },
+      "photo": { "title": "Asset photo", "label": "Photo (JPG/PNG)" },
+      "doc": { "title": "Asset document", "label": "Document (PDF/DOC/DOCX)" },
+      "buttons": { "create": "Create Asset", "update": "Update Asset", "creating": "Creating...", "updating": "Updating..." },
+      "prompts": { "brandName": "Brand name", "typeName": "Type name", "modelName": "Model name" },
+      "toasts": { "nameRequired": "Enter asset name", "created": "Asset created", "createError": "Error creating asset", "selectBrandFirst": "Select or create a brand before creating the model", "selectTypeFirst": "Select or create a type before creating the model" }
+    },
+    "buttons": {
+      "create": "Create Asset",
+      "bulkCreate": "Bulk Upload"
+    },
+    "edit": "Edit",
+    "prev": "Previous",
+    "next": "Next",
+    "pagination": "Page {{page}} / {{pages}} · Total: {{total}}",
+    "error_load": "Error loading assets"
+  }
+}

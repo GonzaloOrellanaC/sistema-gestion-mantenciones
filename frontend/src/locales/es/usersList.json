@@ -1,0 +1,22 @@
+{
+  "usersList": {
+    "title": "Gestión de Usuarios",
+    "subtitle": "Administra tu equipo y sus roles",
+    "newUser": "Nuevo Usuario",
+    "headers": {
+      "user": "Usuario",
+      "email": "Email",
+      "role": "Rol",
+      "branch": "Sucursal",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "toasts": {
+      "loadError": "Error cargando usuarios"
+    },
+    "showing": "Mostrando {{count}} de {{total}}",
+    "page": "Página",
+    "prev": "Anterior",
+    "next": "Siguiente"
+  }
+}

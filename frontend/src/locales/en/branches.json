@@ -1,0 +1,40 @@
+{
+  "branches": {
+    "title": "Branches",
+    "list": {
+      "heading": "Branches list",
+      "newButton": "New",
+      "loadError": "Error loading branches",
+      "created": "Branch created",
+      "createError": "Error creating branch",
+      "promptName": "Branch name"
+    },
+    "form": {
+      "newTitle": "New Branch",
+      "editTitle": "Edit Branch",
+      "labels": {
+        "name": "Name",
+        "address": "Address",
+        "type": "Type"
+      },
+      "placeholders": {
+        "name": "Eg: Main Branch",
+        "address": "Eg: 123 Street",
+        "type": "Select type"
+      },
+      "toasts": {
+        "nameRequired": "Name required",
+        "createError": "Error creating branch",
+        "loadError": "Error loading branch"
+      },
+      "buttons": {
+        "create": "Create",
+        "creating": "Creating..."
+      },
+      "options": {
+        "bodega": "Warehouse",
+        "taller": "Workshop"
+      }
+    }
+  }
+}

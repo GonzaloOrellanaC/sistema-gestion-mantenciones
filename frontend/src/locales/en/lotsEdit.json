@@ -1,0 +1,27 @@
+{
+  "lotsEdit": {
+    "title": "Edit lot",
+    "loadError": "Could not load lot",
+    "saved": "Lot saved",
+    "saveError": "Error saving lot",
+    "deleteConfirm": "Delete this lot?",
+    "deleted": "Lot deleted",
+    "deleteError": "Error deleting lot",
+    "delete": "Delete",
+    "labels": {
+      "code": "Code",
+      "supplier": "Supplier",
+      "type": "Type",
+      "purchaseDate": "Purchase date",
+      "price": "Price",
+      "notes": "Notes",
+      "primaryItemId": "Primary item ID",
+      "primaryItemQuantity": "Primary item quantity",
+      "primaryItemUnitPrice": "Primary item unit price"
+    },
+    "types": {
+      "supply": "Supply",
+      "repuesto": "Part"
+    }
+  }
+}

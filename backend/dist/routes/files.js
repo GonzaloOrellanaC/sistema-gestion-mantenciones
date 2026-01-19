@@ -57,13 +57,18 @@ const storage = multer_1.default.diskStorage({
             cb(null, dir);
         }
         catch (e) {
-            cb(e, '');
+            cb(e instanceof Error ? e : new Error(String(e)), '');
         }
     },
     filename: (req, file, cb) => {
-        const ts = Date.now();
-        const safe = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-        cb(null, `${ts}_${safe}`);
+        try {
+            const ts = Date.now();
+            const safe = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+            cb(null, `${ts}_${safe}`);
+        }
+        catch (e) {
+            cb(e instanceof Error ? e : new Error(String(e)), '');
+        }
     }
 });
 function fileFilter(req, file, cb) {
@@ -73,7 +78,8 @@ function fileFilter(req, file, cb) {
     ];
     if (allowed.includes(file.mimetype))
         return cb(null, true);
-    return cb(new Error('Invalid file type'), false);
+    // reject unsupported mimetypes without throwing an error to the uploader
+    return cb(null, false);
 }
 exports.upload = (0, multer_1.default)({ storage, limits: { fileSize: 5 * 1024 * 1024 }, fileFilter });
 router.use(auth_1.default);

@@ -1,0 +1,32 @@
+{
+  "partsEdit": {
+    "columns": { "left": "Datos del repuesto", "right": "Imágenes y documentos" },
+    "labels": {
+      "name": "Nombre",
+      "serial": "Serial",
+      "quantity": "Cantidad",
+      "price": "Precio",
+      "lot": "Lote",
+      "notes": "Notas",
+      "lotMeta": "Código: {{code}} · Proveedor: {{supplier}}"
+    },
+    "placeholders": { "selectLot": "Seleccionar lote" },
+    "image": { "uploadHint": "Arrastra o haz clic para subir una foto", "formats": "Formatos soportados: JPG, PNG (máx. 5MB)" },
+    "documents": { "title": "Documentos", "hint": "Puedes subir uno o varios archivos: pdf, doc, docx, txt (máx. 5MB cada uno)", "markedForDeletion": "Marcado para eliminar" },
+    "actions": { "selectImage": "Seleccionar imagen", "removeImage": "Eliminar imagen", "selectDocuments": "Seleccionar documentos" },
+    "lotModal": { "title": "Seleccionar lote", "edit": "Editar", "filterBySupplier": "Filtrar por proveedor", "all": "Todos" },
+    "title": { "edit": "Editar repuesto", "new": "Nuevo repuesto" },
+    "toasts": {
+      "loadError": "No se pudo cargar el repuesto",
+      "pendingUploadError": "Error al subir documentos pendientes",
+      "updated": "Repuesto actualizado",
+      "created": "Repuesto creado",
+      "saveError": "Error al guardar el repuesto",
+      "fileTooLarge": "El archivo supera los 5MB",
+      "imageUploaded": "Imagen subida",
+      "imageUploadError": "Error al subir la imagen",
+      "docsRejected": "No se pudieron subir: {{names}}",
+      "docsReady": "{{count}} documento(s) listo(s) para subir"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonList, IonItem, IonLabel } from '@ionic/react';
 import { Input } from '../components/Widgets/Input.widget';
 import { Select as WidgetSelect } from '../components/Widgets/Select.widget';
@@ -12,6 +13,7 @@ import './UsersList.css';
 const UsersCreate: React.FC = () => {
   const params = useParams<{ id?: string }>();
   const history = useHistory();
+  const { t } = useTranslation();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -58,7 +60,7 @@ const UsersCreate: React.FC = () => {
         setBranchId(typeof u.branchId === 'string' ? u.branchId : (u.branchId?._id || null));
       } catch (err) {
         console.error('Error loading user', err);
-        setToast({ show: true, message: 'Error cargando usuario' });
+        setToast({ show: true, message: t('usersCreate.toasts.loadError') });
       } finally {
         if (mounted) setLoading(false);
       }
@@ -70,13 +72,13 @@ const UsersCreate: React.FC = () => {
   const onSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!firstName.trim() || !lastName.trim() || !email.trim()) {
-      setToast({ show: true, message: 'Completa los campos obligatorios' });
+      setToast({ show: true, message: t('usersCreate.toasts.fillRequired') });
       return;
     }
 
     // In create mode password required; in edit mode we don't change password here
     if (!isEdit) {
-      if (!password) { setToast({ show: true, message: 'La contraseña es requerida' }); return; }
+      if (!password) { setToast({ show: true, message: t('usersCreate.toasts.passwordRequired') }); return; }
     }
 
     setSaving(true);
@@ -86,19 +88,19 @@ const UsersCreate: React.FC = () => {
         if (roleId) payload.roleId = roleId;
           if (branchId) payload.branchId = branchId;
         await usersApi.updateUser(params.id, payload);
-        setToast({ show: true, message: 'Usuario actualizado' });
+        setToast({ show: true, message: t('usersCreate.toasts.updated') });
         setTimeout(() => history.push('/users'), 600);
       } else {
         const payload: any = { firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), password };
         if (roleId) payload.roleId = roleId;
           if (branchId) payload.branchId = branchId;
         await usersApi.createUser(payload);
-        setToast({ show: true, message: 'Usuario creado' });
+        setToast({ show: true, message: t('usersCreate.toasts.created') });
         setTimeout(() => history.push('/users'), 600);
       }
     } catch (err) {
       console.error(err);
-      setToast({ show: true, message: isEdit ? 'Error actualizando usuario' : 'Error creando usuario' });
+      setToast({ show: true, message: isEdit ? t('usersCreate.toasts.updateError') : t('usersCreate.toasts.createError') });
     } finally {
       setSaving(false);
     }
@@ -110,54 +112,54 @@ const UsersCreate: React.FC = () => {
         <IonHeader className="users-header-toolbar ion-no-border">
           <IonToolbar>
             <div className="users-toolbar-left">
-              <h2 className="toolbar-title">{isEdit ? 'Editar Usuario' : 'Crear Usuario'}</h2>
-              <div className="toolbar-sub">{isEdit ? 'Modifica los datos del usuario' : 'Agrega un nuevo usuario al sistema'}</div>
+              <h2 className="toolbar-title">{isEdit ? t('usersCreate.editTitle') : t('usersCreate.createTitle')}</h2>
+              <div className="toolbar-sub">{isEdit ? t('usersCreate.editSubtitle') : t('usersCreate.createSubtitle')}</div>
             </div>
             <div slot="end">
-              <IonButton color="medium" onClick={() => history.push('/users')}>Volver</IonButton>
+                <IonButton color="medium" onClick={() => history.push('/users')}>{t('usersCreate.back')}</IonButton>
             </div>
           </IonToolbar>
         </IonHeader>
 
         <form onSubmit={onSubmit} style={{ maxWidth: 800 }}>
           <div style={{ marginBottom: 12 }}>
-            <Input type="text" name="firstName" label="Nombre" value={firstName} onInput={(e: any) => setFirstName(e.detail?.value ?? '')} />
+            <Input type="text" name="firstName" label={t('usersCreate.labels.firstName')} value={firstName} onInput={(e: any) => setFirstName(e.detail?.value ?? '')} />
           </div>
           <div style={{ marginBottom: 12 }}>
-            <Input type="text" name="lastName" label="Apellido" value={lastName} onInput={(e: any) => setLastName(e.detail?.value ?? '')} />
+            <Input type="text" name="lastName" label={t('usersCreate.labels.lastName')} value={lastName} onInput={(e: any) => setLastName(e.detail?.value ?? '')} />
           </div>
           <div style={{ marginBottom: 12 }}>
-            <Input type="email" name="email" label="Correo electrónico" value={email} onInput={(e: any) => setEmail(e.detail?.value ?? '')} />
+            <Input type="email" name="email" label={t('usersCreate.labels.email')} value={email} onInput={(e: any) => setEmail(e.detail?.value ?? '')} />
           </div>
           {!isEdit && (
             <div style={{ marginBottom: 12 }}>
-              <Input passwordAleatory type="password" name="password" label="Contraseña" value={password} onInput={(e: any) => setPassword(e.detail?.value ?? '')} />
+              <Input passwordAleatory type="password" name="password" label={t('usersCreate.labels.password')} value={password} onInput={(e: any) => setPassword(e.detail?.value ?? '')} />
             </div>
           )}
 
           <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', marginBottom: 6 }}>Rol</label>
+            <label style={{ display: 'block', marginBottom: 6 }}>{t('usersCreate.labels.role')}</label>
             <WidgetSelect
               value={roleId}
               onChange={(v) => setRoleId(v as string)}
               options={roles.map(r => ({ label: r.name, value: r._id! }))}
-              placeholder="Selecciona un rol (opcional)"
+              placeholder={t('usersCreate.placeholders.roleOptional')}
             />
           </div>
 
             <div style={{ marginBottom: 12 }}>
-              <label style={{ display: 'block', marginBottom: 6 }}>Sucursal</label>
+              <label style={{ display: 'block', marginBottom: 6 }}>{t('usersCreate.labels.branch')}</label>
               <WidgetSelect
                 value={branchId}
                 onChange={(v) => setBranchId(v as string)}
                 options={branches.map(b => ({ label: b.name, value: b._id }))}
-                placeholder="Selecciona una sucursal (opcional)"
+                placeholder={t('usersCreate.placeholders.branchOptional')}
               />
             </div>
 
           <div style={{ display: 'flex', gap: 8 }}>
-            <IonButton type="submit" color="primary" disabled={saving || loading}>{saving ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear')}</IonButton>
-            <IonButton color="medium" onClick={() => history.push('/users')}>Cancelar</IonButton>
+            <IonButton type="submit" color="primary" disabled={saving || loading}>{saving ? t('usersCreate.buttons.saving') : (isEdit ? t('usersCreate.buttons.update') : t('usersCreate.buttons.create'))}</IonButton>
+            <IonButton color="medium" onClick={() => history.push('/users')}>{t('usersCreate.buttons.cancel')}</IonButton>
           </div>
         </form>
 

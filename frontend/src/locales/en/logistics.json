@@ -1,0 +1,6 @@
+{
+  "logistics": {
+    "menuTitle": "Logistics",
+    "items": { "lots": "Lots", "parts": "Parts", "supplies": "Supplies" }
+  }
+}

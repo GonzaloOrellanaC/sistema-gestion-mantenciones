@@ -18,7 +18,7 @@ export async function listWorkOrders(params?: Record<string, unknown>): Promise<
  * Payload example: { templateId, data, scheduledStart, assigneeId }
  * Returns: created WorkOrder (with orgSeq assigned)
  */
-export async function createWorkOrder(payload: { templateId: string; data?: unknown; scheduledStart?: string; assigneeId?: string; assigneeRole?: string; branchId?: string; assetId: string }): Promise<WorkOrder> {
+export async function createWorkOrder(payload: { templateId: string; data?: unknown; scheduledStart?: string; assigneeId?: string; assigneeRole?: string; branchId?: string; assetId: string; urgency?: string }): Promise<WorkOrder> {
   const { data } = await api.post('/api/work-orders', payload);
   return data;
 }
@@ -29,6 +29,11 @@ export async function createWorkOrder(payload: { templateId: string; data?: unkn
  */
 export async function getWorkOrder(id: string): Promise<WorkOrder> {
   const { data } = await api.get(`/api/work-orders/${id}`);
+  return data;
+}
+
+export async function updateWorkOrder(id: string, payload: any): Promise<WorkOrder> {
+  const { data } = await api.put(`/api/work-orders/${id}`, payload);
   return data;
 }
 
@@ -47,4 +52,4 @@ export async function assignWorkOrder(id: string, assigneeId: string, note?: str
 // Execution endpoints (start/submit/approve/reject) are intentionally omitted —
 // they will be implemented in the native Android/iOS apps only.
 
-export default { listWorkOrders, createWorkOrder, getWorkOrder, assignWorkOrder };
+export default { listWorkOrders, createWorkOrder, getWorkOrder, updateWorkOrder, assignWorkOrder };

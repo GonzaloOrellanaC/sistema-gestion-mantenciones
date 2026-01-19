@@ -33,3 +33,6 @@ body { background-color: var(--bg-body); color: var(--text-main); }
 .btn { padding: 0.6rem 1rem; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
 .btn-primary { background: var(--primary-dark); color: white; }
 .btn-secondary { background: var(--bg-sidebar); color: var(--primary-dark); }
+/* Cancel button: pastel red tone */
+.btn-cancel { background: var(--danger-bg); color: var(--danger-text); }
+.btn-cancel:hover { filter: brightness(0.97); }

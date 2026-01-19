@@ -1,0 +1,40 @@
+{
+  "branches": {
+    "title": "Sucursales",
+    "list": {
+      "heading": "Listado de sucursales",
+      "newButton": "Nueva",
+      "loadError": "Error cargando sucursales",
+      "created": "Sucursal creada",
+      "createError": "Error creando sucursal",
+      "promptName": "Nombre de la sucursal"
+    },
+    "form": {
+      "newTitle": "Nueva Sucursal",
+      "editTitle": "Editar Sucursal",
+      "labels": {
+        "name": "Nombre",
+        "address": "Dirección",
+        "type": "Tipo"
+      },
+      "placeholders": {
+        "name": "Ej: Sucursal Central",
+        "address": "Ej: Calle 123",
+        "type": "Seleccione tipo"
+      },
+      "toasts": {
+        "nameRequired": "Nombre requerido",
+        "createError": "Error creando sucursal",
+        "loadError": "Error cargando sucursal"
+      },
+      "buttons": {
+        "create": "Crear",
+        "creating": "Creando..."
+      },
+      "options": {
+        "bodega": "Bodega",
+        "taller": "Taller"
+      }
+    }
+  }
+}

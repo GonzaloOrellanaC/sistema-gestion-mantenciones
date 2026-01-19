@@ -29,14 +29,16 @@ type Field = {
   children?: Field[][];
 };
 
-const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
+const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave?: (payload: any) => void; onProgress?: (percent: number) => void; onRegisterSave?: (fn: () => void) => void; initialData?: any; onFieldBlur?: (snapshot: any) => void }> = ({ schema, showSaveButton, onSave, onProgress, onRegisterSave, initialData, onFieldBlur }) => {
   // split schema into pages by 'division' fields and collect page titles
   // NOTE: a division's `pageTitle` should be placed on the page that precedes the division
   const { pages, pageTitles } = useMemo(() => {
+    const safeSchema = Array.isArray(schema) ? schema : ([] as Field[]);
+    if (!Array.isArray(schema)) console.warn('FormRenderer: schema is not an array, falling back to empty array', schema);
     const result: Field[][] = [];
     const titles: (string | undefined)[] = [];
     let current: Field[] = [];
-    for (const f of schema) {
+    for (const f of safeSchema) {
       if (f.type === 'division') {
         // end current page and assign this division's pageTitle to that page (if any)
         const title = (f.pageTitle && f.pageTitle.length > 0) ? f.pageTitle : undefined;
@@ -111,6 +113,73 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
     };
   }, [cameraOpenFor]);
 
+  // populate internal state from initialData when provided (restore from DB or backup)
+  useEffect(() => {
+    if (!initialData) return;
+    try {
+      const d = initialData as any;
+      if (d.values) setValues(d.values);
+      if (d.photos) setPhotos(d.photos);
+      if (d.filesMap) setFilesMap(d.filesMap);
+      if (d.locations) setLocations(d.locations);
+      if (d.dynamicLists) setDynamicLists(d.dynamicLists);
+    } catch (e) {
+      // ignore
+    }
+  }, [initialData]);
+
+  // compute progress based on filled components
+  useEffect(() => {
+    try {
+      let total = 0;
+      let filled = 0;
+
+      pages.forEach((page, pidx) => {
+        page.forEach((field, fidx) => {
+          const uid = `${field.id || 'field'}-${pidx}-${fidx}`;
+          if (field.type === 'division') return;
+          if (field.type === 'columns') {
+            // count children as separate inputs
+            const children = (field as any).children || [];
+            const childCount = children.flat().length;
+            total += childCount;
+            // consider columns filled if any internal state key starts with uid-
+            const anyInnerFilled = Object.keys(values).some(k => k.startsWith(`${uid}-`) && values[k] !== undefined && values[k] !== '')
+              || Object.keys(photos).some(k => k.startsWith(`${uid}-`) && photos[k])
+              || Object.keys(filesMap).some(k => k.startsWith(`${uid}-`) && filesMap[k])
+              || Object.keys(locations).some(k => k.startsWith(`${uid}-`) && locations[k])
+              || Object.keys(dynamicLists).some(k => k.startsWith(`${uid}-`) && (dynamicLists as any)[k] && (dynamicLists as any)[k].length > 0);
+            if (anyInnerFilled) filled += childCount; // attribute as filled (simple heuristic)
+          } else {
+            total += 1;
+            const hasValue = (values && values[uid] !== undefined && values[uid] !== '')
+              || !!photos[uid]
+              || !!filesMap[uid]
+              || !!locations[uid]
+              || ((dynamicLists[uid] || []).length > 0);
+            if (hasValue) filled += 1;
+          }
+        });
+      });
+
+      const percent = total > 0 ? Math.round((filled / total) * 100) : 0;
+      if (typeof onProgress === 'function') onProgress(percent);
+    } catch (e) {
+      // ignore
+    }
+  // dependencies: any state that represents filled data
+  }, [values, photos, filesMap, locations, dynamicLists, pages, onProgress]);
+
+  // expose a save trigger to parent so header save can call it
+  useEffect(() => {
+    if (typeof onRegisterSave === 'function') {
+      onRegisterSave(() => {
+        if (typeof onSave === 'function') onSave({ values, photos, filesMap, locations, dynamicLists });
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onRegisterSave, onSave, values, photos, filesMap, locations, dynamicLists]);
+
   // Helpers for file/image handling and camera
   const openCamera = async (uid: string) => {
     try {
@@ -125,14 +194,21 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
 
   const handleFileSelected: any = (uid: string, f: File) => {
     if (!f) return;
-    if (f.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = () => setPhotos(prev => ({ ...prev, [uid]: reader.result as string }));
-      reader.readAsDataURL(f);
-    } else {
-      const url = URL.createObjectURL(f);
-      setFilesMap(prev => ({ ...prev, [uid]: { name: f.name, url } }));
-    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const data = reader.result as string;
+      if (f.type.startsWith('image/')) {
+        const newPhotos = { ...photos, [uid]: data };
+        setPhotos(prev => ({ ...prev, [uid]: data }));
+        if (onFieldBlur) onFieldBlur({ values, photos: newPhotos, filesMap, dynamicLists, locations });
+      } else {
+        // store non-image files as base64 as well (for local backup)
+        const newFiles = { ...filesMap, [uid]: { name: f.name, url: data } };
+        setFilesMap(prev => ({ ...prev, [uid]: { name: f.name, url: data } }));
+        if (onFieldBlur) onFieldBlur({ values, photos, filesMap: newFiles, dynamicLists, locations });
+      }
+    };
+    reader.readAsDataURL(f);
   };
 
   const handleDynamicFileSelected = (uid: string, f: File) => {
@@ -140,7 +216,9 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
     const reader = new FileReader();
     reader.onload = () => {
       const data = reader.result as string;
-      setDynamicLists(prev => ({ ...prev, [uid]: [...(prev[uid] || []), { type: 'image', value: data, name: f.name }] }));
+      const nextList = [...(dynamicLists[uid] || []), { type: 'image', value: data, name: f.name }];
+      setDynamicLists((prev: any) => ({ ...prev, [uid]: nextList }));
+      if (onFieldBlur) onFieldBlur({ values, photos, filesMap, dynamicLists: { ...dynamicLists, [uid]: nextList }, locations });
     };
     reader.readAsDataURL(f);
   };
@@ -152,7 +230,10 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
         {pages.length > 1 && (
           <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
             <button
-              onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
+              onClick={() => setActiveIndex(0)}
+              disabled={activeIndex === 0}
+              title="Ir a primera página"
+              aria-label="Ir a primera página"
               style={{
                 minWidth: 34,
                 height: 34,
@@ -160,16 +241,37 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
                 border: 'none',
                 background: '#ECEFF1',
                 color: '#455A64',
-                cursor: 'pointer',
-                fontWeight: 700
+                cursor: activeIndex === 0 ? 'default' : 'pointer',
+                fontWeight: 700,
+                opacity: activeIndex === 0 ? 0.5 : 1
               }}
+            >{`<<`}</button>
+
+            <button
+              onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
+              disabled={activeIndex === 0}
+              title="Página anterior"
               aria-label="Página anterior"
+              style={{
+                minWidth: 34,
+                height: 34,
+                borderRadius: 6,
+                border: 'none',
+                background: '#ECEFF1',
+                color: '#455A64',
+                cursor: activeIndex === 0 ? 'default' : 'pointer',
+                fontWeight: 700,
+                opacity: activeIndex === 0 ? 0.5 : 1
+              }}
             >{`<`}</button>
 
             <div style={{ padding: '0 8px', fontWeight: 700, color: '#37474F' }}>{`${activeIndex + 1}/${pages.length}`}</div>
 
             <button
               onClick={() => setActiveIndex(Math.min(pages.length - 1, activeIndex + 1))}
+              disabled={activeIndex === pages.length - 1}
+              title="Página siguiente"
+              aria-label="Página siguiente"
               style={{
                 minWidth: 34,
                 height: 34,
@@ -177,11 +279,29 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
                 border: 'none',
                 background: '#ECEFF1',
                 color: '#455A64',
-                cursor: 'pointer',
-                fontWeight: 700
+                cursor: activeIndex === pages.length - 1 ? 'default' : 'pointer',
+                fontWeight: 700,
+                opacity: activeIndex === pages.length - 1 ? 0.5 : 1
               }}
-              aria-label="Página siguiente"
             >{`>`}</button>
+
+            <button
+              onClick={() => setActiveIndex(pages.length - 1)}
+              disabled={activeIndex === pages.length - 1}
+              title="Ir a última página"
+              aria-label="Ir a última página"
+              style={{
+                minWidth: 34,
+                height: 34,
+                borderRadius: 6,
+                border: 'none',
+                background: '#ECEFF1',
+                color: '#455A64',
+                cursor: activeIndex === pages.length - 1 ? 'default' : 'pointer',
+                fontWeight: 700,
+                opacity: activeIndex === pages.length - 1 ? 0.5 : 1
+              }}
+            >{`>>`}</button>
           </div>
         )}
 
@@ -211,31 +331,31 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
                               <IonLabel style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#37474F', marginBottom: 6 }}>{field.label} {field.required && <span style={{ color: '#E53935' }}>*</span>}</IonLabel>
                             )}
                             {field.type === 'text' && (
-                              <TextField field={field as any} uid={uid} values={values} setValues={setValues} />
+                              <TextField field={field as any} uid={uid} values={values} setValues={setValues} onFieldBlur={onFieldBlur} />
                             )}
                             {field.type === 'textarea' && (
-                              <TextareaField field={field as any} uid={uid} values={values} setValues={setValues} />
+                              <TextareaField field={field as any} uid={uid} values={values} setValues={setValues} onFieldBlur={onFieldBlur} />
                             )}
                             {field.type === 'select' && (
-                              <SelectField field={field as any} uid={uid} values={values} setValues={setValues} />
+                              <SelectField field={field as any} uid={uid} values={values} setValues={setValues} photos={photos} filesMap={filesMap} dynamicLists={dynamicLists} locations={locations} onFieldBlur={onFieldBlur} />
                             )}
                             {field.type === 'radio' && (
-                                <RadioField field={field as any} uid={uid} values={values} setValues={setValues} />
+                                <RadioField field={field as any} uid={uid} values={values} setValues={setValues} photos={photos} filesMap={filesMap} dynamicLists={dynamicLists} locations={locations} onFieldBlur={onFieldBlur} />
                             )}
                             {field.type === 'geo' && (
-                                <GeoField field={field as any} uid={uid} locations={locations} setLocations={setLocations} />
+                                <GeoField field={field as any} uid={uid} locations={locations} setLocations={setLocations} onFieldBlur={onFieldBlur} />
                             )}
                             {(field.type === 'image' || field.type === 'photo') && (
                               <ImageField field={field as any} uid={uid} photos={photos} openCamera={openCamera} onFileSelected={handleFileSelected} />
                             )}
                             {field.type === 'file' && (
-                                <FileField field={field as any} uid={uid} onFileSelected={handleFileSelected} filesMap={filesMap} />
+                              <FileField field={field as any} uid={uid} onFileSelected={handleFileSelected} filesMap={filesMap} onFieldBlur={onFieldBlur} values={values} photos={photos} dynamicLists={dynamicLists} locations={locations} />
                             )}
                             {field.type === 'date' && (
-                              <DateField field={field as any} uid={uid} values={values} setValues={setValues} />
+                              <DateField field={field as any} uid={uid} values={values} setValues={setValues} photos={photos} filesMap={filesMap} dynamicLists={dynamicLists} locations={locations} onFieldBlur={onFieldBlur} />
                             )}
                             {field.type === 'dynamic_list' && (
-                                <DynamicListField field={field as any} uid={uid} dynamicLists={dynamicLists} setDynamicLists={setDynamicLists} onFileSelected={handleDynamicFileSelected} />
+                              <DynamicListField field={field as any} uid={uid} dynamicLists={dynamicLists} setDynamicLists={setDynamicLists} onFileSelected={handleDynamicFileSelected} onFieldBlur={onFieldBlur} values={values} photos={photos} filesMap={filesMap} locations={locations} />
                             )}
                             {field.type === 'columns' && (
                               <div style={{ width: '100%' }}>
@@ -253,27 +373,27 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
                                     // replicate minimal rendering for supported inner types
                                     switch (innerField.type) {
                                       case 'text':
-                                        return <IonInput className="input-field" placeholder={innerField.placeholder} value={values[innerUid] || ''} onIonChange={e => setValues(prev => ({ ...prev, [innerUid]: e.detail.value }))} />;
+                                        return <IonInput className="input-field" placeholder={innerField.placeholder} value={values[innerUid] || ''} onIonChange={e => setValues(prev => ({ ...prev, [innerUid]: e.detail.value }))} onIonBlur={() => onFieldBlur && onFieldBlur({ values, photos, filesMap, dynamicLists, locations })} />;
                                       case 'textarea':
-                                        return <IonTextarea className="input-field" rows={3} placeholder={innerField.placeholder} value={values[innerUid] || ''} onIonChange={e => setValues(prev => ({ ...prev, [innerUid]: e.detail.value }))} />;
+                                        return <IonTextarea className="input-field" rows={3} placeholder={innerField.placeholder} value={values[innerUid] || ''} onIonChange={e => setValues(prev => ({ ...prev, [innerUid]: e.detail.value }))} onIonBlur={() => onFieldBlur && onFieldBlur({ values, photos, filesMap, dynamicLists, locations })} />;
                                       case 'select':
-                                        return <IonSelect interface="popover" placeholder="Seleccionar opción" className="input-field" value={values[innerUid]} onIonChange={e => setValues(prev => ({ ...prev, [innerUid]: e.detail.value }))}>{(innerField.options || []).map((opt: string, i: number) => <IonSelectOption key={i} value={opt}>{opt}</IonSelectOption>)}</IonSelect>;
+                                        return <IonSelect interface="popover" placeholder="Seleccionar opción" className="input-field" value={values[innerUid]} onIonChange={e => { const v = e.detail.value; setValues(prev => ({ ...prev, [innerUid]: v })); if (onFieldBlur) onFieldBlur({ values: { ...(values || {}), [innerUid]: v }, photos, filesMap, dynamicLists, locations }); }}>{(innerField.options || []).map((opt: string, i: number) => <IonSelectOption key={i} value={opt}>{opt}</IonSelectOption>)}</IonSelect>;
                                       case 'radio':
                                         return (
-                                          <IonItem lines="none" button={true} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: 'none', paddingLeft: 0, cursor: 'pointer' }} onClick={() => setValues && setValues(prev => ({ ...(prev || {}), [innerUid]: !prev?.[innerUid] }))}>
+                                          <IonItem lines="none" button={true} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: 'none', paddingLeft: 0, cursor: 'pointer' }} onClick={() => { const next = !values?.[innerUid]; setValues && setValues(prev => ({ ...(prev || {}), [innerUid]: next })); if (onFieldBlur) onFieldBlur({ values: { ...(values || {}), [innerUid]: next }, photos, filesMap, dynamicLists, locations }); }}>
                                             <IonLabel style={{ fontWeight: 600 }}>{innerField.label}</IonLabel>
                                             <IonRadio slot="end" {...({ checked: !!values?.[innerUid] } as any)} />
                                           </IonItem>
                                         );
                                       case 'checkbox':
                                         return (
-                                          <IonItem lines="none" button={true} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: 'none', paddingLeft: 0, cursor: 'pointer' }} onClick={() => setValues && setValues(prev => ({ ...(prev || {}), [innerUid]: !prev?.[innerUid] }))}>
+                                          <IonItem lines="none" button={true} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: 'none', paddingLeft: 0, cursor: 'pointer' }} onClick={() => { const next = !values?.[innerUid]; setValues && setValues(prev => ({ ...(prev || {}), [innerUid]: next })); if (onFieldBlur) onFieldBlur({ values: { ...(values || {}), [innerUid]: next }, photos, filesMap, dynamicLists, locations }); }}>
                                             <IonLabel style={{ fontWeight: 600 }}>{innerField.label}</IonLabel>
                                             <IonCheckbox slot="end" {...({ checked: !!values?.[innerUid] } as any)} />
                                           </IonItem>
                                         );
                                       case 'number':
-                                        return <IonInput className="input-field" placeholder={innerField.placeholder} type="number" value={values[innerUid] || ''} onIonChange={e => setValues(prev => ({ ...prev, [innerUid]: e.detail.value }))} />;
+                                        return <IonInput className="input-field" placeholder={innerField.placeholder} type="number" value={values[innerUid] || ''} onIonChange={e => { const v = e.detail.value; setValues(prev => ({ ...prev, [innerUid]: v })); if (onFieldBlur) onFieldBlur({ values: { ...(values || {}), [innerUid]: v }, photos, filesMap, dynamicLists, locations }); }} />;
                                       case 'geo':
                                         return (
                                           <div>
@@ -328,8 +448,12 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
                                             <input accept=".pdf,.doc,.docx,.txt" style={{ display: 'none' }} id={`doc-input-${innerUid}`} type="file" onChange={e => {
                                               const f = e.target.files && e.target.files[0];
                                               if (!f) return;
-                                              const url = URL.createObjectURL(f);
-                                              setFilesMap(prev => ({ ...prev, [innerUid]: { name: f.name, url } }));
+                                              const reader = new FileReader();
+                                              reader.onload = () => {
+                                                const data = reader.result as string;
+                                                setFilesMap(prev => ({ ...prev, [innerUid]: { name: f.name, url: data } }));
+                                              };
+                                              reader.readAsDataURL(f);
                                             }} />
                                             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                                               <IonButton fill={'clear'} className="pill-button" style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#E3F2FD', color: '#0277BD', borderRadius: 20 }} onClick={() => document.getElementById(`doc-input-${innerUid}`)?.click()}>
@@ -380,10 +504,10 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
                               </div>
                             )}
                             {field.type === 'number' && (
-                              <NumberField field={field as any} uid={uid} values={values} setValues={setValues} />
+                              <NumberField field={field as any} uid={uid} values={values} setValues={setValues} photos={photos} filesMap={filesMap} dynamicLists={dynamicLists} locations={locations} onFieldBlur={onFieldBlur} />
                             )}
                             {field.type === 'checkbox' && (
-                                <CheckboxField field={field as any} uid={uid} values={values} setValues={setValues} />
+                              <CheckboxField field={field as any} uid={uid} values={values} setValues={setValues} photos={photos} filesMap={filesMap} dynamicLists={dynamicLists} locations={locations} onFieldBlur={onFieldBlur} />
                             )}
                             {field.type === 'signature' && (
                                 <SignatureField field={field as any} uid={uid} values={values} openSignature={(u: string) => setSignatureOpenFor(u)} />
@@ -424,7 +548,9 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
                   const ctx = canvas.getContext('2d');
                   if (ctx) ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                   const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                  const newPhotos = { ...photos, [fieldId]: dataUrl };
                   setPhotos(prev => ({ ...prev, [fieldId]: dataUrl }));
+                  if (onFieldBlur) onFieldBlur({ values, photos: newPhotos, filesMap, dynamicLists, locations });
                 } catch (e) {
                   console.error('capture err', e);
                 } finally {
@@ -443,15 +569,30 @@ const FormRenderer: React.FC<{ schema: Field[] }> = ({ schema }) => {
         
         {/* Signature modal */}
         <SignatureModal isOpen={!!signatureOpenFor} onClose={() => setSignatureOpenFor(null)} onSave={(dataUrl) => {
-          if (signatureOpenFor) {
-            setValues(prev => ({ ...prev, [signatureOpenFor]: dataUrl }));
-            setSignatureOpenFor(null);
-          }
+            if (signatureOpenFor) {
+              const newValues = { ...(values || {}), [signatureOpenFor]: dataUrl };
+              setValues(prev => ({ ...prev, [signatureOpenFor]: dataUrl }));
+              setSignatureOpenFor(null);
+              if (onFieldBlur) onFieldBlur({ values: newValues, photos, filesMap, dynamicLists, locations });
+            }
         }} />
       </div>
 
       {/* Sync pagination button clicks with Swiper via a small effect */}
       <SyncSwiper activeIndex={activeIndex} pagesCount={pages.length} />
+
+      {/* Guardar button shown on last page when requested */}
+      {showSaveButton && activeIndex === pages.length - 1 && (
+        <div style={{ padding: 16, display: 'flex', justifyContent: 'center' }}>
+          <IonButton onClick={() => {
+            if (typeof onSave === 'function') {
+              onSave({ values, photos, filesMap, locations, dynamicLists });
+            }
+          }}>
+            Guardar
+          </IonButton>
+        </div>
+      )}
     </div>
   );
 };

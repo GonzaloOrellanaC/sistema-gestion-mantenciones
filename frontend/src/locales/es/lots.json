@@ -1,0 +1,22 @@
+{
+  "lots": {
+    "headers": {
+      "code": "Código",
+      "branch": "Sucursal",
+      "type": "Tipo",
+      "supplier": "Proveedor",
+      "purchaseDate": "Fecha de compra",
+      "price": "Precio"
+    },
+    "filters": {
+      "type": "Tipo",
+      "code": "Código",
+      "codePlaceholder": "Buscar código",
+      "purchaseDate": "Fecha de compra"
+    },
+    "types": {
+      "supply": "Insumo",
+      "part": "Repuesto"
+    }
+  }
+}

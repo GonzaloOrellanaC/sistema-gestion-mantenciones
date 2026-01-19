@@ -1,0 +1,26 @@
+{
+  "organization": {
+    "title": "Organization",
+    "heading": "Organization data",
+    "labels": {
+      "name": "Name",
+      "address": "Address",
+      "contactEmail": "Contact - Email",
+      "contactPhone": "Contact - Phone"
+    },
+    "logo": "Logo",
+    "isotype": "Isotype",
+    "buttons": {
+      "save": "Save"
+    },
+    "toasts": {
+      "loadError": "Error loading organization",
+      "updated": "Organization updated",
+      "logoDeleted": "Logo deleted",
+      "logoDeleteError": "Error deleting logo",
+      "isotypeDeleted": "Isotype deleted",
+      "isotypeDeleteError": "Error deleting isotype",
+      "saveError": "Error saving"
+    }
+  }
+}

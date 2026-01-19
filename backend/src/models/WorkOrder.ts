@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 
 export type WorkOrderState = 'Creado' | 'Asignado' | 'Iniciado' | 'En revisión' | 'Terminado';
+export type WorkOrderUrgency = 'Baja' | 'Media' | 'Alta';
 
 export interface IWorkOrder {
   orgId: Schema.Types.ObjectId;
@@ -10,12 +11,19 @@ export interface IWorkOrder {
   templateId?: Schema.Types.ObjectId;
   data?: any; // filled fields according to template
   state: WorkOrderState;
+  urgency?: WorkOrderUrgency;
   assigneeId?: Schema.Types.ObjectId;
   client?: any;
   dates?: {
     created?: Date;
     start?: Date;
     end?: Date;
+    // date when the work order was assigned
+    assignedAt?: Date;
+    // scheduled start computed from assignment + template execution window
+    scheduledStart?: Date;
+    // estimated end / completion date for the work order
+    estimatedEnd?: Date;
     approvedAt?: Date;
   };
   history?: Array<any>;
@@ -31,6 +39,7 @@ const WorkOrderSchema = new Schema<IWorkOrder>({
   templateId: { type: Schema.Types.ObjectId, ref: 'Template' },
   data: { type: Schema.Types.Mixed },
   state: { type: String, enum: ['Creado', 'Asignado', 'Iniciado', 'En revisión', 'Terminado'], default: 'Creado' },
+  urgency: { type: String, enum: ['Baja', 'Media', 'Alta'], default: 'Media' },
   assigneeId: { type: Schema.Types.ObjectId, ref: 'User' },
   client: { type: Schema.Types.Mixed },
   dates: { type: Schema.Types.Mixed },

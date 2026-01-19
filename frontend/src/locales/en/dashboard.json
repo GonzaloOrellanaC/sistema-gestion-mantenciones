@@ -1,0 +1,50 @@
+{
+  "dashboard": {
+    "subtitle": "Activity summary and key KPIs",
+    "createdOrders": {
+      "label": "Work orders created",
+      "delta": "+0% vs last month"
+    },
+    "pendingOrders": {
+      "label": "Pending orders",
+      "attention": "Require attention",
+      "noCritical": "No critical pending"
+    },
+    "activeUsers": {
+      "label": "Active Users",
+      "subtitle": "Enrolled in the system"
+    },
+    "partsToPurchase": {
+      "label": "Parts to purchase",
+      "needPurchase": "Require purchase",
+      "noUrgency": "No urgency"
+    },
+    "suppliesToPurchase": {
+      "label": "Supplies to purchase",
+      "needPurchase": "Require purchase",
+      "noUrgency": "No urgency"
+    },
+    "pareto": {
+      "title": "Pareto - {{type}}",
+      "types": {
+        "maintenance-frequency": "Maintenance per asset",
+        "parts-purchases": "Most purchased parts",
+        "supplies-purchases": "Most purchased supplies"
+      },
+      "typeLabel": "Type",
+      "updateButton": "Update Pareto",
+      "noData": "No data available."
+    },
+    "weeklyActivity": "Weekly Activity",
+    "branchStats": "Created: {{created}} · Pending: {{pending}}",
+    "noDataAvailable": "No data available.",
+    "monthlyStatus": {
+      "title": "Monthly status (last {{months}} months)",
+      "rangeLabel": "Range",
+      "months": "months"
+    },
+    "byTemplateType": {
+      "title": "Work Order Types"
+    }
+  }
+}

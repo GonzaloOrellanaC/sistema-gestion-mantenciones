@@ -13,12 +13,14 @@ router.post('/', requirePermission('asignarOT'), workOrdersController.createWork
 // Allow authenticated users to GET their orders; controller enforces permission when requesting all org orders
 router.get('/', workOrdersController.listWorkOrders);
 router.get('/:id', workOrdersController.getWorkOrder);
+// Update basic fields on a work order
+router.put('/:id', requirePermission('asignarOT'), workOrdersController.updateWorkOrder);
 
 // assign -> requires 'asignarOT'
 router.put('/:id/assign', requirePermission('asignarOT'), workOrdersController.assignWorkOrder);
 
 // start -> allowed to assignee or supervisor, middleware check minimal; controller checks assignee
-router.put('/:id/start', workOrdersController.startWorkOrder);
+router.put('/:id/start', requirePermission('ejecutarOT'), workOrdersController.startWorkOrder);
 
 // submit for review
 router.put('/:id/submit-review', workOrdersController.submitForReview);

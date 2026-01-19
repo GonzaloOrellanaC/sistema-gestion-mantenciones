@@ -1,0 +1,15 @@
+{
+  "lists": {
+    "total": "Total",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "filters": "Filtros",
+    "filterSupplier": "Proveedor",
+    "filterAll": "Todos",
+    "filterCode": "Código",
+    "clear": "Limpiar",
+    "today": "Hoy",
+    "edit": "Editar",
+    "actions": "Acciones"
+  }
+}

@@ -35,6 +35,7 @@ export interface FieldProps {
   setAddImagePreview?: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   setCameraOpenFor?: (uid: string | null) => void;
   setSignatureOpenFor?: (uid: string | null) => void;
+  onFieldBlur?: (snapshot: any) => void;
 }
 
 export default FieldProps;

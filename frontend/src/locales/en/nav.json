@@ -1,0 +1,16 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "roles": "Roles",
+    "workOrders": "Work Orders",
+    "calendar": "Calendar",
+    "templates": "Templates",
+    "supplies": "Supplies",
+    "parts": "Parts",
+    "logistics": "Logistics",
+    "assets": "Assets",
+    "organization": "Organization",
+    "branches": "Branches"
+  }
+}

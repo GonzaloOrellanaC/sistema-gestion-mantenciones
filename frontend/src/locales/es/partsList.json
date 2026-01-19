@@ -1,0 +1,35 @@
+{
+  "partsList": {
+    "title": "Repuestos",
+    "lowOnly": "Sólo bajo stock",
+    "new": "Nuevo repuesto",
+    "columns": {
+      "name": "Nombre",
+      "serial": "Serial",
+      "lot": "Lote",
+      "quantity": "Cantidad",
+      "min": "Umbral (min)",
+      "branch": "Sucursal",
+      "branches": "Sucursales",
+      "asset": "Activo",
+      "assetCount": "Activos",
+      "lowStock": "Bajo stock"
+    },
+    "perPage": "Por página:",
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Siguiente"
+    },
+    "pageInfo": "Página {{page}} / {{pages}} · Total: {{total}}",
+    "toasts": {
+      "loadError": "Error cargando repuestos",
+      "deleteConfirm": "Eliminar este repuesto?",
+      "deleted": "Repuesto eliminado",
+      "deleteError": "Error eliminando repuesto"
+    },
+    "popover": {
+      "assets": "Activos",
+      "noAssets": "Sin activos"
+    }
+  }
+}

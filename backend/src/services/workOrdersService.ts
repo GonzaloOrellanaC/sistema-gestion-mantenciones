@@ -13,6 +13,7 @@ interface CreateWorkOrderPayload {
   assigneeRole?: string; // optional role assignment (pick a user with this role)
   assetId: string;
   scheduledStart?: string | Date; // optional scheduled start datetime (ISO string)
+  urgency?: 'Baja'|'Media'|'Alta';
 }
 
 async function createWorkOrder(orgId: string, payload: CreateWorkOrderPayload, createdBy?: string) {
@@ -71,35 +72,58 @@ async function createWorkOrder(orgId: string, payload: CreateWorkOrderPayload, c
     templateId: payload.templateId ? new Types.ObjectId(payload.templateId) : undefined,
     data: payload.data || {},
     state: initialState,
+    urgency: (payload as any).urgency || 'Media',
     assigneeId: assigneeId,
     client: payload.client || {},
     dates: Object.assign({ created: new Date() }, payload.scheduledStart ? { start: new Date(payload.scheduledStart) } : {}),
     history
   });
 
-  return doc.save();
+  const saved = await doc.save();
+  return findById(orgId, saved._id.toString());
 }
 
 async function findById(orgId: string, id: string) {
   if (!Types.ObjectId.isValid(id)) return null;
-  return WorkOrder.findOne({ _id: id, orgId }).populate('assigneeId').populate('templateId').populate('assetId').lean();
+  return WorkOrder.findOne({ _id: id, orgId })
+    .populate('assigneeId')
+    .populate('templateId')
+    .populate('assetId')
+    .populate('branchId')
+    .lean();
 }
 
 async function list(orgId: string, filter: any = {}) {
-  const page = parseInt(filter.page, 10) || 1;
-  const limit = parseInt(filter.limit, 10) || 10;
+  const page = Math.max(1, parseInt(filter.page, 10) || 1);
+  const limit = Math.min(100, parseInt(filter.limit, 10) || 10);
   const q: any = { orgId, deleted: { $ne: true } };
   if (filter.state) q.state = filter.state;
   if (filter.assigneeId) q.assigneeId = filter.assigneeId;
   if (filter.assetId) q.assetId = filter.assetId;
   if (filter.branchId) q.branchId = filter.branchId;
   console.log({q})
-  const docs = await WorkOrder.find(q).sort({ 'dates.created': -1 }).skip((page - 1) * limit).limit(limit).lean();
-  return docs;
+  const total = await WorkOrder.countDocuments(q);
+  const docs = await WorkOrder.find(q)
+    .sort({ 'dates.created': -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .populate('assigneeId')
+    .populate('assetId')
+    .populate('templateId')
+    .populate('branchId')
+    .lean();
+  const pages = Math.max(1, Math.ceil(total / limit));
+  return { items: docs, total, page, pages };
 }
 
 async function addHistory(orgId: string, id: string, entry: any) {
-  return WorkOrder.findOneAndUpdate({ _id: id, orgId }, { $push: { history: entry } }, { new: true }).lean();
+  const updated = await WorkOrder.findOneAndUpdate({ _id: id, orgId }, { $push: { history: entry } }, { new: true })
+    .populate('assigneeId')
+    .populate('assetId')
+    .populate('templateId')
+    .populate('branchId')
+    .lean();
+  return updated;
 }
 
 async function transition(orgId: string, id: string, toState: WorkOrderState, userId?: string, note?: string) {
@@ -130,7 +154,12 @@ async function transition(orgId: string, id: string, toState: WorkOrderState, us
 
   const historyEntry = { userId: userId ? new Types.ObjectId(userId) : undefined, from: fromState, to: toState, note: note || '', at: now };
 
-  const wo = await WorkOrder.findOneAndUpdate({ _id: id, orgId }, { $set: update, $push: { history: historyEntry } }, { new: true }).lean();
+  const wo = await WorkOrder.findOneAndUpdate({ _id: id, orgId }, { $set: update, $push: { history: historyEntry } }, { new: true })
+    .populate('assigneeId')
+    .populate('assetId')
+    .populate('templateId')
+    .populate('branchId')
+    .lean();
   return wo;
 }
 
@@ -142,19 +171,78 @@ async function assign(orgId: string, id: string, assigneeId: string, assignedBy?
     'dates.start': null
   } as any;
 
-  const wo = await WorkOrder.findOneAndUpdate({ _id: id, orgId }, { $set: update, $push: { history: { userId: assignedBy ? new Types.ObjectId(assignedBy) : undefined, from: null, to: 'Asignado', note: note || '', at: now } } }, { new: true }).lean();
+  const wo = await WorkOrder.findOneAndUpdate({ _id: id, orgId }, { $set: update, $push: { history: { userId: assignedBy ? new Types.ObjectId(assignedBy) : undefined, from: null, to: 'Asignado', note: note || '', at: now } } }, { new: true })
+    .populate('assigneeId')
+    .populate('assetId')
+    .populate('templateId')
+    .populate('branchId')
+    .lean();
   return wo;
 }
 
 async function patchData(orgId: string, id: string, data: any, userId?: string) {
   const now = new Date();
-  const wo = await WorkOrder.findOneAndUpdate({ _id: id, orgId }, { $set: { data, 'dates.end': now }, $push: { history: { userId: userId ? new Types.ObjectId(userId) : undefined, from: null, to: 'Iniciado', note: 'Datos actualizados', at: now } } }, { new: true }).lean();
+  const wo = await WorkOrder.findOneAndUpdate({ _id: id, orgId }, { $set: { data, 'dates.end': now }, $push: { history: { userId: userId ? new Types.ObjectId(userId) : undefined, from: null, to: 'Iniciado', note: 'Datos actualizados', at: now } } }, { new: true })
+    .populate('assigneeId')
+    .populate('assetId')
+    .populate('templateId')
+    .populate('branchId')
+    .lean();
   return wo;
 }
 
 async function remove(orgId: string, id: string) {
   if (!Types.ObjectId.isValid(id)) return null;
-  return WorkOrder.findOneAndDelete({ _id: id, orgId });
+  const doc = await WorkOrder.findOneAndDelete({ _id: id, orgId });
+  if (!doc) return null;
+  return WorkOrder.findOne({ _id: id }).populate('assigneeId').populate('assetId').populate('templateId').populate('branchId').lean();
+}
+
+async function update(orgId: string, id: string, payload: any, userId?: string) {
+  if (!Types.ObjectId.isValid(id)) throw { status: 400, message: 'Invalid id' };
+  const updateFields: any = {};
+
+  if (payload.templateId) {
+    if (!Types.ObjectId.isValid(payload.templateId)) throw { status: 400, message: 'Invalid templateId' };
+    updateFields.templateId = new Types.ObjectId(payload.templateId);
+  }
+  if (payload.data) updateFields.data = payload.data;
+  if (payload.branchId) {
+    if (!Types.ObjectId.isValid(payload.branchId)) throw { status: 400, message: 'Invalid branchId' };
+    updateFields.branchId = new Types.ObjectId(payload.branchId);
+  }
+  if (payload.assetId) {
+    if (!Types.ObjectId.isValid(payload.assetId)) throw { status: 400, message: 'Invalid assetId' };
+    const asset = await Asset.findOne({ _id: payload.assetId, orgId }).lean();
+    if (!asset) throw { status: 400, message: 'Asset not found' };
+    updateFields.assetId = new Types.ObjectId(payload.assetId);
+  }
+  if (payload.scheduledStart) {
+    const dt = new Date(payload.scheduledStart);
+    if (isNaN(dt.getTime())) throw { status: 400, message: 'Invalid scheduledStart' };
+    updateFields['dates.start'] = dt;
+  }
+
+  if (payload.urgency) {
+    updateFields.urgency = payload.urgency;
+  }
+
+  // handle assignee changes (assign via assign function usually)
+  if (payload.assigneeId) {
+    if (!Types.ObjectId.isValid(payload.assigneeId)) throw { status: 400, message: 'Invalid assigneeId' };
+    updateFields.assigneeId = new Types.ObjectId(payload.assigneeId);
+    updateFields.state = 'Asignado';
+  }
+
+  const historyEntry = { userId: userId ? new Types.ObjectId(userId) : undefined, from: null, to: 'Modificado', note: 'Work order updated', at: new Date() };
+
+  const wo = await WorkOrder.findOneAndUpdate({ _id: id, orgId }, { $set: updateFields, $push: { history: historyEntry } }, { new: true })
+    .populate('assigneeId')
+    .populate('assetId')
+    .populate('templateId')
+    .populate('branchId')
+    .lean();
+  return wo;
 }
 
 export default {
@@ -165,5 +253,6 @@ export default {
   transition,
   assign,
   patchData,
-  remove
+  remove,
+  update
 };

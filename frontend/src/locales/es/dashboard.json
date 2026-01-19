@@ -1,0 +1,50 @@
+{
+  "dashboard": {
+    "subtitle": "Resumen de actividad y KPIs clave",
+    "createdOrders": {
+      "label": "Ordenes de trabajo creadas",
+      "delta": "+0% vs mes pasado"
+    },
+    "pendingOrders": {
+      "label": "Órdenes pendientes",
+      "attention": "Requieren atención",
+      "noCritical": "Sin pendientes críticos"
+    },
+    "activeUsers": {
+      "label": "Usuarios Activos",
+      "subtitle": "Enrolados en el sistema"
+    },
+    "partsToPurchase": {
+      "label": "Repuestos a comprar",
+      "needPurchase": "Requieren compra",
+      "noUrgency": "Sin urgencias"
+    },
+    "suppliesToPurchase": {
+      "label": "Insumos a comprar",
+      "needPurchase": "Requieren compra",
+      "noUrgency": "Sin urgencias"
+    },
+    "pareto": {
+      "title": "Pareto - {{type}}",
+      "types": {
+        "maintenance-frequency": "Mantenciones por activo",
+        "parts-purchases": "Repuestos más comprados",
+        "supplies-purchases": "Insumos más comprados"
+      },
+      "typeLabel": "Tipo",
+      "updateButton": "Actualizar Pareto",
+      "noData": "No hay datos disponibles."
+    },
+    "weeklyActivity": "Actividad Semanal",
+    "branchStats": "Creadas: {{created}} · Pendientes: {{pending}}",
+    "noDataAvailable": "No hay datos disponibles.",
+    "monthlyStatus": {
+      "title": "Estado mensual (últimos {{months}} meses)",
+      "rangeLabel": "Rango",
+      "months": "meses"
+    },
+    "byTemplateType": {
+      "title": "Tipos de Ordenes de Trabajo"
+    }
+  }
+}

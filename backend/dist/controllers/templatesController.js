@@ -10,7 +10,7 @@ async function createTemplate(req, res) {
         return res.status(400).json({ message: 'orgId missing' });
     const payload = req.body;
     try {
-        const doc = await templatesService_1.default.createTemplate(orgId, payload, req.user?.id);
+        const doc = await templatesService_1.default.createTemplate(orgId.toString(), payload, req.user?.id);
         return res.status(201).json(doc);
     }
     catch (err) {
@@ -26,7 +26,7 @@ async function listTemplates(req, res) {
         const page = parseInt(req.query.page || '1', 10) || 1;
         const limit = parseInt(req.query.limit || '10', 10) || 10;
         const q = req.query.q || undefined;
-        const docs = await templatesService_1.default.listTemplates(orgId, { page, limit, q });
+        const docs = await templatesService_1.default.listTemplates(orgId.toString(), { page, limit, q });
         return res.json(docs);
     }
     catch (err) {
@@ -40,7 +40,7 @@ async function getTemplate(req, res) {
     if (!orgId)
         return res.status(400).json({ message: 'orgId missing' });
     try {
-        const doc = await templatesService_1.default.getTemplate(orgId, id);
+        const doc = await templatesService_1.default.getTemplate(orgId.toString(), id);
         if (!doc)
             return res.status(404).json({ message: 'Template not found' });
         return res.json(doc);
@@ -57,7 +57,7 @@ async function previewTemplate(req, res) {
     if (!orgId)
         return res.status(400).json({ message: 'orgId missing' });
     try {
-        const doc = await templatesService_1.default.getTemplate(orgId, id);
+        const doc = await templatesService_1.default.getTemplate(orgId.toString(), id);
         if (!doc)
             return res.status(404).json({ message: 'Template not found' });
         // Optionally accept a device query param (desktop|tablet|mobile)
@@ -76,7 +76,7 @@ async function updateTemplate(req, res) {
     if (!orgId)
         return res.status(400).json({ message: 'orgId missing' });
     try {
-        const doc = await templatesService_1.default.updateTemplate(orgId, id, payload, req.user?.id);
+        const doc = await templatesService_1.default.updateTemplate(orgId.toString(), id, payload, req.user?.id);
         if (!doc)
             return res.status(404).json({ message: 'Template not found' });
         return res.json(doc);
@@ -92,7 +92,7 @@ async function deleteTemplate(req, res) {
     if (!orgId)
         return res.status(400).json({ message: 'orgId missing' });
     try {
-        const doc = await templatesService_1.default.deleteTemplate(orgId, id);
+        const doc = await templatesService_1.default.deleteTemplate(orgId.toString(), id);
         if (!doc)
             return res.status(404).json({ message: 'Template not found' });
         return res.json({ success: true });

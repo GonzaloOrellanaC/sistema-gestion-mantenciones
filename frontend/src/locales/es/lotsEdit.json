@@ -1,0 +1,27 @@
+{
+  "lotsEdit": {
+    "title": "Editar lote",
+    "loadError": "No se pudo cargar el lote",
+    "saved": "Lote guardado",
+    "saveError": "Error guardando lote",
+    "deleteConfirm": "¿Eliminar este lote?",
+    "deleted": "Lote eliminado",
+    "deleteError": "Error eliminando lote",
+    "delete": "Eliminar",
+    "labels": {
+      "code": "Código",
+      "supplier": "Proveedor",
+      "type": "Tipo",
+      "purchaseDate": "Fecha de compra",
+      "price": "Precio",
+      "notes": "Notas",
+      "primaryItemId": "ID de item principal",
+      "primaryItemQuantity": "Cantidad del item principal",
+      "primaryItemUnitPrice": "Precio unitario del item principal"
+    },
+    "types": {
+      "supply": "Insumo",
+      "repuesto": "Repuesto"
+    }
+  }
+}

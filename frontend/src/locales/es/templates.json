@@ -1,0 +1,136 @@
+{
+  "templates": {
+    "title": "Gestión de Pautas",
+    "subtitle": "Crea y administra las pautas de trabajo",
+    "newTemplate": "Crear Pauta",
+    "headers": {
+      "name": "Pauta",
+      "description": "Descripción",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "actions": {
+      "preview": "Vista previa",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "showing": "Mostrando {{count}} de {{total}}",
+    "pagination": {
+      "prev": "Anterior",
+      "page": "Página {{page}}",
+      "next": "Siguiente"
+    },
+    "confirmDelete": "Eliminar pauta?",
+    "toasts": {
+      "loadError": "Error cargando pautas",
+      "deleted": "Pauta eliminada",
+      "deleteError": "Error eliminando pauta"
+    },
+    "create": {
+      "title": "Crear Pauta",
+      "labels": {
+        "name": "Nombre",
+        "description": "Descripción",
+        "structure": "Estructura JSON",
+        "partsOptional": "Repuestos (opcional)"
+      },
+      "placeholders": {
+        "structureExample": "Ej: {\"fields\": []}"
+      },
+      "buttons": {
+        "create": "Crear pauta",
+        "cancel": "Cancelar"
+      },
+      "toasts": {
+        "nameRequired": "Nombre requerido",
+        "invalidStructure": "Structure JSON inválido",
+        "created": "Pauta creada",
+        "createError": "Error creando pauta"
+      }
+    },
+    "builder": {
+      "title": "Constructor de Pautas",
+      "createTitle": "Crear Pauta",
+      "editTitle": "Editar Pauta",
+      "previewMode": { "on": "Vista", "off": "Edición" },
+      "save": "Guardar",
+      "components": "Componentes",
+      "labels": {
+        "name": "Nombre",
+        "description": "Descripción",
+        "assignedAssets": "Asignada a activos (opcional)"
+      },
+      "actions": {
+        "selectAssets": "Seleccionar activos ({{count}})",
+        "selectParts": "Seleccionar repuestos",
+        "selectSupplies": "Seleccionar insumo",
+        "add": "Agregar",
+        "remove": "Eliminar",
+        "moveUp": "Subir",
+        "moveDown": "Bajar"
+      },
+      "none": "Ninguno",
+      "favorites": {
+        "title": "Favoritos (máx {{max}})",
+        "clearButton": "Limpiar",
+        "cleared": "Favoritos limpiados",
+        "maxReached": "Máximo {{max}} favoritos",
+        "added": "Agregado a Favoritos",
+        "addToFavorites": "Agregar a Favoritos"
+      },
+      "messages": {
+        "nameRequired": "Nombre requerido",
+        "updated": "Pauta actualizada",
+        "saved": "Pauta guardada",
+        "saveError": "Error al guardar pauta",
+        "loadError": "Error cargando pauta",
+        "assetsSelected": "{{count}} activos seleccionados"
+      },
+      "palette": {
+        "text": "Texto Corto",
+        "textarea": "Texto Largo",
+        "number": "Número",
+        "columns": "Columnas (2)",
+        "select": "Lista Desplegable",
+        "checkbox": "Casilla Check",
+        "radio": "Opción Única",
+        "image": "Foto / Imagen",
+        "dynamic_list": "Listado Editable",
+        "signature": "Firma Digital",
+        "geo": "Geolocalización",
+        "date": "Fecha / Hora",
+        "file": "Archivo",
+        "parts": "Repuesto",
+        "supplies": "Insumo",
+        "division": "División (salto de página)"
+      },
+      "properties": {
+        "title": "Propiedades del Campo",
+        "designComponent": "Componente de diseño",
+        "designNote": "Este componente es de diseño y no requiere un label editable.",
+        "label": "Label",
+        "required": "Requerido",
+        "partsIncluded": "Repuestos incluidos",
+        "totalQty": "Cantidad total",
+        "suppliesIncluded": "Insumos incluidos",
+        "qty": "Cantidad",
+        "options": "Opciones",
+        "pageTitle": "Título de la página"
+      },
+      "templateTypes": {
+        "title": "Tipo de pauta",
+        "none": "Ninguno",
+        "createButton": "Crear tipo",
+        "createTitle": "Crear Tipo de Pauta",
+        "placeholderName": "Ej: Correctiva",
+        "nameRequired": "Nombre requerido",
+        "created": "Tipo creado",
+        "createError": "Error creando tipo"
+      },
+      "placeholders": {
+        "addOption": "Agregar opción"
+      },
+      "pageDefault": "Página {{num}}"
+    }
+  }
+}

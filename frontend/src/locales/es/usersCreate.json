@@ -1,0 +1,36 @@
+{
+  "usersCreate": {
+    "createTitle": "Crear Usuario",
+    "editTitle": "Editar Usuario",
+    "createSubtitle": "Agrega un nuevo usuario al sistema",
+    "editSubtitle": "Modifica los datos del usuario",
+    "back": "Volver",
+    "labels": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "role": "Rol",
+      "branch": "Sucursal"
+    },
+    "placeholders": {
+      "roleOptional": "Selecciona un rol (opcional)",
+      "branchOptional": "Selecciona una sucursal (opcional)"
+    },
+    "buttons": {
+      "saving": "Guardando...",
+      "update": "Actualizar",
+      "create": "Crear",
+      "cancel": "Cancelar"
+    },
+    "toasts": {
+      "loadError": "Error cargando usuario",
+      "fillRequired": "Completa los campos obligatorios",
+      "passwordRequired": "La contraseña es requerida",
+      "updated": "Usuario actualizado",
+      "created": "Usuario creado",
+      "updateError": "Error actualizando usuario",
+      "createError": "Error creando usuario"
+    }
+  }
+}

@@ -8,6 +8,7 @@ const mongoose_1 = require("mongoose");
 const countersService_1 = __importDefault(require("./countersService"));
 const User_1 = __importDefault(require("../models/User"));
 const Branch_1 = __importDefault(require("../models/Branch"));
+const Asset_1 = __importDefault(require("../models/Asset"));
 async function createWorkOrder(orgId, payload, createdBy) {
     // get next orgSeq
     const orgSeq = await countersService_1.default.getNextSequence(orgId);
@@ -47,10 +48,20 @@ async function createWorkOrder(orgId, payload, createdBy) {
             throw { status: 400, message: 'Branch not found' };
         branchObjId = new mongoose_1.Types.ObjectId(payload.branchId);
     }
+    // require asset assignment
+    if (!payload.assetId)
+        throw { status: 400, message: 'assetId is required' };
+    if (!mongoose_1.Types.ObjectId.isValid(payload.assetId))
+        throw { status: 400, message: 'Invalid assetId' };
+    const asset = await Asset_1.default.findOne({ _id: payload.assetId, orgId }).lean();
+    if (!asset)
+        throw { status: 400, message: 'Asset not found' };
+    const assetObjId = new mongoose_1.Types.ObjectId(payload.assetId);
     const doc = new WorkOrder_1.default({
         orgId,
         orgSeq,
         branchId: branchObjId,
+        assetId: assetObjId,
         templateId: payload.templateId ? new mongoose_1.Types.ObjectId(payload.templateId) : undefined,
         data: payload.data || {},
         state: initialState,
@@ -64,7 +75,7 @@ async function createWorkOrder(orgId, payload, createdBy) {
 async function findById(orgId, id) {
     if (!mongoose_1.Types.ObjectId.isValid(id))
         return null;
-    return WorkOrder_1.default.findOne({ _id: id, orgId }).populate('assigneeId').populate('templateId').lean();
+    return WorkOrder_1.default.findOne({ _id: id, orgId }).populate('assigneeId').populate('templateId').populate('assetId').lean();
 }
 async function list(orgId, filter = {}) {
     const page = parseInt(filter.page, 10) || 1;
@@ -74,6 +85,8 @@ async function list(orgId, filter = {}) {
         q.state = filter.state;
     if (filter.assigneeId)
         q.assigneeId = filter.assigneeId;
+    if (filter.assetId)
+        q.assetId = filter.assetId;
     if (filter.branchId)
         q.branchId = filter.branchId;
     console.log({ q });

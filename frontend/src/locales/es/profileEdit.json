@@ -1,0 +1,22 @@
+{
+  "profileEdit": {
+    "title": "Editar Perfil",
+    "photo": {
+      "current": "Foto actual",
+      "default": "Foto por defecto"
+    },
+    "labels": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Email"
+    },
+    "buttons": {
+      "saving": "Guardando...",
+      "saveChanges": "Guardar cambios"
+    },
+    "toasts": {
+      "updated": "Perfil actualizado",
+      "updateError": "Error actualizando perfil"
+    }
+  }
+}

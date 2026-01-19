@@ -2,9 +2,13 @@ import React from 'react';
 import { IonItem, IonLabel, IonRadio } from '@ionic/react';
 import { FieldProps } from './types';
 
-const RadioField: React.FC<FieldProps> = ({ field, uid, values, setValues }) => {
+const RadioField: React.FC<FieldProps> = ({ field, uid, values, setValues, photos, filesMap, dynamicLists, locations, onFieldBlur }) => {
   const current = !!values?.[uid];
-  const toggle = () => setValues && setValues(prev => ({ ...(prev || {}), [uid]: current ? undefined : true }));
+  const toggle = () => {
+    const next = current ? undefined : true;
+    if (setValues) setValues(prev => ({ ...(prev || {}), [uid]: next }));
+    if (onFieldBlur) onFieldBlur({ values: { ...(values || {}), [uid]: next }, photos, filesMap, dynamicLists, locations });
+  };
 
   return (
     <IonItem button onClick={toggle}>

@@ -10,4 +10,9 @@ export async function createBranch(payload: any) {
   return res.data;
 }
 
-export default { listBranches, createBranch };
+export async function getBranch(id: string) {
+  const res = await axios.get(`/api/branches/${id}`);
+  return res.data;
+}
+
+export default { listBranches, createBranch, getBranch };

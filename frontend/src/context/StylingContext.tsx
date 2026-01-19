@@ -7,6 +7,10 @@ interface StylingContextInterface {
     setColorPrimaryDefault: (color: string) => void;
     setColorSecondaryDefault: (color: string) => void;
     setBorderRadiusDefault: (radius: number) => void;
+    buttonCancel: {
+        '--background': string;
+        '--color': string;
+    };
 }
 const StylingContext = createContext<StylingContextInterface | undefined>(undefined);
 
@@ -14,6 +18,12 @@ export const StylingProvider: React.FC<{ children: ReactNode }> = ({ children })
     const [colorPrimaryDefault, setColorPrimaryDefault] = useState<string>('#3880ff'); // valor por defecto de Ionic
     const [colorSecondaryDefault, setColorSecondaryDefault] = useState<string>('#3dc2ff'); // valor por defecto de Ionic
     const [borderRadiusDefault, setBorderRadiusDefault] = useState<number>(4); // valor por defecto
+    
+    const buttonCancel = {
+        '--background': '#ff6b6b',
+        '--color': '#ffffff',
+    };
+
     return (
         <StylingContext.Provider value={{
             colorPrimaryDefault,
@@ -21,7 +31,8 @@ export const StylingProvider: React.FC<{ children: ReactNode }> = ({ children })
             borderRadiusDefault,
             setColorPrimaryDefault,
             setColorSecondaryDefault,
-            setBorderRadiusDefault
+            setBorderRadiusDefault,
+            buttonCancel
         }}>
             {children}
         </StylingContext.Provider>

@@ -1,37 +1,30 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IPart {
   orgId: Schema.Types.ObjectId;
-  branchId?: Schema.Types.ObjectId;
-  assetId?: Schema.Types.ObjectId; // asset to which this spare may be attached
+  // allow multiple branches and assets as lists (reference-only master data)
+  branchIds?: Schema.Types.ObjectId[];
+  assetIds?: Schema.Types.ObjectId[];
   name: string;
   serial?: string;
-  quantity?: number;
-  dateEntry?: Date; // fecha de ingreso a bodega
-  dateInUse?: Date; // fecha de utilización en activo
-  dateRetired?: Date; // fecha de retiro del activo
-  workOrderId?: Schema.Types.ObjectId; // orden de trabajo asociada a la modificación
-  notes?: string;
+  minStock?: number;
   docs?: Schema.Types.ObjectId[];
   createdAt?: Date;
 }
 
-const PartSchema = new Schema<IPart>({
+export type IPartDoc = IPart & Document;
+
+const PartSchema = new Schema<IPartDoc>({
   orgId: { type: Schema.Types.ObjectId, required: true, index: true },
-  branchId: { type: Schema.Types.ObjectId, ref: 'Branch' },
-  assetId: { type: Schema.Types.ObjectId, ref: 'Asset' },
+  branchIds: { type: [Schema.Types.ObjectId], ref: 'Branch', default: [] },
+  assetIds: { type: [Schema.Types.ObjectId], ref: 'Asset', default: [] },
   name: { type: String, required: true },
   serial: { type: String },
-  quantity: { type: Number, default: 1 },
-  dateEntry: { type: Date },
-  dateInUse: { type: Date },
-  dateRetired: { type: Date },
-  workOrderId: { type: Schema.Types.ObjectId, ref: 'WorkOrder' },
-  notes: { type: String },
+  minStock: { type: Number, default: 0 },
   docs: { type: [Schema.Types.ObjectId], ref: 'FileMeta', default: [] },
   createdAt: { type: Date, default: Date.now }
 });
 
 PartSchema.index({ orgId: 1, name: 1 });
 
-export default mongoose.model<IPart>('Part', PartSchema);
+export default mongoose.model<IPartDoc>('Part', PartSchema);

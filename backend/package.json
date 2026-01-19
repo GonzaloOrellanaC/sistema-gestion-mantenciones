@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "seed": "ts-node-dev --respawn --transpile-only src/scripts/seed.ts",
+    "seed": "ts-node-dev --respawn --transpile-only src/scripts/seed_new_client.ts",
     "test": "jest --runInBand",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js"
@@ -33,9 +33,11 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.3",
+    "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.2",
+    "@types/mailgun-js": "^0.22.19",
     "@types/mongoose": "^5.11.97",
+    "@types/multer": "^2.0.0",
     "@types/node": "^20.6.0",
     "@types/validator": "^13.7.10",
     "jest": "^29.6.1",

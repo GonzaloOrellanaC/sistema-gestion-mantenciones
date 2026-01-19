@@ -1,0 +1,34 @@
+// Central models import to ensure mongoose registers all schemas
+import './Asset';
+import './AssetType';
+import './Branch';
+import './Brand';
+import './Component';
+import './CostItem';
+import './Counter';
+import './Department';
+import './DeviceModel';
+import './Element';
+import './EmailLog';
+import './FileMeta';
+import './MaintenanceEvent';
+import './MetricsPareto';
+import './Notification';
+import './Organization';
+import './Part';
+import './PasswordResetToken';
+import './Purchase';
+import './PushToken';
+import './Repuesto';
+import './Role';
+import './Stock';
+import './StockMovement';
+import './Supply';
+import './Template';
+import './TemplateType';
+import './User';
+import './Warehouse';
+import './WorkOrder';
+import './Lot';
+
+export default true;

@@ -1,0 +1,7 @@
+{
+  "partSelect": {
+    "title": "Seleccionar repuesto",
+    "searchPlaceholder": "Buscar repuesto",
+    "empty": "No hay repuestos"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "emailNotifications": "Email notifications",
+    "currency": "Currency",
+    "currencyOptions": {
+      "USD": "USD",
+      "CLP": "CLP"
+    },
+    "savedToast": "Settings saved"
+  }
+}

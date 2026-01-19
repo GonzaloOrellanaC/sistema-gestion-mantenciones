@@ -1,0 +1,15 @@
+{
+  "lists": {
+    "total": "Total",
+    "prev": "Previous",
+    "next": "Next",
+    "filters": "Filters",
+    "filterSupplier": "Supplier",
+    "filterAll": "All",
+    "filterCode": "Code",
+    "clear": "Clear",
+    "today": "Today",
+    "edit": "Edit",
+    "actions": "Actions"
+  }
+}

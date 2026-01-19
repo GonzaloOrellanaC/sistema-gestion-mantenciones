@@ -1,0 +1,136 @@
+{
+  "templates": {
+    "title": "Template Management",
+    "subtitle": "Create and manage work templates",
+    "newTemplate": "Create Template",
+    "headers": {
+      "name": "Template",
+      "description": "Description",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "actions": {
+      "preview": "Preview",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "showing": "Showing {{count}} of {{total}}",
+    "pagination": {
+      "prev": "Previous",
+      "page": "Page {{page}}",
+      "next": "Next"
+    },
+    "confirmDelete": "Delete template?",
+    "toasts": {
+      "loadError": "Error loading templates",
+      "deleted": "Template deleted",
+      "deleteError": "Error deleting template"
+    },
+    "create": {
+      "title": "Create Template",
+      "labels": {
+        "name": "Name",
+        "description": "Description",
+        "structure": "JSON structure",
+        "partsOptional": "Parts (optional)"
+      },
+      "placeholders": {
+        "structureExample": "Eg: {\"fields\": []}"
+      },
+      "buttons": {
+        "create": "Create template",
+        "cancel": "Cancel"
+      },
+      "toasts": {
+        "nameRequired": "Name required",
+        "invalidStructure": "Invalid JSON structure",
+        "created": "Template created",
+        "createError": "Error creating template"
+      }
+    },
+    "builder": {
+      "title": "Template Builder",
+      "createTitle": "Create Template",
+      "editTitle": "Edit Template",
+      "previewMode": { "on": "Preview", "off": "Edit" },
+      "save": "Save",
+      "components": "Components",
+      "labels": {
+        "name": "Name",
+        "description": "Description",
+        "assignedAssets": "Assigned to assets (optional)"
+      },
+      "actions": {
+        "selectAssets": "Select assets ({{count}})",
+        "selectParts": "Select parts",
+        "selectSupplies": "Select supply",
+        "add": "Add",
+        "remove": "Remove",
+        "moveUp": "Move up",
+        "moveDown": "Move down"
+      },
+      "none": "None",
+      "favorites": {
+        "title": "Favorites (max {{max}})",
+        "clearButton": "Clear",
+        "cleared": "Favorites cleared",
+        "maxReached": "Maximum {{max}} favorites",
+        "added": "Added to Favorites",
+        "addToFavorites": "Add to Favorites"
+      },
+      "messages": {
+        "nameRequired": "Name required",
+        "updated": "Template updated",
+        "saved": "Template saved",
+        "saveError": "Error saving template",
+        "loadError": "Error loading template",
+        "assetsSelected": "{{count}} assets selected"
+      },
+      "palette": {
+        "text": "Short Text",
+        "textarea": "Long Text",
+        "number": "Number",
+        "columns": "Columns (2)",
+        "select": "Dropdown",
+        "checkbox": "Checkbox",
+        "radio": "Single Option",
+        "image": "Photo / Image",
+        "dynamic_list": "Editable List",
+        "signature": "Digital Signature",
+        "geo": "Geolocation",
+        "date": "Date / Time",
+        "file": "File",
+        "parts": "Part",
+        "supplies": "Supply",
+        "division": "Division (page break)"
+      },
+      "properties": {
+        "title": "Field Properties",
+        "designComponent": "Design component",
+        "designNote": "This is a design component and does not require an editable label.",
+        "label": "Label",
+        "required": "Required",
+        "partsIncluded": "Included parts",
+        "totalQty": "Total quantity",
+        "suppliesIncluded": "Included supplies",
+        "qty": "Quantity",
+        "options": "Options",
+        "pageTitle": "Page title"
+      },
+      "templateTypes": {
+        "title": "Template type",
+        "none": "None",
+        "createButton": "Create type",
+        "createTitle": "Create Template Type",
+        "placeholderName": "Eg: Corrective",
+        "nameRequired": "Name required",
+        "created": "Type created",
+        "createError": "Error creating type"
+      },
+      "placeholders": {
+        "addOption": "Add option"
+      },
+      "pageDefault": "Page {{num}}"
+    }
+  }
+}

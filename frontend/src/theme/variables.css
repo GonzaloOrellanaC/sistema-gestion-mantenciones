@@ -19,3 +19,9 @@ http://ionicframework.com/docs/theming/ */
 	--widget-content-color: var(--ion-text-color);
 	--widget-link-color: var(--ion-color-primary);
 }
+
+
+ion-modal.bulk-preview-modal {
+	--width: 100vw;
+	--height: 100vh;
+}

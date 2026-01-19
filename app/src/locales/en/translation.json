@@ -1,0 +1,7 @@
+{
+  "hello_technician": "Hello, Technician",
+  "pending_orders": "Pending Orders: {{count}}",
+  "no_orders": "No orders.",
+  "ot_prefix": "WO #{{id}}",
+  "no_location": "No location"
+}

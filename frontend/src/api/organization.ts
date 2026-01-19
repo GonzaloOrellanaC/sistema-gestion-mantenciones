@@ -22,7 +22,7 @@ export async function uploadImage(file: File, type: 'logo' | 'isotype') {
   const fd = new FormData();
   fd.append('file', file);
   fd.append('type', type);
-  const { data } = await api.post('/api/organizations/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  const { data } = await api.post('/api/organizations/upload', fd);
   return data;
 }
 

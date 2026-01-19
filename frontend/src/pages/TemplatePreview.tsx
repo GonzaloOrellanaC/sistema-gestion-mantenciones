@@ -36,6 +36,30 @@ const renderFieldPreview = (f: any) => {
         <div style={{ flex: 1, border: '1px dashed #eee', padding: 8 }}>{(f.children && f.children[0] || []).map((c: any) => <div key={c.key}>{c.label}</div>)}</div>
         <div style={{ flex: 1, border: '1px dashed #eee', padding: 8 }}>{(f.children && f.children[1] || []).map((c: any) => <div key={c.key}>{c.label}</div>)}</div>
       </div>;
+    case 'parts':
+      return (
+        <div>
+          <div style={{ fontWeight: 600 }}>{f.label || 'Repuestos'}</div>
+          {(Array.isArray(f.parts) ? f.parts : []).map((p: any) => (
+            <div key={p.partId} style={{ padding: 8, border: '1px solid #eee', marginTop: 6 }}>
+              <div style={{ fontWeight: 600 }}>{p.name || p.partId}</div>
+              <div style={{ color: '#607D8B' }}>Cantidad: {p.quantity}</div>
+            </div>
+          ))}
+        </div>
+      );
+    case 'supplies':
+      return (
+        <div>
+          <div style={{ fontWeight: 600 }}>{f.label || 'Insumos'}</div>
+          {(Array.isArray(f.supplies) ? f.supplies : []).map((s: any) => (
+            <div key={s.supplyId} style={{ padding: 8, border: '1px solid #eee', marginTop: 6 }}>
+              <div style={{ fontWeight: 600 }}>{s.name || s.supplyId}</div>
+              <div style={{ color: '#607D8B' }}>Cantidad: {s.quantity}</div>
+            </div>
+          ))}
+        </div>
+      );
     default:
       return <div>{f.label ?? f.type}</div>;
   }

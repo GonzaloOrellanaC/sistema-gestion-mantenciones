@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle, IonIcon } from '@ionic/react';
+import { eyeOutline, createOutline, trashOutline } from 'ionicons/icons';
 import * as templatesApi from '../api/templates';
 import type { Template } from '../api/types';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '../context/AuthContext';
 import './UsersList.css';
 
 const TemplatesList: React.FC = () => {
@@ -14,6 +17,16 @@ const TemplatesList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const history = useHistory();
+  const { t } = useTranslation();
+  const { user } = useAuth();
+
+  const perms = (user as any)?.role?.permissions || (user as any)?.roleId?.permissions || {};
+  const hasPermission = (key?: string) => {
+    if (!key) return true;
+    if ((user as any)?.isSuperAdmin) return true;
+    if (Object.prototype.hasOwnProperty.call(perms, key)) return !!perms[key];
+    return false;
+  };
 
   const load = async (p = page) => {
     setLoading(true);
@@ -24,7 +37,7 @@ const TemplatesList: React.FC = () => {
       setPage(res.page || p);
     } catch (err: unknown) {
       console.error(err);
-      setToast({ show: true, message: 'Error cargando pautas' });
+      setToast({ show: true, message: t('templates.toasts.loadError') });
     } finally {
       setLoading(false);
     }
@@ -50,14 +63,18 @@ const TemplatesList: React.FC = () => {
 
   const remove = async (id?: string) => {
     if (!id) return;
-    if (!confirm('Eliminar pauta?')) return;
+    if (!hasPermission('editarPautas')) {
+      setToast({ show: true, message: t('templates.toasts.noPermissionDelete', { defaultValue: 'No tienes permiso para eliminar pautas' }) });
+      return;
+    }
+    if (!confirm(t('templates.confirmDelete'))) return;
     try {
       await templatesApi.deleteTemplate(id);
-      setItems((s) => s.filter((t) => t._id !== id));
-      setToast({ show: true, message: 'Pauta eliminada' });
+      setItems((s) => s.filter((item) => item._id !== id));
+      setToast({ show: true, message: t('templates.toasts.deleted') });
     } catch (err: unknown) {
       console.error(err);
-      setToast({ show: true, message: 'Error eliminando pauta' });
+      setToast({ show: true, message: t('templates.toasts.deleteError') });
     }
   };
 
@@ -65,9 +82,19 @@ const TemplatesList: React.FC = () => {
     <IonPage>
       <IonHeader className="ion-no-border">
         <IonToolbar style={{padding: '0px 10px'}}>
-          <IonTitle>Gestión de Pautas</IonTitle>
-          <div className="toolbar-sub">Crea y administra las pautas de trabajo</div>
-          <IonButton slot='end' color="primary" onClick={() => history.push('/templates/create')}>Crear Pauta</IonButton>
+          <IonTitle>{t('templates.title')}</IonTitle>
+          <div className="toolbar-sub">{t('templates.subtitle')}</div>
+          <IonButton
+            slot='end'
+            color="primary"
+            onClick={() => {
+              if (!hasPermission('crearPautas')) {
+                setToast({ show: true, message: t('templates.toasts.noPermissionCreate', { defaultValue: 'No tienes permiso para crear pautas' }) });
+                return;
+              }
+              history.push('/templates/create');
+            }}
+          >{t('templates.newTemplate')}</IonButton>
         </IonToolbar>
       </IonHeader>
       <IonContent className="users-page ion-padding">
@@ -76,33 +103,55 @@ const TemplatesList: React.FC = () => {
           <table>
             <thead>
               <tr>
-                <th>Pauta</th>
-                <th>Descripción</th>
-                <th>Creado</th>
-                <th>Acciones</th>
+                <th>{t('templates.headers.name')}</th>
+                <th>{t('templates.headers.description')}</th>
+                <th>{t('templates.headers.created')}</th>
+                <th>{t('templates.headers.actions')}</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((t) => (
-                <tr key={t._id}>
+              {items.map((tmpl) => (
+                <tr key={tmpl._id}>
                   <td>
                     <div className="user-cell">
-                      <div className="user-avatar-sm">{t.name?.[0] ?? 'P'}</div>
-                      <div className="user-name">{t.name}</div>
+                      <div className="user-avatar-sm">{tmpl.name?.[0] ?? 'P'}</div>
+                      <div className="user-name">{tmpl.name}</div>
                     </div>
                   </td>
-                  <td style={{ maxWidth: 360 }}>{t.description}</td>
-                  <td>{t.createdAt ? new Date(t.createdAt).toLocaleString() : ''}</td>
+                  <td style={{ maxWidth: 360 }}>{tmpl.description}</td>
+                  <td>{tmpl.createdAt ? new Date(tmpl.createdAt).toLocaleString() : ''}</td>
                   <td>
                     <div style={{ display: 'flex', gap: 8 }}>
-                      <IonButton title="Vista previa" size="small" onClick={() => history.push(`/templates/${t._id}/preview`)}>
-                        <i className="fas fa-eye" />
+                      <IonButton title={t('templates.actions.preview')} size="small" onClick={() => history.push(`/templates/${tmpl._id}/preview`)}>
+                        <IonIcon slot="icon-only" icon={eyeOutline} />
                       </IonButton>
-                      <IonButton title="Editar" size="small" color="secondary" onClick={() => history.push(`/templates/${t._id}/edit`)}>
-                        <i className="fas fa-edit" />
+                      <IonButton
+                        title={t('templates.actions.edit')}
+                        size="small"
+                        color="secondary"
+                        onClick={() => {
+                          if (!hasPermission('editarPautas')) {
+                            setToast({ show: true, message: t('templates.toasts.noPermissionEdit', { defaultValue: 'No tienes permiso para editar pautas' }) });
+                            return;
+                          }
+                          history.push(`/templates/${tmpl._id}/edit`);
+                        }}
+                      >
+                        <IonIcon slot="icon-only" icon={createOutline} />
                       </IonButton>
-                      <IonButton title="Eliminar" color="danger" size="small" onClick={() => remove(t._id)}>
-                        <i className="fas fa-trash" />
+                      <IonButton
+                        title={t('templates.actions.delete')}
+                        color="danger"
+                        size="small"
+                        onClick={() => {
+                          if (!hasPermission('editarPautas')) {
+                            setToast({ show: true, message: t('templates.toasts.noPermissionDelete', { defaultValue: 'No tienes permiso para eliminar pautas' }) });
+                            return;
+                          }
+                          remove(tmpl._id);
+                        }}
+                      >
+                        <IonIcon slot="icon-only" icon={trashOutline} />
                       </IonButton>
                     </div>
                   </td>
@@ -113,11 +162,11 @@ const TemplatesList: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-          <div>Mostrando {items.length} de {total}</div>
+          <div>{t('templates.showing', { count: items.length, total })}</div>
           <div>
-            <IonButton onClick={prev} disabled={page<=1}>Anterior</IonButton>
-            <span style={{ margin: '0 8px' }}>Página {page}</span>
-            <IonButton onClick={next} disabled={page*limit >= total}>Siguiente</IonButton>
+            <IonButton onClick={prev} disabled={page<=1}>{t('templates.pagination.prev')}</IonButton>
+            <span style={{ margin: '0 8px' }}>{t('templates.pagination.page', { page })}</span>
+            <IonButton onClick={next} disabled={page*limit >= total}>{t('templates.pagination.next')}</IonButton>
           </div>
         </div>
 

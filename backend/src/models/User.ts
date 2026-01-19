@@ -6,6 +6,7 @@ export interface IUser {
   lastName: string;
   email: string;
   passwordHash: string;
+  photoUrl?: string;
   roleId?: Schema.Types.ObjectId;
   branchId?: Schema.Types.ObjectId;
   isAdmin?: boolean;
@@ -19,6 +20,7 @@ const UserSchema = new Schema<IUser>({
   lastName: { type: String, required: true },
   email: { type: String, required: true },
   passwordHash: { type: String, required: true },
+  photoUrl: { type: String },
   roleId: { type: Schema.Types.ObjectId, ref: 'Role' },
   branchId: { type: Schema.Types.ObjectId, ref: 'Branch' },
   isAdmin: { type: Boolean, default: false },

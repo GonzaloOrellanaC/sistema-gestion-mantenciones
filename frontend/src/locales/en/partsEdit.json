@@ -1,0 +1,32 @@
+{
+  "partsEdit": {
+    "columns": { "left": "Part data", "right": "Images and documents" },
+    "labels": {
+      "name": "Name",
+      "serial": "Serial",
+      "quantity": "Quantity",
+      "price": "Price",
+      "lot": "Lot",
+      "notes": "Notes",
+      "lotMeta": "Code: {{code}} · Supplier: {{supplier}}"
+    },
+    "placeholders": { "selectLot": "Select lot" },
+    "image": { "uploadHint": "Drag or click to upload a photo", "formats": "Supported formats: JPG, PNG (max 5MB)" },
+    "documents": { "title": "Documents", "hint": "You can upload one or several files: pdf, doc, docx, txt (max 5MB each)", "markedForDeletion": "Marked for deletion" },
+    "actions": { "selectImage": "Select image", "removeImage": "Remove image", "selectDocuments": "Select documents" },
+    "lotModal": { "title": "Select lot", "edit": "Edit", "filterBySupplier": "Filter by supplier", "all": "All" },
+    "title": { "edit": "Edit part", "new": "New part" },
+    "toasts": {
+      "loadError": "Could not load part",
+      "pendingUploadError": "Error uploading pending documents",
+      "updated": "Part updated",
+      "created": "Part created",
+      "saveError": "Error saving part",
+      "fileTooLarge": "File exceeds 5MB",
+      "imageUploaded": "Image uploaded",
+      "imageUploadError": "Error uploading image",
+      "docsRejected": "Could not upload: {{names}}",
+      "docsReady": "{{count}} document(s) ready to upload"
+    }
+  }
+}

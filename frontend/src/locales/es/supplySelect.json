@@ -1,0 +1,9 @@
+{
+  "supplySelect": {
+    "title": "Seleccionar insumo",
+    "searchPlaceholder": "Buscar insumo",
+    "empty": "No hay insumos",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
+  }
+}

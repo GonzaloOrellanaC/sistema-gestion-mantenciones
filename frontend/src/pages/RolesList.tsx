@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle, IonIcon } from '@ionic/react';
+import { createOutline, trashOutline } from 'ionicons/icons';
 import { Input } from '../components/Widgets/Input.widget';
 import * as rolesApi from '../api/roles';
 import type { Role, PaginationResponse } from '../api/types';
 import './UsersList.css';
 import { useHistory } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const RolesList: React.FC = () => {
   const [items, setItems] = useState<Role[]>([]);
@@ -15,6 +17,7 @@ const RolesList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const history = useHistory()
+  const { t } = useTranslation();
 
   const load = async (p = page) => {
     setLoading(true);
@@ -26,7 +29,7 @@ const RolesList: React.FC = () => {
       setPage(res.page || p);
     } catch (err: unknown) {
       console.error(err);
-      setToast({ show: true, message: 'Error cargando roles' });
+      setToast({ show: true, message: t('roles.toasts.loadError') });
     } finally {
       setLoading(false);
     }
@@ -52,14 +55,14 @@ const RolesList: React.FC = () => {
 
   const onDelete = async (id?: string) => {
     if (!id) return;
-    if (!window.confirm('¿Eliminar rol? Esta acción no se puede deshacer.')) return;
+    if (!window.confirm(t('roles.confirmDelete'))) return;
     try {
       await rolesApi.deleteRole(id);
-      setToast({ show: true, message: 'Rol eliminado' });
+      setToast({ show: true, message: t('roles.toasts.deleted') });
       load(1);
     } catch (err) {
       console.error(err);
-      setToast({ show: true, message: 'Error eliminando rol' });
+      setToast({ show: true, message: t('roles.toasts.deleteError') });
     }
   };
 
@@ -67,9 +70,9 @@ const RolesList: React.FC = () => {
     <IonPage>
       <IonHeader className="ion-no-border">
         <IonToolbar style={{padding: '0px 10px'}}>
-          <IonTitle>Gestión de Roles</IonTitle>
-          <div className="toolbar-sub">Crea y administra roles y permisos</div>
-          <IonButton slot='end' color="primary" onClick={() => {history.push(`/roles/new`)}}>Nuevo Rol</IonButton>
+          <IonTitle>{t('roles.title')}</IonTitle>
+          <div className="toolbar-sub">{t('roles.subtitle')}</div>
+          <IonButton slot='end' color="primary" onClick={() => {history.push(`/roles/new`)}}>{t('roles.newButton')}</IonButton>
         </IonToolbar>
       </IonHeader>
       <IonContent className="users-page ion-padding">
@@ -78,10 +81,10 @@ const RolesList: React.FC = () => {
           <table>
             <thead>
               <tr>
-                <th>Rol</th>
-                <th>Permisos</th>
-                <th>Creado</th>
-                <th>Acciones</th>
+                <th>{t('roles.headers.role')}</th>
+                <th>{t('roles.headers.permissions')}</th>
+                <th>{t('roles.headers.created')}</th>
+                <th>{t('roles.headers.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -96,8 +99,12 @@ const RolesList: React.FC = () => {
                   <td>{r.permissions ? Object.keys(r.permissions).filter(k => r.permissions[k]).length : 0}</td>
                   <td>{(r as any).createdAt ? new Date((r as any).createdAt).toLocaleString() : ''}</td>
                   <td>
-                    <i className="fas fa-edit user-edit" aria-hidden style={{ cursor: 'pointer', marginRight: 8 }} onClick={() => { history.push(`/roles/edit/${r._id}`); }}></i>
-                    <i className="fas fa-trash user-edit" aria-hidden style={{ cursor: 'pointer', color: '#c00' }} onClick={() => onDelete(r._id)}></i>
+                    <IonButton fill="clear" style={{ marginRight: 8 }} onClick={() => { history.push(`/roles/edit/${r._id}`); }}>
+                      <IonIcon slot="icon-only" icon={createOutline} />
+                    </IonButton>
+                    <IonButton fill="clear" style={{ color: '#c00' }} onClick={() => onDelete(r._id)}>
+                      <IonIcon slot="icon-only" icon={trashOutline} />
+                    </IonButton>
                   </td>
                 </tr>
               ))}
@@ -106,11 +113,11 @@ const RolesList: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-          <div>Mostrando {items.length} de {total}</div>
+          <div>{t('roles.showing', { count: items.length, total })}</div>
           <div>
-            <IonButton onClick={prev} disabled={page<=1}>Anterior</IonButton>
-            <span style={{ margin: '0 8px' }}>Página {page}</span>
-            <IonButton onClick={next} disabled={page*limit >= total}>Siguiente</IonButton>
+            <IonButton onClick={prev} disabled={page<=1}>{t('lists.prev')}</IonButton>
+            <span style={{ margin: '0 8px' }}>{t('roles.page', { page })}</span>
+            <IonButton onClick={next} disabled={page*limit >= total}>{t('lists.next')}</IonButton>
           </div>
         </div>
 

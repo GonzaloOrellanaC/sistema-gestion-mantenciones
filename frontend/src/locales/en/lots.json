@@ -1,0 +1,22 @@
+{
+  "lots": {
+    "headers": {
+      "code": "Code",
+      "branch": "Branch",
+      "type": "Type",
+      "supplier": "Supplier",
+      "purchaseDate": "Purchase date",
+      "price": "Price"
+    },
+    "filters": {
+      "type": "Type",
+      "code": "Code",
+      "codePlaceholder": "Search code",
+      "purchaseDate": "Purchase date"
+    },
+    "types": {
+      "supply": "Supply",
+      "part": "Part"
+    }
+  }
+}

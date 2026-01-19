@@ -27,7 +27,9 @@ async function registerUser(payload) {
     }
     let org = await Organization_1.default.findOne({ name: companyName });
     if (!org) {
-        org = await Organization_1.default.create({ name: companyName });
+        const now = new Date();
+        const trialEnds = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        org = await Organization_1.default.create({ name: companyName, trialStartsAt: now, trialEndsAt: trialEnds, isPaid: false });
     }
     let adminRole = await Role_1.default.findOne({ orgId: org._id, name: 'Admin' });
     if (!adminRole) {
@@ -36,7 +38,7 @@ async function registerUser(payload) {
     const passwordHash = await bcrypt_1.default.hash(password, 10);
     const user = await User_1.default.create({ orgId: org._id, firstName, lastName, email, passwordHash, roleId: adminRole._id, isAdmin: true });
     const token = jsonwebtoken_1.default.sign({ userId: user._id, orgId: org._id }, JWT_SECRET, { expiresIn: '7d' });
-    return { token, user: { id: user._id, email: user.email, firstName, lastName }, org: { id: org._id, name: org.name } };
+    return { token, user: { id: user._id, email: user.email, firstName, lastName }, org: { id: org._id, name: org.name, trialStartsAt: org.trialStartsAt, trialEndsAt: org.trialEndsAt, isPaid: org.isPaid } };
 }
 async function loginUser(payload) {
     console.log('Login payload:', payload);
@@ -54,8 +56,15 @@ async function loginUser(payload) {
     const match = await bcrypt_1.default.compare(password, user.passwordHash);
     if (!match)
         throw { status: 401, message: 'Invalid credentials' };
+    // If organization is not paid and trial has ended, prevent login
+    if (!org.isPaid) {
+        const trialEnds = org.trialEndsAt;
+        if (trialEnds && trialEnds.getTime() < Date.now()) {
+            throw { status: 402, message: 'Trial expired. Please complete payment to continue.' };
+        }
+    }
     const token = jsonwebtoken_1.default.sign({ userId: user._id, orgId: org._id }, JWT_SECRET, { expiresIn: '7d' });
-    return { token, user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName }, org: { id: org._id, name: org.name } };
+    return { token, user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName }, org: { id: org._id, name: org.name, trialStartsAt: org.trialStartsAt, trialEndsAt: org.trialEndsAt, isPaid: org.isPaid } };
 }
 async function forgotPassword(payload) {
     const { email, companyName } = payload;

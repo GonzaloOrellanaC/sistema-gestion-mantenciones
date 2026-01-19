@@ -35,15 +35,30 @@ async function uploadAttachment(req: Request, res: Response) {
         meta: { attachedTo: 'workOrder', workOrderId: id }
       });
 
+      // compute public URL if file stored under ./files
+      try {
+        const filesBase = path.join(process.cwd(), 'files');
+        const rel = path.relative(filesBase, req.file.path).replace(/\\/g, '/');
+        const publicUrl = `${req.protocol}://${req.get('host')}/files/${rel}`;
+        // update meta with public url
+        meta.url = publicUrl;
+        await meta.save();
+      } catch (e) {
+        // ignore
+      }
+
       // attach to work order
-      const updated = await WorkOrder.findOneAndUpdate({ _id: id, orgId: orgId.toString() }, { $push: { attachments: meta._id } }, { new: true }).lean();
+      await WorkOrder.findOneAndUpdate({ _id: id, orgId: orgId.toString() }, { $push: { attachments: meta._id } }, { new: true });
+
+      // fetch populated work order
+      const populated = await workOrdersService.findById(orgId.toString(), id);
 
       // emit socket to assignee if exists else to uploader
       const io = getIo(req);
       const target = (wo.assigneeId && wo.assigneeId.toString()) || req.user?.id;
-      io && io.to(`user:${target}`).emit('workOrder.attachmentAdded', { workOrder: updated, file: meta });
+      io && io.to(`user:${target}`).emit('workOrder.attachmentAdded', { workOrder: populated, file: meta });
 
-      return res.json({ workOrder: updated, file: meta });
+      return res.json({ workOrder: populated, file: meta });
     } catch (err: any) {
       console.error(err);
       return res.status(500).json({ message: err.message || 'server error' });
@@ -91,8 +106,8 @@ async function listWorkOrders(req: Request, res: Response) {
       if (!perms['ejecutarOT']) return res.status(403).json({ message: 'Forbidden - insufficient permissions' });
     }
 
-    const docs = await workOrdersService.list(orgId.toString(), q);
-    return res.json({ items: docs });
+    const result = await workOrdersService.list(orgId.toString(), q);
+    return res.json(result);
   } catch (err: any) {
     console.error(err);
     return res.status(500).json({ message: err.message || 'server error' });
@@ -172,9 +187,22 @@ async function startWorkOrder(req: Request, res: Response) {
     const wo = await workOrdersService.findById(orgId.toString(), id);
     if (!wo) return res.status(404).json({ message: 'Not found' });
 
-    const userId = req.user?.id;
-    if (!(wo.assigneeId && wo.assigneeId.toString() === userId)) {
-      return res.status(403).json({ message: 'Forbidden - only assignee can start the work order' });
+    // DEBUG: log requester and work order assignee to help debug permission issues
+    try { console.log('[DEBUG] startWorkOrder req.user:', req.user, ' wo.assigneeId:', wo.assigneeId); } catch (e) { }
+
+    // Allow start if user is the assignee, or an admin, or has the 'ejecutarOT' permission
+    const user: any = req.user;
+    const userId = user?.id;
+    let allowed = false;
+    if (wo.assigneeId && wo.assigneeId.toString() === userId) allowed = true;
+    if (user?.isAdmin) allowed = true;
+    if (!allowed && user?.roleId) {
+      const role = await Role.findById(user.roleId).lean();
+      const perms: any = role?.permissions || {};
+      if (perms['ejecutarOT']) allowed = true;
+    }
+    if (!allowed) {
+      return res.status(403).json({ message: 'Forbidden - only assignee or users with ejecutarOT permission can start the work order' });
     }
 
     const updated = await workOrdersService.transition(orgId.toString(), id, 'Iniciado', userId, 'Inicio de trabajo');
@@ -199,6 +227,24 @@ async function submitForReview(req: Request, res: Response) {
     return res.json(updated);
   } catch (err: any) {
     console.error(err);
+    return res.status(500).json({ message: err.message || 'server error' });
+  }
+}
+
+async function updateWorkOrder(req: Request, res: Response) {
+  const orgId = req.user?.orgId;
+  if (!orgId) return res.status(400).json({ message: 'orgId missing' });
+  const { id } = req.params;
+  try {
+    const updated = await workOrdersService.update(orgId.toString(), id, req.body, req.user?.id);
+    if (!updated) return res.status(404).json({ message: 'Not found' });
+    // emit socket event
+    const io = getIo(req);
+    io && io.to(`org:${orgId.toString()}`).emit('workOrder.updated', updated);
+    return res.json(updated);
+  } catch (err: any) {
+    console.error(err);
+    if (err && err.status) return res.status(err.status).json({ message: err.message });
     return res.status(500).json({ message: err.message || 'server error' });
   }
 }
@@ -239,6 +285,7 @@ export default {
   createWorkOrder,
   listWorkOrders,
   getWorkOrder,
+  updateWorkOrder,
   assignWorkOrder,
   startWorkOrder,
   submitForReview,

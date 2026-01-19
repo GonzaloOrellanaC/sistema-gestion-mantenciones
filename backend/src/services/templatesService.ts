@@ -5,8 +5,10 @@ interface CreateTemplatePayload {
   name: string;
   description?: string;
   structure: any; // arbitrary JSON that defines the template
+  templateTypeId?: string;
   previewConfigs?: any;
   isActive?: boolean;
+  assignedAssets?: string[];
 }
 
 async function createTemplate(orgId: string, payload: CreateTemplatePayload, createdBy?: string) {
@@ -16,6 +18,8 @@ async function createTemplate(orgId: string, payload: CreateTemplatePayload, cre
     description: payload.description,
     structure: payload.structure,
     previewConfigs: payload.previewConfigs || {},
+    templateTypeId: payload.templateTypeId ? new Types.ObjectId(payload.templateTypeId) : undefined,
+    assignedAssets: Array.isArray(payload.assignedAssets) ? payload.assignedAssets.map(a => new Types.ObjectId(a)) : [],
     isActive: payload.isActive !== false,
       createdBy: createdBy ? new Types.ObjectId(createdBy) : undefined,
   });
@@ -40,6 +44,7 @@ async function listTemplates(orgId: string, opts?: { page?: number; limit?: numb
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit)
+    .populate('assignedAssets')
     .lean();
 
   return { items, total, page, limit };
@@ -47,7 +52,7 @@ async function listTemplates(orgId: string, opts?: { page?: number; limit?: numb
 
 async function getTemplate(orgId: string, id: string) {
   if (!Types.ObjectId.isValid(id)) return null;
-  return Template.findOne({ _id: id, orgId }).lean();
+  return Template.findOne({ _id: id, orgId }).populate('assignedAssets').lean();
 }
 
 async function updateTemplate(orgId: string, id: string, payload: Partial<CreateTemplatePayload>, updatedBy?: string) {
@@ -56,7 +61,12 @@ async function updateTemplate(orgId: string, id: string, payload: Partial<Create
     ...payload,
     updatedAt: new Date(),
   };
+  if (payload.assignedAssets && Array.isArray(payload.assignedAssets)) {
+    update.assignedAssets = payload.assignedAssets.map(a => new Types.ObjectId(a));
+  }
   if (updatedBy) update.updatedBy = new Types.ObjectId(updatedBy);
+
+  if (payload.templateTypeId) update.templateTypeId = new Types.ObjectId(payload.templateTypeId as any);
 
   // no assignment fields on templates (assignment belongs to work orders)
 

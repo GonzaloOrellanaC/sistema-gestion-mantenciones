@@ -7,11 +7,14 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import fs from 'fs';
 import { connectDB } from './utils/db';
+// Ensure all mongoose models are registered
+import './models';
 import authRoutes from './routes/auth';
 import countersRoutes from './routes/counters';
 import usersRoutes from './routes/users';
 import rolesRoutes from './routes/roles';
 import templatesRoutes from './routes/templates';
+import templateTypesRoutes from './routes/templateTypes';
 import workOrdersRoutes from './routes/workOrders';
 import dashboardRoutes from './routes/dashboard';
 import branchesRoutes from './routes/branches';
@@ -21,10 +24,17 @@ import deviceModelsRoutes from './routes/deviceModels';
 import assetTypesRoutes from './routes/assetTypes';
 import assetsRoutes from './routes/assets';
 import partsRoutes from './routes/parts';
+import suppliesRoutes from './routes/supplies';
+import lotsRoutes from './routes/lots';
+import typePurchasesRoutes from './routes/typePurchases';
+import inventoryRoutes from './routes/inventory';
 import filesRoutes from './routes/files';
 import notificationsRoutes from './routes/notifications';
 import pushTokensRoutes from './routes/pushTokens';
 import pushRoutes from './routes/push';
+import costsRoutes from './routes/costs';
+import metricsRoutes from './routes/metrics';
+import reportingRoutes from './routes/reporting';
 
 const PORT = process.env.PORT || 5102;
 const app = express();
@@ -62,6 +72,7 @@ app.use('/api/users', usersRoutes);
 app.use('/api/roles', rolesRoutes);
 app.use('/api/templates', templatesRoutes);
 app.use('/api/work-orders', workOrdersRoutes);
+app.use('/api/template-types', templateTypesRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/brands', brandsRoutes);
 app.use('/api/branches', branchesRoutes);
@@ -70,14 +81,25 @@ app.use('/api/device-models', deviceModelsRoutes);
 app.use('/api/asset-types', assetTypesRoutes);
 app.use('/api/assets', assetsRoutes);
 app.use('/api/parts', partsRoutes);
+app.use('/api/supplies', suppliesRoutes);
+app.use('/api/lots', lotsRoutes);
+app.use('/api/type-purchases', typePurchasesRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/push-tokens', pushTokensRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/costs', costsRoutes);
+app.use('/api/metrics', metricsRoutes);
+app.use('/api/reporting', reportingRoutes);
 
 // Serve uploaded images publicly from backend/files/images
 const imagesPath = path.join(__dirname, '..', 'files', 'images');
 app.use('/images', express.static(imagesPath));
+
+// Serve all uploaded files publicly from backend/files
+const filesPath = path.join(__dirname, '..', 'files');
+app.use('/files', express.static(filesPath));
 
 // Try to locate frontend/dist in likely locations and serve it as static
 const frontendCandidates = [

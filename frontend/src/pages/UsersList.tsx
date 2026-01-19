@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle, IonIcon } from '@ionic/react';
 import * as usersApi from '../api/users';
+import * as rolesApi from '../api/roles';
 import sortByName from '../utils/sort';
 import type { User } from '../api/types';
 import './UsersList.css';
+import { createOutline } from 'ionicons/icons';
 
 const UsersList: React.FC = () => {
   const [items, setItems] = useState<User[]>([]);
@@ -14,7 +17,9 @@ const UsersList: React.FC = () => {
   const [q, setQ] = useState('');
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
+  const [rolesMap, setRolesMap] = useState<Record<string, string>>({});
   const history = useHistory();
+  const { t } = useTranslation();
 
   const load = async (p = page) => {
     setLoading(true);
@@ -33,6 +38,19 @@ const UsersList: React.FC = () => {
   };
 
   useEffect(() => { load(1); }, []);
+
+  useEffect(() => { loadRoles(); }, []);
+
+  const loadRoles = async () => {
+    try {
+      const res = await rolesApi.listRoles({ limit: 200 });
+      const map: Record<string, string> = {};
+      (res.items || []).forEach((r: any) => { if (r && r._id) map[r._id] = r.name || r.displayName || r.title || r._id; });
+      setRolesMap(map);
+    } catch (err) {
+      console.warn('roles load err', err);
+    }
+  };
 
   const onSearch = () => {
     setPage(1);
@@ -56,37 +74,26 @@ const UsersList: React.FC = () => {
   return (
     <IonPage>
         <IonHeader className="ion-no-border">
-          <IonToolbar style={{padding: '0px 10px'}}>
-            <IonTitle>Gestión de Usuarios</IonTitle>
-            <div className="toolbar-sub">Administra tu equipo y sus roles</div>
-            <IonButton slot='end' color="primary" onClick={() => { history.push('/users/new'); }}>
-                Nuevo Usuario
-            </IonButton>
-          </IonToolbar>
-        </IonHeader>
+            <IonToolbar style={{padding: '0px 10px'}}>
+              <IonTitle>{t('usersList.title')}</IonTitle>
+              <div className="toolbar-sub">{t('usersList.subtitle')}</div>
+              <IonButton slot='end' color="primary" onClick={() => { history.push('/users/new'); }}>
+                  {t('usersList.newUser')}
+              </IonButton>
+            </IonToolbar>
+          </IonHeader>
       <IonContent className="users-page ion-padding">
-
-        {/* <IonGrid className="users-controls">
-          <IonRow>
-            <IonCol size="8" className="users-search-col">
-              <Input type="text" placeholder="Buscar por nombre o email" value={q} onInput={(e: any) => setQ(e.detail?.value ?? '')} name="q" />
-            </IonCol>
-            <IonCol size="4" className="users-search-col">
-              <IonButton expand="block" onClick={onSearch}>Buscar</IonButton>
-            </IonCol>
-          </IonRow>
-        </IonGrid> */}
 
         <div className="table-container users-table">
           <table>
             <thead>
               <tr>
-                <th>Usuario</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Sucursal</th>
-                <th>Creado</th>
-                <th>Acciones</th>
+                <th>{t('usersList.headers.user')}</th>
+                <th>{t('usersList.headers.email')}</th>
+                <th>{t('usersList.headers.role')}</th>
+                <th>{t('usersList.headers.branch')}</th>
+                <th>{t('usersList.headers.created')}</th>
+                <th>{t('usersList.headers.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -99,11 +106,20 @@ const UsersList: React.FC = () => {
                     </div>
                   </td>
                   <td>{u.email}</td>
-                  <td>{/* TODO: resolve role name client-side via roles API */}</td>
+                  <td>{
+                    (() => {
+                      const rid = (u as any).roleId;
+                      if (!rid) return '-';
+                      if (typeof rid === 'object') return rid.name || rid.title || '-';
+                      return rolesMap[rid] || rid;
+                    })()
+                  }</td>
                   <td>{(u as any).branchId ? ((u as any).branchId.name || (u as any).branchId) : '-'}</td>
                   <td>{u.createdAt ? new Date(u.createdAt).toLocaleString() : ''}</td>
                       <td>
-                        <i className="fas fa-edit user-edit" aria-hidden style={{ cursor: 'pointer' }} onClick={() => history.push(`/users/${u._id}/edit`)} />
+                          <IonButton fill="clear" onClick={() => history.push(`/users/${u._id}/edit`)} >
+                            <IonIcon slot="icon-only" icon={createOutline} />
+                          </IonButton>
                       </td>
                 </tr>
               ))}
@@ -112,11 +128,11 @@ const UsersList: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-          <div>Mostrando {items.length} de {total}</div>
+          <div>{t('usersList.showing', { count: items.length, total })}</div>
           <div>
-            <IonButton onClick={prev} disabled={page<=1}>Anterior</IonButton>
-            <span style={{ margin: '0 8px' }}>Página {page}</span>
-            <IonButton onClick={next} disabled={page*limit >= total}>Siguiente</IonButton>
+            <IonButton onClick={prev} disabled={page<=1}>{t('usersList.prev')}</IonButton>
+            <span style={{ margin: '0 8px' }}>{t('usersList.page')} {page}</span>
+            <IonButton onClick={next} disabled={page*limit >= total}>{t('usersList.next')}</IonButton>
           </div>
         </div>
 

@@ -9,9 +9,22 @@ interface Props extends FieldProps {
   setValues: (v: Record<string, any>) => void;
 }
 
-const DateField: React.FC<Props> = ({ field, uid, values, setValues }) => {
+const DateField: React.FC<Props> = ({ field, uid, values, setValues, photos, filesMap, dynamicLists, locations, onFieldBlur }) => {
   const [open, setOpen] = useState(false);
   const display = values && values[uid] ? new Date(values[uid]).toLocaleString() : '';
+
+  // wrap setValues to also trigger onFieldBlur with snapshot
+  const wrappedSetValues = (updater: any) => {
+    if (typeof updater === 'function') {
+      const next = updater(values || {});
+      setValues(next);
+      if (onFieldBlur) onFieldBlur({ values: next, photos, filesMap, dynamicLists, locations });
+    } else {
+      const next = { ...(values || {}), ...updater };
+      setValues(next);
+      if (onFieldBlur) onFieldBlur({ values: next, photos, filesMap, dynamicLists, locations });
+    }
+  };
 
   return (
     <div>
@@ -24,7 +37,7 @@ const DateField: React.FC<Props> = ({ field, uid, values, setValues }) => {
         open={open}
         field={field}
         values={values}
-        setValues={setValues}
+        setValues={wrappedSetValues}
         uid={uid}
         setOpen={setOpen}
       />}

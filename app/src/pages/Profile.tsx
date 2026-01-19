@@ -62,11 +62,6 @@ const Profile: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Mi Perfil</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent>
         <div style={{ padding: '1.5rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '1.5rem', marginBottom: '1.5rem' }}>

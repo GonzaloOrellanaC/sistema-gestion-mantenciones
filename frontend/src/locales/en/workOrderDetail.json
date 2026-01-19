@@ -1,0 +1,44 @@
+{
+  "workOrderDetail": {
+    "title": "WO Detail",
+    "notFoundTitle": "Order not found",
+    "notFoundBody": "The work order does not exist or could not be loaded.",
+    "labels": {
+      "number": "WO #",
+      "state": "State",
+      "created": "Created",
+      "assigned": "Assigned",
+      "scheduledStart": "Scheduled start",
+      "estimatedEnd": "Estimated end",
+      "technician": "Technician",
+      "asset": "Asset",
+      "template": "Template",
+      "assignedTo": "Assigned to",
+      "branch": "Branch",
+      "client": "Client",
+      "data": "Data"
+    },
+    "columns": {
+      "details": "Details",
+      "parts": "Supplies and parts",
+      "history": "History"
+    },
+    "sections": {
+      "requiredParts": "Required parts",
+      "history": "History",
+      "costs": "Costs"
+    },
+    "noParts": "No parts",
+    "noHistory": "No history",
+    "buttons": {
+      "backToList": "Back to list",
+      "goToAssign": "Go to assign"
+    },
+    "debugRaw": "DEBUG: work order raw",
+    "parts": {
+      "quantity": "Quantity",
+      "available": "Available",
+      "calculating": "calculating..."
+    }
+  }
+}

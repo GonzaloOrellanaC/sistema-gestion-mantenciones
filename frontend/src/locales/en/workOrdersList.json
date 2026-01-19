@@ -1,0 +1,37 @@
+{
+  "workOrdersList": {
+    "title": "Work Orders",
+    "subtitle": "Create and manage work orders",
+    "supplies": "Supplies",
+    "parts": "Parts",
+    "createButton": "Create WO",
+    "loading": "Loading orders...",
+    "headers": {
+      "number": "#",
+      "start": "Start",
+      "end": "End",
+      "asset": "Asset",
+      "state": "State",
+      "assigned": "Assigned",
+      "actions": "Actions"
+    },
+    "toasts": {
+      "assignUpdated": "Assignment updated",
+      "assignError": "Error assigning order"
+    },
+    "noPermission": {
+      "create": "You don't have permission to create WOs",
+      "edit": "You don't have permission to edit WOs",
+      "assign": "You don't have permission to assign WOs"
+    },
+    "popover": {
+      "assignHeader": "Assign user",
+      "noUsers": "No users",
+      "aria": {
+        "view": "View",
+        "assign": "Assign"
+      }
+    },
+    "pagination": "Page {{page}} / {{pages}} · Total: {{total}}"
+  }
+}

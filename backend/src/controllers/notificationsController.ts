@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Notification from '../models/Notification';
 import NotificationModel from '../models/Notification';
+// Notification creation deferred — keep controllers for listing/reading only
 
 export async function markAsRead(req: Request, res: Response) {
   const orgId = req.user?.orgId;
@@ -39,6 +40,7 @@ export async function listNotifications(req: Request, res: Response) {
     return res.status(500).json({ message: err.message || 'server error' });
   }
 }
+// createNotification intentionally removed; notifications planned for later
 
 export default {
   listNotifications,

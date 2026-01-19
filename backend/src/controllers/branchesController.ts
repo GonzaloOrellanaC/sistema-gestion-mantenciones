@@ -4,9 +4,9 @@ import Branch from '../models/Branch';
 export async function create(req: Request, res: Response) {
   try {
     const orgId = (req as any).user.orgId;
-    const { name, address, meta } = req.body;
+    const { name, address, branchType, meta } = req.body;
     if (!name) return res.status(400).json({ message: 'Name required' });
-    const b = await Branch.create({ orgId, name, address, meta });
+    const b = await Branch.create({ orgId, name, address, branchType, meta });
     return res.status(201).json(b);
   } catch (err: any) {
     console.error(err);

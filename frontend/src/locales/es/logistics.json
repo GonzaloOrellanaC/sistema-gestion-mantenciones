@@ -1,0 +1,6 @@
+{
+  "logistics": {
+    "menuTitle": "Logística",
+    "items": { "lots": "Lotes", "parts": "Repuestos", "supplies": "Insumos" }
+  }
+}

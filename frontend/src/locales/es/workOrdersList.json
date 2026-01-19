@@ -1,0 +1,37 @@
+{
+  "workOrdersList": {
+    "title": "Órdenes de trabajo",
+    "subtitle": "Crear y administrar órdenes de trabajo",
+    "supplies": "Insumos",
+    "parts": "Repuestos",
+    "createButton": "Crear OT",
+    "loading": "Cargando órdenes...",
+    "headers": {
+      "number": "#",
+      "start": "Inicio",
+      "end": "Cierre",
+      "asset": "Activo",
+      "state": "Estado",
+      "assigned": "Asignado",
+      "actions": "Acciones"
+    },
+    "toasts": {
+      "assignUpdated": "Asignación actualizada",
+      "assignError": "Error asignando orden"
+    },
+    "noPermission": {
+      "create": "No tienes permisos para crear OT",
+      "edit": "No tienes permisos para editar OT",
+      "assign": "No tienes permisos para asignar OT"
+    },
+    "popover": {
+      "assignHeader": "Asignar usuario",
+      "noUsers": "No hay usuarios",
+      "aria": {
+        "view": "Ver",
+        "assign": "Asignar"
+      }
+    },
+    "pagination": "Página {{page}} / {{pages}} · Total: {{total}}"
+  }
+}

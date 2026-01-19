@@ -8,7 +8,7 @@ export async function listAssets(params?: Record<string, any>) {
 export async function createAsset(payload: any) {
   // if payload is FormData, send multipart
   if (payload instanceof FormData) {
-    const { data } = await api.post('/api/assets', payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+    const { data } = await api.post('/api/assets', payload);
     return data;
   }
   const { data } = await api.post('/api/assets', payload);
@@ -30,4 +30,9 @@ export async function deleteAsset(id: string) {
   return data;
 }
 
-export default { listAssets, createAsset, getAsset, updateAsset, deleteAsset };
+export async function bulkCreate(payload: any[]) {
+  const { data } = await api.post('/api/assets/bulk', payload);
+  return data;
+}
+
+export default { listAssets, createAsset, getAsset, updateAsset, deleteAsset, bulkCreate };

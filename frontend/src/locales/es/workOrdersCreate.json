@@ -1,0 +1,68 @@
+{
+  "workOrdersCreate": {
+    "title": {
+      "create": "Crear orden",
+      "edit": "Editar Orden #{{num}}"
+    },
+    "components": "Componentes",
+    "popover": {
+      "heading": "Sugerencia: Información para generar la OT",
+      "close": "Cerrar",
+      "items": {
+        "title": "Título: resumen breve de la tarea.",
+        "description": "Descripción: instrucciones o contexto.",
+        "priority": "Prioridad: baja/normal/alta.",
+        "location": "Ubicación o Equipo: si aplica, el lugar o elemento a intervenir.",
+        "attachments": "Adjuntos: fotos o archivos (subida separada).",
+        "templateFields": "Campos específicos de la plantilla: crear inputs que mapeen a data."
+      }
+    },
+    "labels": {
+      "template": "Plantilla",
+      "branch": "Sucursal (opcional)",
+      "allBranches": "--Todas--",
+      "asset": "Activo",
+      "title": "Título breve",
+      "titlePlaceholder": "Ej: Revisión motor",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción detallada del trabajo",
+      "priority": "Prioridad",
+      "priorityLow": "Baja",
+      "priorityNormal": "Normal",
+      "priorityHigh": "Alta",
+      "urgency": "Urgencia",
+      "urgencyLow": "Baja",
+      "urgencyNormal": "Media",
+      "urgencyHigh": "Alta",
+      "partsHeader": "Repuestos (reservar para la OT)",
+      "add": "Agregar",
+      "addInfo": "Añade repuestos y cantidades. Se intentarán reservar al crear la OT.",
+      "delete": "Eliminar",
+      "qty": "Qty",
+      "warehouse": "Almacén"
+    },
+    "calendar": {
+      "weekdays": ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"],
+      "startLabel": "Inicio programado",
+      "endLabel": "Cierre estimado",
+      "periodLabel": "Periodo"
+    },
+    "toasts": {
+      "loadError": "No se pudo cargar la orden para edición",
+      "pastDate": "No puede seleccionar una fecha anterior a hoy",
+      "selectTemplate": "Seleccione una plantilla",
+      "selectStart": "Seleccione fecha y hora de inicio programado",
+      "selectAsset": "Seleccione un activo",
+      "partsShortageAlert": "Atención: hay repuestos insuficientes para esta pauta.",
+      "errorCreatingOrder": "Error creando orden",
+      "orderCreated": "Orden creada #{{num}}"
+    },
+    "buttons": {
+      "today": "Hoy",
+      "creating": "Creando...",
+      "editing": "Editando...",
+      "createOrder": "Crear orden",
+      "editOrder": "Editar orden"
+    }
+  }
+}

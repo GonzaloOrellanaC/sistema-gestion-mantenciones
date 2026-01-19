@@ -4,6 +4,7 @@ import * as orgApi from '../api/organization';
 import FileUploader from '../components/Widgets/FileUploader.widget';
 import { useAuth } from '../context/AuthContext';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const MAX_BYTES = 1 * 1024 * 1024;
 const LOGO_MAX = { w: 1080, h: 400 };
@@ -16,6 +17,7 @@ const OrganizationPage: React.FC = () => {
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const { refreshUser } = useAuth();
   const history = useHistory();
+  const { t } = useTranslation();
 
   const load = async () => {
     try {
@@ -23,7 +25,7 @@ const OrganizationPage: React.FC = () => {
       setOrg(data);
     } catch (e:any) {
       console.error(e);
-      setToast({ show: true, message: 'Error cargando organización' });
+      setToast({ show: true, message: t('organization.toasts.loadError') });
     }
   };
 
@@ -52,11 +54,11 @@ const OrganizationPage: React.FC = () => {
       // send meta and name
       const updated = await orgApi.updateOrganization({ name: org?.name, meta });
       setOrg(updated);
-      setToast({ show: true, message: 'Organización actualizada' });
+      setToast({ show: true, message: t('organization.toasts.updated') });
       await refreshUser();
       history.push('/dashboard');
     } catch (e:any) {
-      setToast({ show: true, message: e?.response?.data?.message || 'Error guardando' });
+      setToast({ show: true, message: e?.response?.data?.message || t('organization.toasts.saveError') });
     } finally { setLoading(false); }
   };
 
@@ -64,40 +66,40 @@ const OrganizationPage: React.FC = () => {
     <IonPage>
       <IonHeader className="ion-no-border">
         <IonToolbar style={{padding: '0px 10px'}}>
-          <IonTitle>Organización</IonTitle>
+          <IonTitle>{t('organization.title')}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
         <div style={{ maxWidth: 900 }}>
-          <h3>Datos de la organización</h3>
+          <h3>{t('organization.heading')}</h3>
           <IonItem>
-            <IonLabel position="stacked">Nombre</IonLabel>
+            <IonLabel position="stacked">{t('organization.labels.name')}</IonLabel>
             <IonInput value={org?.name || ''} onIonChange={(e:any) => setOrg({ ...org, name: e.detail.value })} />
           </IonItem>
 
           
 
           <IonItem>
-            <IonLabel position="stacked">Dirección</IonLabel>
+            <IonLabel position="stacked">{t('organization.labels.address')}</IonLabel>
             <IonInput value={org?.meta?.address || ''} onIonChange={(e:any) => setOrg({ ...org, meta: { ...(org?.meta || {}), address: e.detail.value } })} />
           </IonItem>
 
           <IonItem>
-            <IonLabel position="stacked">Contacto - Email</IonLabel>
+            <IonLabel position="stacked">{t('organization.labels.contactEmail')}</IonLabel>
             <IonInput value={org?.meta?.contact?.email || ''} onIonChange={(e:any) => setOrg({ ...org, meta: { ...(org?.meta || {}), contact: { ...(org?.meta?.contact || {}), email: e.detail.value } } })} />
           </IonItem>
 
           <IonItem>
-            <IonLabel position="stacked">Contacto - Teléfono</IonLabel>
+            <IonLabel position="stacked">{t('organization.labels.contactPhone')}</IonLabel>
             <IonInput value={org?.meta?.contact?.phone || ''} onIonChange={(e:any) => setOrg({ ...org, meta: { ...(org?.meta || {}), contact: { ...(org?.meta?.contact || {}), phone: e.detail.value } } })} />
           </IonItem>
 
           <div style={{ marginTop: 16 }}>
-            <h4>Logo</h4>
+            <h4>{t('organization.logo')}</h4>
                 <FileUploader
                   currentUrl={org?.meta?.logoUrl}
                   accept="image"
-                  label="Logo"
+                  label={t('organization.logo')}
                   onSelected={(file: File, preview?: string) => setPendingFiles(prev => ({ ...prev, logo: file }))}
                   onRemovePending={() => setPendingFiles(prev => ({ ...prev, logo: undefined }))}
                   onDeleteSaved={async () => {
@@ -106,20 +108,20 @@ const OrganizationPage: React.FC = () => {
                       meta.logoUrl = '';
                       const updated = await orgApi.updateOrganization({ name: org?.name, meta });
                       setOrg(updated);
-                      setToast({ show: true, message: 'Logo eliminado' });
+                      setToast({ show: true, message: t('organization.toasts.logoDeleted') });
                     } catch (e:any) {
-                      setToast({ show: true, message: e?.response?.data?.message || 'Error eliminando logo' });
+                      setToast({ show: true, message: e?.response?.data?.message || t('organization.toasts.logoDeleteError') });
                     }
                   }}
                 />
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <h4>Isotipo</h4>
+            <h4>{t('organization.isotype')}</h4>
               <FileUploader
                 currentUrl={org?.meta?.isotypeUrl}
                 accept="image"
-                label="Isotipo"
+                label={t('organization.isotype')}
                 onSelected={(file: File, preview?: string) => setPendingFiles(prev => ({ ...prev, isotype: file }))}
                 onRemovePending={() => setPendingFiles(prev => ({ ...prev, isotype: undefined }))}
                 onDeleteSaved={async () => {
@@ -128,16 +130,16 @@ const OrganizationPage: React.FC = () => {
                     meta.isotypeUrl = '';
                     const updated = await orgApi.updateOrganization({ name: org?.name, meta });
                     setOrg(updated);
-                    setToast({ show: true, message: 'Isotipo eliminado' });
+                    setToast({ show: true, message: t('organization.toasts.isotypeDeleted') });
                   } catch (e:any) {
-                    setToast({ show: true, message: e?.response?.data?.message || 'Error eliminando isotipo' });
+                    setToast({ show: true, message: e?.response?.data?.message || t('organization.toasts.isotypeDeleteError') });
                   }
                 }}
               />
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <IonButton onClick={save} disabled={loading}>Guardar</IonButton>
+            <IonButton onClick={save} disabled={loading}>{t('organization.buttons.save')}</IonButton>
           </div>
         </div>
 

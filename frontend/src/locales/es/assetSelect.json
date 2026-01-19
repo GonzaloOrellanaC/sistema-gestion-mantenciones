@@ -1,0 +1,8 @@
+{
+  "assetSelect": {
+    "title": "Seleccionar activos",
+    "searchPlaceholder": "Buscar por nombre o serial",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar ({{count}})"
+  }
+}

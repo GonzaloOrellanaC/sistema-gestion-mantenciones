@@ -1,0 +1,82 @@
+{
+  "roles": {
+    "title": "Gestión de Roles",
+    "subtitle": "Crea y administra roles y permisos",
+    "newButton": "Nuevo Rol",
+    "headers": {
+      "role": "Rol",
+      "permissions": "Permisos",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "confirmDelete": "¿Eliminar rol? Esta acción no se puede deshacer.",
+    "operations": "Operaciones",
+    "loadError": "Error cargando roles",
+    "organization": "Organización",
+    "assets": "Activos",
+    "deleteError": "Error eliminando rol",
+    "showing": "Mostrando {{count}} de {{total}}",
+    "page": "Página {{page}}",
+    "permissionsTitle": "Permisos",
+    "create": {
+      "title": "Crear Rol",
+      "subtitle": "Define nombre y permisos",
+      "placeholders": { "name": "Nombre del rol" },
+      "toasts": {
+        "verOrganization": "Ver Organización",
+        "editarOrganization": "Editar Organización",
+        "created": "Rol creado",
+        "createError": "Error creando rol"
+      },
+      "buttons": { "saving": "Guardando...", "update": "Actualizar", "create": "Crear", "back": "Volver" }
+    },
+    "groups": {
+      "tablero": "Tablero",
+      "users": "Usuarios",
+      "templates": "Pautas",
+      "operations": "Operaciones",
+      "management": "Roles & Gerencias",
+      "assets": "Activos",
+      "organization": "Organización",
+      "branches": "Sucursales",
+      "parts": "Repuestos",
+      "lots": "Lotes"
+    },
+    "permissions": {
+        "verTablero": "Ver Tablero",
+        "verUsuarios": "Ver Usuarios",
+        "editarUsuarios": "Editar Usuarios",
+        "crearUsuarios": "Crear Usuarios",
+        "verPautas": "Ver Pautas",
+        "crearPautas": "Crear Pautas",
+        "editarPautas": "Editar Pautas",
+        "verOT": "Ver OT",
+        "crearOT": "Crear OT",
+        "editarOT": "Editar OT",
+        "asignarOT": "Asignar OT",
+        "ejecutarOT": "Ejecutar OT",
+        "supervisar": "Supervisar",
+        "aprobarRechazar": "Aprobar/Rechazar",
+        "verRoles": "Ver Roles",
+        "crearRoles": "Crear Roles",
+        "editarRoles": "Editar Roles",
+        "verOrganization": "Ver Organización",
+        "editarOrganization": "Editar Organización",
+        "verSucursales": "Ver Sucursales",
+        "crearSucursales": "Crear Sucursales",
+        "editarSucursales": "Editar Sucursales",
+        "verInsumos": "Ver Insumos",
+        "crearInsumos": "Crear Insumos",
+        "editarInsumos": "Editar Insumos",
+        "verRepuestos": "Ver Repuestos",
+        "crearRepuestos": "Crear Repuestos",
+        "editarRepuestos": "Editar Repuestos",
+        "crearLotes": "Crear Lotes",
+        "verLotes": "Ver Lotes",
+        "editarLotes": "Editar Lotes",
+        "verActivos": "Ver Activos",
+        "crearActivos": "Crear Activos",
+        "editarActivos": "Editar Activos"
+    }
+    }
+}

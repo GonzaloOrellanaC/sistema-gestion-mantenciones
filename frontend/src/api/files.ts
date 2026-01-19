@@ -12,9 +12,7 @@ export async function uploadFile(file: File, type = 'work_order_photos'): Promis
   form.append('file', file);
   form.append('type', type);
 
-  const { data } = await api.post('/api/files/upload', form, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const { data } = await api.post('/api/files/upload', form);
   return data;
 }
 
@@ -31,9 +29,7 @@ export async function attachFileToWorkOrder(workOrderId: string, file: File, typ
   form.append('file', file);
   form.append('type', type);
 
-  const { data } = await api.post(`/api/work-orders/${workOrderId}/attachments`, form, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const { data } = await api.post(`/api/work-orders/${workOrderId}/attachments`, form);
   return data;
 }
 

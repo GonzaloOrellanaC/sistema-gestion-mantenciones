@@ -133,7 +133,7 @@ async function me(req, res) {
             if (user.orgId) {
                 const org = await Organization_1.default.findById(user.orgId).lean();
                 if (org)
-                    orgData = { id: org._id, name: org.name };
+                    orgData = { id: org._id, name: org.name, trialStartsAt: org.trialStartsAt, trialEndsAt: org.trialEndsAt, isPaid: org.isPaid };
             }
         }
         catch (e) {
