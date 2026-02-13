@@ -243,7 +243,7 @@ const Lots: React.FC = () => {
                   <div style={{ fontSize: 12, marginBottom: 6 }}>{t('lots.filters.purchaseDate') || 'Purchase Date'}</div>
                   <PurchaseCalendar
                     monthShown={monthShown}
-                    setMonthShown={(d: Date) => setMonthShown(d)}
+                    setMonthShown={setMonthShown}
                     purchaseDays={purchaseDays}
                     dateFilter={dateFilter}
                     setDateFilter={(s: string) => { setDateFilter(s); setPage(1); }}

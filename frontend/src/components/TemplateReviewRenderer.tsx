@@ -66,7 +66,7 @@ const TemplateReviewRenderer: React.FC<Props> = ({ templateStructure, wo, pageIn
     return undefined;
   };
 
-  const unwrapValue = (v: any) => {
+  const unwrapValue = (v: any): any => {
     if (v === undefined || v === null) return v;
     if (typeof v === 'object') {
       if (Array.isArray(v)) return v.map(unwrapValue).join(', ');

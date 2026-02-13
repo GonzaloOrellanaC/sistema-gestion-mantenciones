@@ -84,7 +84,7 @@ const WorkOrdersList: React.FC = () => {
   };
 
   // stop events robustly to avoid parent row click handling (prevents double navigation)
-  const stopEvents = (e: React.MouseEvent) => {
+  const stopEvents = (e: any) => {
     try {
       e.preventDefault?.();
     } catch (err) {}
@@ -350,7 +350,8 @@ const WorkOrdersList: React.FC = () => {
     }
   }
 
-  async function handleShare(orderId: string) {
+  async function handleShare(orderId?: string) {
+    if (!orderId) return;
     stopEvents(new MouseEvent('click'));
     try {
       const res: any = await workOrdersApi.shareWorkOrder(orderId);

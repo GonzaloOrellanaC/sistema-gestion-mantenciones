@@ -48,7 +48,7 @@ const SupplySelectModal: React.FC<Props> = ({ isOpen, onClose, onSelect, assigne
   });
 
   return (
-  <IonModal isOpen={isOpen} onWillPresent={() => (document.activeElement as HTMLElement | null)?.blur()} onDidDismiss={() => { setSelected(null); onClose(); }}>
+  <IonModal isOpen={isOpen} onWillPresent={() => (document.activeElement as HTMLElement | null)?.blur()} onDidDismiss={() => { setSelectedIds({}); onClose(); }}>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>{t('supplySelect.title')}</IonTitle>

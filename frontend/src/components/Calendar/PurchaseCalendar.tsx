@@ -4,7 +4,7 @@ import '../../pages/calendar.css';
 
 interface Props {
   monthShown: Date;
-  setMonthShown: (d: Date) => void;
+  setMonthShown: React.Dispatch<React.SetStateAction<Date>>;
   purchaseDays: Record<string, boolean>;
   dateFilter: string;
   setDateFilter: (s: string) => void;

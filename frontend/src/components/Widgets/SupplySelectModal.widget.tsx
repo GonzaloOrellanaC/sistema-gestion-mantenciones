@@ -45,7 +45,7 @@ const SupplySelectModal: React.FC<Props> = ({ isOpen, onClose, assignedAssetIds 
   });
 
   return (
-  <IonModal isOpen={isOpen} onDidDismiss={() => { setSelected(null); onClose(); }}>
+  <IonModal isOpen={isOpen} onDidDismiss={() => { setSelectedIds({}); onClose(); }}>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Seleccionar insumo</IonTitle>
