@@ -15,4 +15,14 @@ export async function createSupply(formData: FormData) {
   return data;
 }
 
-export default { getSupplies, createSupply, getSupplyById };
+/**
+ * POST /api/supplies/availability
+ * Body: { supplyIds: string[] }
+ * Returns: { items: [{ supplyId: string, available: number, supply?: object }] }
+ */
+export async function getSuppliesAvailability(supplyIds: string[]) {
+  const { data } = await api.post('/api/supplies/availability', { supplyIds });
+  return data;
+}
+
+export default { getSupplies, createSupply, getSupplyById, getSuppliesAvailability };

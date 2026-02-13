@@ -124,6 +124,22 @@
         },
         "url": { "raw": "{{baseUrl}}/api/work-orders/:id/attachments", "host": ["{{baseUrl}}"], "path": ["api","work-orders",":id","attachments"] }
       }
+    },
+    {
+      "name": "Parts - Usage History",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/api/parts/:id/usage-history?from=2025-01-01&to=2025-12-31",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","parts",":id","usage-history"],
+          "query": [
+            { "key": "from", "value": "2025-01-01" },
+            { "key": "to", "value": "2025-12-31" }
+          ]
+        }
+      }
     }
   ],
   "event": [],

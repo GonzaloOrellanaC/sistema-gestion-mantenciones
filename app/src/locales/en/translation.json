@@ -3,5 +3,85 @@
   "pending_orders": "Pending Orders: {{count}}",
   "no_orders": "No orders.",
   "ot_prefix": "WO #{{id}}",
-  "no_location": "No location"
+  "notifications_title": "Notifications",
+  "pending": "pending",
+  "no_notifications": "No notifications.",
+  "settings_button": "Settings",
+  "settings_title": "Settings",
+  "settings_enable_push": "Enable push notifications",
+  "settings_use_browser_language": "Use browser default language",
+  "settings_disable_browser_translate": "Disable browser translation prompt",
+  "settings_language_label": "App language",
+  "settings_save": "Save",
+  "settings_subtitle": "Configure app preferences",
+  "settings_autosave_note": "Changes are saved automatically.",
+  "no_location": "No location",
+  "workorder": {
+    "state": {
+      "created": "Created",
+      "assigned": "Assigned",
+      "in_progress": "In progress",
+      "under_review": "Under review",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "assigned": "You were assigned work order #{{orgSeq}}",
+    "approved": "Your work order #{{orgSeq}} was approved",
+    "rejected": "Your work order #{{orgSeq}} was rejected"
+  }
+  ,
+  "time": {
+    "ago": "{{count}} {{unit}} ago",
+    "units": {
+      "second": "second",
+      "second_plural": "seconds",
+      "minute": "minute",
+      "minute_plural": "minutes",
+      "hour": "hour",
+      "hour_plural": "hours",
+      "day": "day",
+      "day_plural": "days",
+      "month": "month",
+      "month_plural": "months",
+      "year": "year",
+      "year_plural": "years"
+    },
+    "short": {
+      "s": "s",
+      "m": "m",
+      "h": "h",
+      "d": "d",
+      "mo": "mo",
+      "y": "y"
+    }
+  }
+  ,
+  "nav": {
+    "orders": "Orders",
+    "notifications": "Notifications",
+    "profile": "Profile"
+  },
+  "profile": {
+    "updated": "Profile updated",
+    "update_error": "Error updating profile",
+    "edit_label": "Edit Profile",
+    "settings_label": "Settings",
+    "logout": "Log out",
+    "online": "Online",
+    "role_user": "User",
+    "done_label": "Completed",
+    "pending_label": "Pending"
+  }
+  ,
+  "filters": {
+    "filter_by_urgency": "Filter by urgency",
+    "clear": "Clear",
+    "apply": "Apply",
+    "close": "Close"
+  },
+  "urgency": {
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  }
 }

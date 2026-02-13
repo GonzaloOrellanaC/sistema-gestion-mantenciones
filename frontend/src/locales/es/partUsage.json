@@ -1,0 +1,15 @@
+{
+  "partUsage": {
+    "title": "Historial de Uso",
+    "from": "Desde",
+    "to": "Hasta",
+    "apply": "Aplicar",
+    "loading": "Cargando...",
+    "noData": "No hay datos para mostrar",
+    "yAxis": "Cantidad",
+    "stock": "Stock",
+    "minThreshold": "Umbral mínimo",
+    "projection": "Proyección",
+    "crosses": "Cruza umbral"
+  }
+}

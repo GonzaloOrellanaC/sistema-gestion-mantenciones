@@ -35,6 +35,9 @@
     "react-router-dom": "^5.3.4",
     "socket.io-client": "^4.7.2",
     "swiper": "^12.0.3"
+    ,
+    "react-easy-crop": "^5.8.1",
+    "browser-image-resizer": "^1.0.8"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.0.0",

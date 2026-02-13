@@ -12,6 +12,7 @@ type User = {
   lastName?: string;
   email?: string;
   orgId?: string;
+  photoUrl?: string;
 };
 
 type AuthContextType = {

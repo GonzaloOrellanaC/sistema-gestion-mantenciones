@@ -4,3 +4,26 @@ ion-modal.modal-info {
     --border-width: 2px;
     --border-color: #474747;
 }
+
+ion-modal.image-modal {
+    --height: 100vh  !important;
+    --width: 100vw  !important;
+    --background: #202020;
+}
+
+ion-modal.pdf-modal {
+    --height: 100vh  !important;
+    --width: 100vw  !important;
+    --background: #202020;
+}
+
+ion-content.pdf-modal-content {
+    --background: #d1cfcf;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.background-black {
+    --background: #000000;
+}

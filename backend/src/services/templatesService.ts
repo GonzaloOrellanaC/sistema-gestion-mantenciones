@@ -9,9 +9,35 @@ interface CreateTemplatePayload {
   previewConfigs?: any;
   isActive?: boolean;
   assignedAssets?: string[];
+  execWindowMaxDays?: number;
+  expectedDurationDays?: number;
 }
 
 async function createTemplate(orgId: string, payload: CreateTemplatePayload, createdBy?: string) {
+  const ensureComponentIds = (structure: any) => {
+    if (!structure) return structure;
+    const genId = () => `${Date.now()}_${Math.random().toString(36).slice(2,9)}`;
+    const visit = (node: any) => {
+      try {
+        if (node && typeof node === 'object') {
+          if (Array.isArray(node.components)) {
+            node.components.forEach((c: any) => {
+              if (!c.id && !c._id) c.id = genId();
+              visit(c);
+            });
+          }
+          if (Array.isArray(node.items)) node.items.forEach((it: any) => visit(it));
+          if (Array.isArray(node.columns)) node.columns.forEach((col: any) => { if (col && col.components) col.components.forEach((c: any) => visit(c)); });
+        }
+      } catch (e) { /* ignore */ }
+    };
+    visit(structure);
+    return structure;
+  };
+
+  // ensure structure components have stable ids before saving
+  if (payload && payload.structure) payload.structure = ensureComponentIds(payload.structure);
+
   const doc = new Template({
     orgId,
     name: payload.name,
@@ -21,6 +47,8 @@ async function createTemplate(orgId: string, payload: CreateTemplatePayload, cre
     templateTypeId: payload.templateTypeId ? new Types.ObjectId(payload.templateTypeId) : undefined,
     assignedAssets: Array.isArray(payload.assignedAssets) ? payload.assignedAssets.map(a => new Types.ObjectId(a)) : [],
     isActive: payload.isActive !== false,
+    execWindowMaxDays: typeof payload.execWindowMaxDays === 'number' ? payload.execWindowMaxDays : undefined,
+    expectedDurationDays: typeof payload.expectedDurationDays === 'number' ? payload.expectedDurationDays : undefined,
       createdBy: createdBy ? new Types.ObjectId(createdBy) : undefined,
   });
 
@@ -45,6 +73,7 @@ async function listTemplates(orgId: string, opts?: { page?: number; limit?: numb
     .skip((page - 1) * limit)
     .limit(limit)
     .populate('assignedAssets')
+    .populate('templateTypeId')
     .lean();
 
   return { items, total, page, limit };
@@ -52,11 +81,35 @@ async function listTemplates(orgId: string, opts?: { page?: number; limit?: numb
 
 async function getTemplate(orgId: string, id: string) {
   if (!Types.ObjectId.isValid(id)) return null;
-  return Template.findOne({ _id: id, orgId }).populate('assignedAssets').lean();
+  return Template.findOne({ _id: id, orgId }).populate('assignedAssets').populate('templateTypeId').lean();
 }
 
 async function updateTemplate(orgId: string, id: string, payload: Partial<CreateTemplatePayload>, updatedBy?: string) {
   if (!Types.ObjectId.isValid(id)) return null;
+  const ensureComponentIds = (structure: any) => {
+    if (!structure) return structure;
+    const genId = () => `${Date.now()}_${Math.random().toString(36).slice(2,9)}`;
+    const visit = (node: any) => {
+      try {
+        if (node && typeof node === 'object') {
+          if (Array.isArray(node.components)) {
+            node.components.forEach((c: any) => {
+              if (!c.id && !c._id) c.id = genId();
+              visit(c);
+            });
+          }
+          if (Array.isArray(node.items)) node.items.forEach((it: any) => visit(it));
+          if (Array.isArray(node.columns)) node.columns.forEach((col: any) => { if (col && col.components) col.components.forEach((c: any) => visit(c)); });
+        }
+      } catch (e) { /* ignore */ }
+    };
+    visit(structure);
+    return structure;
+  };
+
+  // ensure structure components have stable ids before updating
+  if (payload && payload.structure) payload.structure = ensureComponentIds(payload.structure);
+
   const update: any = {
     ...payload,
     updatedAt: new Date(),
@@ -67,6 +120,9 @@ async function updateTemplate(orgId: string, id: string, payload: Partial<Create
   if (updatedBy) update.updatedBy = new Types.ObjectId(updatedBy);
 
   if (payload.templateTypeId) update.templateTypeId = new Types.ObjectId(payload.templateTypeId as any);
+
+  if (typeof payload.execWindowMaxDays === 'number') update.execWindowMaxDays = payload.execWindowMaxDays;
+  if (typeof payload.expectedDurationDays === 'number') update.expectedDurationDays = payload.expectedDurationDays;
 
   // no assignment fields on templates (assignment belongs to work orders)
 

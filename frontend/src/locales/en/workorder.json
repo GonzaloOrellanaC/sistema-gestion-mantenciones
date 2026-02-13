@@ -1,0 +1,15 @@
+{
+  "workorder": {
+    "state": {
+      "created": "Created",
+      "assigned": "Assigned",
+      "in_progress": "In progress",
+      "under_review": "Under review",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "assigned": "You were assigned work order #{{orgSeq}}",
+    "approved": "Your work order #{{orgSeq}} was approved",
+    "rejected": "Your work order #{{orgSeq}} was rejected"
+  }
+}

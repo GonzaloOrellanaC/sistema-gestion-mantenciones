@@ -8,6 +8,7 @@ import Asset from '../models/Asset';
 import WorkOrder from '../models/WorkOrder';
 import PartInventory from '../models/PartInventory';
 import mongoose from 'mongoose';
+import { analyzeWorkOrdersParts } from '../utils/partsUtils';
 
 export async function create(req: Request, res: Response) {
   try {
@@ -110,11 +111,12 @@ export async function list(req: Request, res: Response) {
       if (totalRemaining <= 0) stockStatus = 'out';
       else if (min > 0 && totalRemaining <= min) stockStatus = 'low';
       else stockStatus = 'ok';
+      const invs = invByItem[idStr] || [];
       return {
         ...p,
         quantity: totalRemaining,
         initialQuantity: invMap[idStr] ? invMap[idStr].initial : 0,
-        inventories: invByItem[idStr] || [],
+        inventories: invs,
         stockStatus
       };
     });
@@ -139,14 +141,18 @@ export async function availability(req: Request, res: Response) {
     const aggIds = partIds.map((p: any) => new mongoose.Types.ObjectId(String(p)));
     const agg = await PartInventory.aggregate([
       { $match: { orgId: aggOrgId, itemId: { $in: aggIds } } },
-      { $group: { _id: '$itemId', remaining: { $sum: '$remainingQuantity' } } }
+      { $group: { _id: '$itemId', remaining: { $sum: '$remainingQuantity' }, initial: { $sum: '$initialQuantity' } } }
     ]);
     const remMap: Record<string, number> = {};
-    agg.forEach((a: any) => { remMap[String(a._id)] = a.remaining || 0; });
+    const initMap: Record<string, number> = {};
+    agg.forEach((a: any) => { remMap[String(a._id)] = a.remaining || 0; initMap[String(a._id)] = a.initial || 0; });
     const parts = await Part.find({ orgId, _id: { $in: partIds } }).lean();
     const byId: Record<string, any> = {};
     parts.forEach((p: any) => { byId[String(p._id)] = p; });
-    const items = partIds.map((id: any) => ({ partId: id, available: remMap[String(id)] || 0, part: byId[String(id)] || null }));
+    const items = partIds.map((id: any) => {
+      const idStr = String(id);
+      return { partId: id, available: remMap[idStr] || 0, initial: initMap[idStr] || 0, part: byId[idStr] || null };
+    });
     return res.json({ items });
   } catch (err: any) {
     console.error(err);
@@ -161,9 +167,9 @@ export async function getOne(req: Request, res: Response) {
     const doc = await Part.findOne({ _id: id, orgId }).populate('docs').lean();
     if (!doc) return res.status(404).json({ message: 'Not found' });
     // attach inventory entries for this part
-    const inv = await PartInventory.find({ orgId: mongoose.Types.ObjectId(String(orgId)), itemId: mongoose.Types.ObjectId(String(id)) }).populate({ path: 'lotId', select: 'code purchaseDate price supplier' }).lean();
-    const totalRemaining = inv.reduce((s: number, x: any) => s + (Number(x.remainingQuantity || 0)), 0);
-    return res.json({ ...doc, inventories: inv, quantity: totalRemaining });
+      const inv = await PartInventory.find({ orgId: new mongoose.Types.ObjectId(String(orgId)), itemId: new mongoose.Types.ObjectId(String(id)) }).populate({ path: 'lotId', select: 'code purchaseDate price supplier' }).lean();
+      const totalRemaining = inv.reduce((s: number, x: any) => s + (Number(x.remainingQuantity || 0)), 0);
+      return res.json({ ...doc, inventories: inv, quantity: totalRemaining });
   } catch (err: any) {
     console.error(err);
     return res.status(err.status || 500).json({ message: err.message || 'Server error' });
@@ -222,4 +228,107 @@ export async function remove(req: Request, res: Response) {
   }
 }
 
-export default { create, list, availability, getOne, update, remove };
+export async function usageHistory(req: Request, res: Response) {
+  try {
+    const orgId = (req as any).user.orgId;
+    const { id } = req.params; // part id to analyze
+    console.log('usageHistory for part', id, 'org', orgId);
+    const from = req.query.from ? new Date(String(req.query.from)) : null;
+    const to = req.query.to ? new Date(String(req.query.to)) : null;
+
+    const q: any = { orgId: new mongoose.Types.ObjectId(String(orgId)) };
+    // only work orders that have an assignedAt date
+    q['dates.assignedAt'] = { $exists: true };
+    if (from || to) {
+      q['dates.assignedAt'] = {};
+      if (from) q['dates.assignedAt'].$gte = from;
+      if (to) q['dates.assignedAt'].$lte = to;
+    }
+
+    // fetch orders and populate template structure
+    const orders = await WorkOrder.find(q).populate({ path: 'templateId', select: 'structure' }).lean();
+
+    // analyze each order to extract parts from template structure
+    const analysis = analyzeWorkOrdersParts(orders);
+
+    const events: Array<any> = [];
+    orders.forEach((w: any) => {
+      const wid = String(w._id || w.id || '');
+      const a = analysis[wid];
+      if (!a || !Array.isArray(a.parts) || a.parts.length === 0) return;
+      a.parts.forEach((p: any) => {
+        // normalize id checks: part may be referenced by _id, id, partId or embedded object
+        const pidCandidates = [p && (p._id || p.id || p.partId), p && p.part && (p.part._id || p.part.id), String(p && (p._id || p.id || p.partId || ''))];
+        const match = pidCandidates.some((c) => { if (!c) return false; return String(c) === String(id); });
+        if (!match) return;
+
+        // attempt to get quantity from common fields
+        const qty = Number(p.quantity || p.qty || p.count || p.amount || p.cantidad || 1) || 1;
+        events.push({ workOrderId: wid, assignedAt: w.dates && w.dates.assignedAt ? w.dates.assignedAt : null, quantity: qty });
+      });
+    });
+
+    // sort events by assignedAt ascending
+    events.sort((a, b) => {
+      const da = a.assignedAt ? new Date(a.assignedAt).getTime() : 0;
+      const db = b.assignedAt ? new Date(b.assignedAt).getTime() : 0;
+      return da - db;
+    });
+
+    // Fetch PartInventory docs for this part to compute original totals by date
+    // PartInventory may reference a Lot with purchaseDate; prefer lot.purchaseDate, fallback to inventory.createdAt
+    const invDocs = await PartInventory.find({ orgId: new mongoose.Types.ObjectId(String(orgId)), itemId: new mongoose.Types.ObjectId(String(id)) }).populate({ path: 'lotId', select: 'purchaseDate' }).lean();
+
+    // Compute overall originalTotal (sum of initialQuantity) up to `to` if provided, else include all
+    const cutoff = to ? new Date(String(to)) : null;
+    let overallOriginalTotal = 0;
+    invDocs.forEach((inv: any) => {
+      const invCreated = inv && inv.createdAt ? new Date(inv.createdAt) : null;
+      const lotPurchase = inv && inv.lotId && inv.lotId.purchaseDate ? new Date(inv.lotId.purchaseDate) : null;
+      const effectiveDate = lotPurchase || invCreated;
+      if (!cutoff || (effectiveDate && effectiveDate.getTime() <= cutoff.getTime())) {
+        overallOriginalTotal += Number(inv.initialQuantity || 0);
+      }
+    });
+
+    // fetch part basic info (for meta)
+    const partDoc = await Part.findOne({ _id: id, orgId: new mongoose.Types.ObjectId(String(orgId)) }).lean();
+
+    // Build items with only requested fields and min threshold
+    const items = events.map((ev) => ({
+      workOrderId: ev.workOrderId,
+      assignedAt: ev.assignedAt,
+      quantity: ev.quantity,
+      min: partDoc ? Number(partDoc.minStock || 0) : null
+    }));
+
+    const meta: any = {
+      part: partDoc ? { _id: partDoc._id, name: partDoc.name, serial: partDoc.serial, minStock: partDoc.minStock } : null
+    };
+
+    // Build acquisitions list grouped by lot with purchaseDate and originalTotal per lot
+    const acquisitionsMap: Record<string, { lotId: string; purchaseDate: Date | null; originalTotal: number }> = {};
+    invDocs.forEach((inv: any) => {
+      const lot = inv && inv.lotId ? inv.lotId : null;
+      const lotId = lot && (lot._id || lot) ? String(lot._id || lot) : String(inv._id || 'unknown');
+      const lotPurchase = lot && lot.purchaseDate ? new Date(lot.purchaseDate) : null;
+      const invCreated = inv && inv.createdAt ? new Date(inv.createdAt) : null;
+      const effectiveDate = lotPurchase || invCreated;
+      // apply same cutoff logic used for overallOriginalTotal
+      if (cutoff && effectiveDate && effectiveDate.getTime() > cutoff.getTime()) return;
+      if (!acquisitionsMap[lotId]) acquisitionsMap[lotId] = { lotId, purchaseDate: lotPurchase || invCreated || null, originalTotal: 0 };
+      acquisitionsMap[lotId].originalTotal += Number(inv.initialQuantity || 0);
+    });
+
+    const acquisitions = Object.values(acquisitionsMap);
+
+    meta['acquisitions'] = acquisitions;
+
+    return res.json({ items, meta });
+  } catch (err: any) {
+    console.error('usageHistory error', err);
+    return res.status(err.status || 500).json({ message: err.message || 'Server error' });
+  }
+}
+
+export default { create, list, availability, getOne, update, remove, usageHistory };

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useHistory } from 'react-router-dom';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonList, IonItem, IonLabel, IonSpinner, IonButtons, IonIcon, IonBadge } from '@ionic/react';
 import { getWorkOrder } from '../api/workOrders';
+import { onWorkOrderUpdated } from '../utils/eventBus';
 import { useAuth } from '../context/AuthContext';
 import { chevronBackOutline } from 'ionicons/icons';
 import { useWorkOrder } from '../context/WorkOrderContext';
@@ -20,6 +21,20 @@ const WorkOrderDetail: React.FC<RouteComponentProps<MatchParams>> = ({ match }) 
 
   useEffect(() => {
     load();
+    const unsub = onWorkOrderUpdated((e: any) => {
+      try {
+        const d = e && e.detail;
+        if (!d || !d.id) return;
+        if (String(d.id) !== String(match.params.id)) return;
+        // if detail provided, merge to avoid an extra fetch; otherwise refetch
+        if (d.workOrder) {
+          setOrder((prev: any) => ({ ...(prev || {}), ...(d.workOrder || {}) }));
+        } else {
+          load();
+        }
+      } catch (err) { /* ignore */ }
+    });
+    return () => { try { unsub(); } catch (e) { /* ignore */ } };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [match.params.id]);
 

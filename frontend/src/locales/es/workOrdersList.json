@@ -12,17 +12,21 @@
       "end": "Cierre",
       "asset": "Activo",
       "state": "Estado",
+      "progress": "Progreso",
       "assigned": "Asignado",
       "actions": "Acciones"
     },
     "toasts": {
       "assignUpdated": "Asignación actualizada",
-      "assignError": "Error asignando orden"
+      "assignError": "Error asignando orden",
+      "shareCopied": "Enlace creado y copiado al portapapeles",
+      "shareError": "No se pudo generar el enlace para compartir"
     },
     "noPermission": {
       "create": "No tienes permisos para crear OT",
       "edit": "No tienes permisos para editar OT",
-      "assign": "No tienes permisos para asignar OT"
+      "assign": "No tienes permisos para asignar OT",
+      "share": "No tienes permisos para compartir esta OT"
     },
     "popover": {
       "assignHeader": "Asignar usuario",

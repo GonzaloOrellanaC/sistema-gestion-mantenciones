@@ -30,5 +30,6 @@ import './User';
 import './Warehouse';
 import './WorkOrder';
 import './Lot';
+import './ShareToken';
 
 export default true;

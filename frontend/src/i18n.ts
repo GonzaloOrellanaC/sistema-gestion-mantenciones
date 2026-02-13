@@ -20,6 +20,8 @@ function detectInitialLang() {
 
 const initialLang = detectInitialLang();
 
+// (no runtime document modifications required here)
+
 function buildResources() {
   const resources: Record<string, { translation: any }> = {
     en: { translation: {} },

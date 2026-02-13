@@ -10,6 +10,8 @@ interface InputInterface {
     placeholder?: string;
     value?: string | number | undefined;
     onInput?: (e: any) => void;
+    onChange?: (e: any) => void;
+    onBlur?: (e: any) => void;
     name?: string;
     labelPlacement?: "fixed" | "start" | "end" | "floating" | "stacked" | undefined;
     key?: string | number | undefined;
@@ -91,6 +93,8 @@ export const Input = (props: InputInterface) => {
                             type={type}
                             value={props.value}
                             onIonInput={props.onInput}
+                            onIonChange={props.onChange}
+                            onIonBlur={props.onBlur}
                             name={props.name}
                             placeholder={props.type === 'password' ? props.placeholder ? props.placeholder : '*****' : '' }
                             labelPlacement={props.labelPlacement}

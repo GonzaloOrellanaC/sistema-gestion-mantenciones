@@ -32,6 +32,15 @@ export async function getWorkOrder(id: string): Promise<WorkOrder> {
   return data;
 }
 
+/**
+ * POST /api/work-orders/:id/share
+ * Create a public share token and return { token, expiresAt, url }
+ */
+export async function shareWorkOrder(id: string, days = 7): Promise<{ token: string; expiresAt: string; url: string }> {
+  const { data } = await api.post(`/api/work-orders/${id}/share`, { days });
+  return data;
+}
+
 export async function updateWorkOrder(id: string, payload: any): Promise<WorkOrder> {
   const { data } = await api.put(`/api/work-orders/${id}`, payload);
   return data;
@@ -52,4 +61,4 @@ export async function assignWorkOrder(id: string, assigneeId: string, note?: str
 // Execution endpoints (start/submit/approve/reject) are intentionally omitted —
 // they will be implemented in the native Android/iOS apps only.
 
-export default { listWorkOrders, createWorkOrder, getWorkOrder, updateWorkOrder, assignWorkOrder };
+export default { listWorkOrders, createWorkOrder, getWorkOrder, shareWorkOrder, updateWorkOrder, assignWorkOrder };

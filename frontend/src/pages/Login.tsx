@@ -11,10 +11,12 @@ import {
   IonCol,
   IonButton,
   IonText,
+  IonIcon,
 } from '@ionic/react';
 import { useAuth } from '../context/AuthContext';
 import { Input } from '../components/Widgets/Input.widget';
 import '../styles/login.css';
+import { phonePortraitOutline } from 'ionicons/icons';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -42,6 +44,26 @@ const Login: React.FC = () => {
       setLoading(false);
       // console.log('Login submit end');
     }
+  };
+
+  const openMobileVersion = () => {
+    const devUrl = 'http://localhost:5101';
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        window.open(devUrl, '_blank', 'noopener');
+        return;
+      }
+    } catch (e) {
+      // fallback when process isn't available
+      try {
+        if (window && window.location && window.location.hostname === 'localhost') {
+          window.open(devUrl, '_blank', 'noopener');
+          return;
+        }
+      } catch (er) {}
+    }
+    // production fallback
+    window.open('/landing', '_blank', 'noopener');
   };
 
   return (
@@ -73,6 +95,12 @@ const Login: React.FC = () => {
                   </IonButton>
                   <IonButton className="btn btn-secondary" expand="block" fill="clear" onClick={() => history.push('/auth/forgot')}>
                     ¿Olvidaste tu contraseña?
+                  </IonButton>
+                  <br />
+                  <br />
+                  <IonButton className="btn btn-secondary" expand="block" fill="clear" onClick={openMobileVersion}>
+                    <IonIcon icon={phonePortraitOutline} />
+                    Abrir versión móvil
                   </IonButton>
                 </div>
                 <div className="auth-links">

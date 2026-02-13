@@ -7,8 +7,8 @@ interface Props extends FieldProps {
   openSignature: (uid: string) => void;
 }
 
-const SignatureField: React.FC<Props> = ({ uid, values, openSignature }) => {
-  const sig = values && values[uid];
+const SignatureField: React.FC<Props> = ({ uid, filesMap, openSignature }) => {
+  const sig = filesMap && filesMap[uid] && filesMap[uid].url;
   return (
     <div>
       <div className="signature-area" style={{ width: '100%', height: 120, borderRadius: 8, border: '1px dashed #ECEFF1', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

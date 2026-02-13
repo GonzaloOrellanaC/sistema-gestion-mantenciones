@@ -1,5 +1,6 @@
 {
   "dashboard": {
+    "title": "Panel de Control",
     "subtitle": "Resumen de actividad y KPIs clave",
     "createdOrders": {
       "label": "Ordenes de trabajo creadas",

@@ -23,5 +23,15 @@
       "supply": "Insumo",
       "repuesto": "Repuesto"
     }
+    ,
+    "placeholders": {
+      "itemId": "ID o nombre del item"
+    },
+    "items": {
+      "title": "Items en el lote",
+      "quantity": "Cant",
+      "unitPrice": "Precio unitario",
+      "none": "No hay items en este lote"
+    }
   }
 }

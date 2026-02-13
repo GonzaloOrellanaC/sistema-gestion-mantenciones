@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton, IonGrid, IonRow, IonCol, IonToast, IonSelect, IonSelectOption } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton, IonGrid, IonRow, IonCol, IonToast, IonSelect, IonSelectOption, IonFooter, IonButtons } from '@ionic/react';
 import api from '../api/axios';
 import { useStylingContext } from '../context/StylingContext';
 
@@ -17,6 +17,7 @@ const LotEdit: React.FC = () => {
   const [form, setForm] = useState<any>({ code: '', supplier: '', purchaseDate: '', price: undefined, notes: '', type: 'insumos' });
   const [primaryItem, setPrimaryItem] = useState<any>({ itemId: '', itemName: '', quantity: 1, unitPrice: undefined });
   const [typePurchases, setTypePurchases] = useState<Array<{ _id: string; label: string, type: string }>>([]);
+  const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {console.log({form})}, [form]);
   const currency = useMemo(() => {
@@ -78,6 +79,9 @@ const LotEdit: React.FC = () => {
         if (Array.isArray(data.items) && data.items.length > 0) {
           const it = data.items[0];
           setPrimaryItem({ itemId: it.itemId || it._id || '', itemName: it.itemName || '', quantity: it.quantity || 1, unitPrice: it.unitPrice });
+          setItems(data.items);
+        } else {
+          setItems([]);
         }
         // load TypePurchase options
         try {
@@ -154,7 +158,7 @@ const LotEdit: React.FC = () => {
       <IonContent className="ion-padding">
         <IonGrid>
           <IonRow>
-            <IonCol size="12">
+            <IonCol sizeXs='12' sizeMd="6">
               <IonItem>
                 <IonLabel position="stacked">{t('lotsEdit.labels.code') || 'Code'}</IonLabel>
                 <IonInput value={form.code} onIonChange={e => setForm({ ...form, code: e.detail.value })} />
@@ -227,17 +231,37 @@ const LotEdit: React.FC = () => {
                   inputmode={currency === 'USD' ? 'decimal' : 'numeric'}
                 />
               </IonItem>
-
-              <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                <IonButton style={buttonCancel} onClick={() => history.push('/lots')}>{t('common.cancel') || 'Cancelar'}</IonButton>
-                <IonButton onClick={save} disabled={loading}>{t('common.save') || 'Guardar'}</IonButton>
-                <IonButton color="danger" fill="clear" onClick={remove} disabled={loading}>{t('lotsEdit.delete') || 'Eliminar'}</IonButton>
+            </IonCol>
+            <IonCol sizeXs="12" sizeMd="6">
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>{t('lotsEdit.items.title') || 'Items in lot'}</div>
+                {items && items.length > 0 ? (
+                  items.map((it, idx) => (
+                    <IonItem key={idx}>
+                      <IonLabel>
+                        <div style={{ fontWeight: 600 }}>{it.itemName || it.name || it.itemId || it._id}</div>
+                        <div style={{ fontSize: 13, color: '#666' }}>{(t('lotsEdit.items.quantity') || 'Qty')}: {it.quantity ?? '-'} • {(t('lotsEdit.items.unitPrice') || 'Unit')}: {it.unitPrice != null ? formatCurrency(it.unitPrice) : '-'}</div>
+                      </IonLabel>
+                    </IonItem>
+                  ))
+                ) : (
+                  <div style={{ color: '#666' }}>{t('lotsEdit.items.none') || 'No items in this lot'}</div>
+                )}
               </div>
             </IonCol>
           </IonRow>
         </IonGrid>
         <IonToast isOpen={!!toast} message={toast || ''} duration={2000} onDidDismiss={() => setToast(null)} />
       </IonContent>
+      <IonFooter>
+        <IonToolbar>
+          <IonButtons>
+            <IonButton style={buttonCancel} onClick={() => history.push('/logistics/lots')}>{t('common.cancel') || 'Cancelar'}</IonButton>
+            <IonButton onClick={save} disabled={loading}>{t('common.save') || 'Guardar'}</IonButton>
+            <IonButton color="danger" fill="clear" onClick={remove} disabled={loading}>{t('lotsEdit.delete') || 'Eliminar'}</IonButton>
+          </IonButtons> 
+        </IonToolbar>       
+      </IonFooter>
     </IonPage>
   );
 };

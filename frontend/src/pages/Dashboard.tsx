@@ -26,6 +26,7 @@ const Dashboard: React.FC = () => {
     setLoadingDashboardData(true);
     try {
       const d: any = await dashboardApi.getCounts({ months: monthsRange });
+      console.log('dashboard counts', d);
       setCreatedCount(d.createdTotal ?? null);
       setPendingCount(d.pendingTotal ?? null);
       setActiveUsersCount(d.activeUsers ?? null);
@@ -101,12 +102,14 @@ const Dashboard: React.FC = () => {
 
   // Weekly labels (last 7 days) for charts
   const weekdaysNames = t('workOrdersCreate.calendar.weekdays', { returnObjects: true }) as string[];
+  const weekStart = (() => { try { return localStorage.getItem('weekStart') || 'monday'; } catch { return 'monday'; } })();
+  const weekdayLabels = weekStart === 'sunday' ? [weekdaysNames && weekdaysNames[6], ...(weekdaysNames || []).slice(0,6)] : weekdaysNames;
   const today = new Date();
   const weeklyLabels = Array.from({ length: 7 }).map((_, i) => {
     const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (6 - i));
-    const idx = (d.getDay() + 6) % 7;
-    return weekdaysNames && Array.isArray(weekdaysNames) && weekdaysNames[idx]
-      ? weekdaysNames[idx]
+    const idx = weekStart === 'sunday' ? d.getDay() : (d.getDay() + 6) % 7;
+    return weekdayLabels && Array.isArray(weekdayLabels) && weekdayLabels[idx]
+      ? weekdayLabels[idx]
       : d.toLocaleDateString(undefined, { weekday: 'short' });
   });
 
@@ -126,7 +129,7 @@ const Dashboard: React.FC = () => {
       <IonContent className="main-wrapper ion-padding">
         <div className="page-header">
           <div className="page-title">
-            <h1>{t('nav.dashboard')}</h1>
+            <h1>{t('dashboard.title')}</h1>
             <p>{t('dashboard.subtitle')}</p>
           </div>
         </div>

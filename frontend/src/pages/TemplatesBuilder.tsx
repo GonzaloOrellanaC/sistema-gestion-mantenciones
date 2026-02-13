@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { IonPage, IonContent, IonButton, IonText, IonCheckbox, IonPopover, IonList, IonItem, IonLabel, IonIcon, IonSearchbar, IonHeader, IonToolbar, IonTitle, IonFooter, IonButtons, IonModal, IonInput } from '@ionic/react';
-import { chevronBackOutline, starOutline } from 'ionicons/icons';
+import { IonPage, IonContent, IonButton, IonText, IonCheckbox, IonPopover, IonList, IonItem, IonLabel, IonIcon, IonSearchbar, IonHeader, IonToolbar, IonTitle, IonFooter, IonButtons, IonModal, IonInput, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { chevronBackOutline, starOutline, checkmarkOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import { DndProvider } from 'react-dnd';
 import DraggableItem from '../components/Templates/DraggableItem';
@@ -48,9 +48,13 @@ const TemplatesBuilder: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [assetsList, setAssetsList] = useState<any[]>([]);
   const [assignedAssets, setAssignedAssets] = useState<string[]>([]);
+  const [execWindowMaxDays, setExecWindowMaxDays] = useState<number | ''>(7);
+  const [expectedDurationDays, setExpectedDurationDays] = useState<number | ''>(1);
+  const [assignedAssetsModalOpen, setAssignedAssetsModalOpen] = useState(false);
   const [assetModalOpen, setAssetModalOpen] = useState(false);
   const [assetQuery, setAssetQuery] = useState('');
   const [modalSelectedAssets, setModalSelectedAssets] = useState<string[]>([]);
+  const [modalSelectedParts, setModalSelectedParts] = useState<string[]>([]);
   const [partModalOpen, setPartModalOpen] = useState(false);
   const [supplyModalOpen, setSupplyModalOpen] = useState(false);
   const [templateTypes, setTemplateTypes] = useState<any[]>([]);
@@ -98,6 +102,9 @@ const TemplatesBuilder: React.FC = () => {
     const structure = { display: 'form', components, pageTitles };
     try {
       const payload: any = { name: name.trim(), description, structure, assignedAssets };
+      if (typeof execWindowMaxDays === 'number') payload.execWindowMaxDays = execWindowMaxDays;
+      if (typeof expectedDurationDays === 'number') payload.expectedDurationDays = expectedDurationDays;
+      console.log(`templateTypeId to save:`, templateTypeId);
       if (templateTypeId) payload.templateTypeId = templateTypeId;
       if (isEditMode && params.id) {
         // try to update existing template
@@ -122,12 +129,14 @@ const TemplatesBuilder: React.FC = () => {
     } finally {
       setSaving(false);
     }
-  }, [name, description, components, history, isEditMode, params?.id, assignedAssets]);
+  }, [name, description, components, history, isEditMode, params?.id, assignedAssets, execWindowMaxDays, expectedDurationDays]);
 
   // Load template when in edit mode
   useEffect(() => {
     let mounted = true;
     const load = async () => {
+      console.log('Loading template for edit:', params.id);
+      console.log('isEditMode:', isEditMode);
       if (!isEditMode || !params.id) return;
       setLoading(true);
       try {
@@ -135,6 +144,7 @@ const TemplatesBuilder: React.FC = () => {
         // Expecting shape { _id, name, description, structure }
         if (!mounted) return;
         if (res) {
+          console.log({res})
           setName(res.name || '');
           setDescription(res.description || '');
           if (res.structure && Array.isArray(res.structure.components)) {
@@ -149,8 +159,15 @@ const TemplatesBuilder: React.FC = () => {
             setAssignedAssets(res.assignedAssets.map((a: any) => (typeof a === 'string' ? a : (a && a._id) ? String(a._id) : '')));
           }
           if (res.templateTypeId) {
-            setTemplateTypeId(String(res.templateTypeId));
+            // templateTypeId may be populated object or an id string
+            const ttId = (typeof res.templateTypeId === 'object') ? (res.templateTypeId._id || res.templateTypeId.id || res.templateTypeId) : res.templateTypeId;
+            setTemplateTypeId(ttId ? String(ttId) : null);
           }
+          // load execWindowMaxDays and expectedDurationDays if present
+          if (typeof res.execWindowMaxDays === 'number') setExecWindowMaxDays(res.execWindowMaxDays);
+          else if (res.execWindowMaxDays) setExecWindowMaxDays(Number(res.execWindowMaxDays));
+          if (typeof res.expectedDurationDays === 'number') setExpectedDurationDays(res.expectedDurationDays);
+          else if (res.expectedDurationDays) setExpectedDurationDays(Number(res.expectedDurationDays));
         }
         } catch (e) {
         console.error('Error loading template', e);
@@ -173,6 +190,7 @@ const TemplatesBuilder: React.FC = () => {
     (async () => {
       try {
         const tres: any = await templateTypesApi.listTemplateTypes();
+        console.log('Loaded template types:', tres);
         if (mounted) setTemplateTypes(tres.items || []);
       } catch (e) {
         console.warn('failed loading template types', e);
@@ -299,12 +317,11 @@ const TemplatesBuilder: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <div className="builder-wrapper">
-              <div className="builder-container">
-                  <div className="toolbox" style={{ opacity: isPreviewMode ? 0.5 : 1, pointerEvents: isPreviewMode ? 'none' : 'all' }}>
-                  <div style={{ fontWeight: 800, marginBottom: 12 }}>{t('templates.builder.components')}</div>
-                  {/* Palette sorted by label for easier discovery */}
-                    {/* Favorites list (persisted) */}
+            <IonGrid>
+              <IonRow>
+                <IonCol sizeXs='2'>
+                  <div style={{ height: '90vh', overflowY: 'auto', padding: 10, boxSizing: 'border-box' }}>
+                    <div style={{ fontWeight: 800, marginBottom: 12 }}>{t('templates.builder.components')}</div>
                       {favorites.length > 0 && (
                       <div style={{ marginBottom: 12 }}>
                         <div style={{ fontWeight: 700, marginBottom: 8 }}>{t('templates.builder.favorites.title', { max: 5 })}</div>
@@ -357,266 +374,336 @@ const TemplatesBuilder: React.FC = () => {
                         }}
                       />
                     ))}
-                </div>
-
-                <div style={{ flex: 1 }}>
-                    <div style={{ marginBottom: 12, display: 'flex', gap: 12 }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', marginBottom: 6 }}>{t('templates.builder.labels.name')} <span style={{ color: '#C62828' }}>*</span></label>
-                      <input className="form-control" value={name} onChange={(e) => setName(e.target.value)} required />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', marginBottom: 6 }}>{t('templates.builder.labels.description')}</label>
-                      <input className="form-control" value={description} onChange={(e) => setDescription(e.target.value)} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', marginBottom: 6 }}>{t('templates.builder.labels.assignedAssets')}</label>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                        <IonButton onClick={() => { setModalSelectedAssets([...assignedAssets]); setAssetQuery(''); setAssetModalOpen(true); }}>
-                          {t('templates.builder.actions.selectAssets', { count: assignedAssets.length })}
-                        </IonButton>
-                        <div style={{ color: '#607D8B' }}>{assignedAssets.length > 0 ? t('templates.builder.messages.assetsSelected', { count: assignedAssets.length }) : t('templates.builder.none')}</div>
-                      </div>
-                    </div>
                   </div>
-                  <AssetSelectModal
-                    isOpen={assetModalOpen}
-                    onClose={() => setAssetModalOpen(false)}
-                    assets={assetsList}
-                    initialSelected={modalSelectedAssets}
-                    onConfirm={(ids) => { setAssignedAssets([...ids]); }}
-                  />
-                  
-
-                  <CanvasDrop components={components} setComponents={setComponents} onSelect={onSelect} selectedKey={selectedKey ?? undefined} isPreview={isPreviewMode} deleteField={deleteField} deviceView={deviceView} moveItem={moveItem} pageTitles={pageTitles} setPageTitles={setPageTitles} addFieldToColumn={addFieldToColumn} deleteNestedField={deleteNestedField} updateFieldProperty={updateFieldProperty} />
-
-                  {message && <div style={{ paddingTop: 8 }}><IonText color="primary">{message}</IonText></div>}
-
-                  {/* Favorites popover (triggered by right-click on toolbox items) */}
-                  <IonPopover event={favEvent} isOpen={favOpen} onDidDismiss={() => setFavOpen(false)}>
-                    <IonItem lines="none" button onClick={() => {
-                        if (favType && favLabel) {
-                          // enforce maximum of 5 favorites
-                            if (favorites.length >= 5) {
-                            setMessage(t('templates.builder.favorites.maxReached', { max: 5 }));
-                          } else {
-                            setFavorites((prev) => {
-                              const exists = prev.some((x) => x.type === favType && x.label === favLabel);
-                              if (exists) return prev;
-                              const next = [...prev, { type: favType, label: favLabel }];
-                              persistFavorites(next);
-                              return next;
-                            });
-                            setMessage(t('templates.builder.favorites.added'));
-                          }
-                        }
-                        setFavOpen(false);
-                      }}>
-                      <IonLabel>
-                        <h2><IonIcon icon={starOutline} /> {t('templates.builder.favorites.addToFavorites')}</h2>
-                      </IonLabel>
-                    </IonItem>
-                  </IonPopover>
-                </div>
-                      
-                  <div className="properties-panel" style={{ opacity: isPreviewMode ? 0.5 : 1, pointerEvents: isPreviewMode ? 'none' : 'all' }}>
-                    <div style={{ marginBottom: 8 }}>
-                      <IonButton size="small" onClick={(ev) => { setTypesPopoverEvent(ev.nativeEvent); setTypesPopoverOpen(true); }}>{t('templates.builder.templateTypes.title')}</IonButton>
-                      <span style={{ display: 'inline-block', marginLeft: 8, color: '#607D8B' }}>{templateTypeId ? (templateTypes.find(tt => String(tt._id) === String(templateTypeId))?.name || '') : t('templates.builder.templateTypes.none')}</span>
-                    </div>
-                  <div className="prop-header">{t('templates.builder.properties.title')}</div>
-                  <div className="prop-body">
-                    {!selectedField ? (
-                      <div className="prop-empty">
-                        <i className="fas fa-mouse-pointer" style={{ fontSize: 36, color: '#90A4AE' }} />
-                        <div style={{ marginTop: 12 }}>{t('templates.builder.selectFieldPrompt')}</div>
+                </IonCol>
+                <IonCol sizeXs='10'>
+                  <IonRow>
+                    <IonCol sizeXs='12'>
+                      <div style={{ height: '20vh', padding: 10}}>
+                        <IonGrid>
+                          <IonRow>
+                            <IonCol size='4' style={{padding: 10}}>
+                              <IonRow>
+                                <label style={{ display: 'block', marginBottom: 6 }}>{t('templates.builder.labels.name')} <span style={{ color: '#C62828' }}>*</span></label>
+                                <input className="form-control" value={name} onChange={(e) => setName(e.target.value)} required />
+                              </IonRow>
+                              <IonRow>
+                                <label style={{ display: 'block', marginBottom: 6 }}>{t('templates.builder.labels.description')}</label>
+                                <input className="form-control" value={description} onChange={(e) => setDescription(e.target.value)} />
+                              </IonRow>
+                            </IonCol>
+                            <IonCol size='4' style={{padding: 10}}>
+                              <IonRow>
+                                <label style={{ display: 'block', marginBottom: 6 }}>{t('templates.builder.labels.assignedAssets')}</label>
+                                <div style={{ alignItems: 'center' }}>
+                                  <IonButton onClick={() => { setModalSelectedAssets([...assignedAssets]); setAssetQuery(''); setAssetModalOpen(true); }}>
+                                    {t('templates.builder.actions.selectAssets', { count: assignedAssets.length })}
+                                  </IonButton>
+                                  <br />
+                                  <a
+                                    onClick={() => setAssignedAssetsModalOpen(true)}
+                                    style={{ textDecoration: 'underline', cursor: 'pointer', color: '#1976d2', fontSize: 14 }}
+                                  >
+                                    {assignedAssets.length > 0 ? 'Ver activos seleccionados' : 'Ver activos (ninguno)'}
+                                  </a>
+                                </div>
+                              </IonRow>
+                            </IonCol>
+                            <IonCol size='4' style={{padding: 10}}>
+                              <IonRow>
+                                <div style={{ marginBottom: 8 }}>
+                                  <IonButton size="small" onClick={(ev) => { setTypesPopoverEvent(ev.nativeEvent); setTypesPopoverOpen(true); }}>{t('templates.builder.templateTypes.title')}</IonButton>
+                                  <span style={{ display: 'inline-block', marginLeft: 8, color: '#607D8B' }}>{templateTypeId ? (templateTypes.find(tt => String(tt._id) === String(templateTypeId))?.name || '') : t('templates.builder.templateTypes.none')}</span>
+                                </div>
+                              </IonRow>
+                              <IonRow style={{ marginTop: 8 }}>
+                                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                                  <div style={{ flex: 1 }}>
+                                    <label style={{ display: 'block', marginBottom: 6 }}>Exec window max (días)</label>
+                                    <input type="number" min={0} className="form-control" value={execWindowMaxDays as any} onChange={(e) => setExecWindowMaxDays(e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} />
+                                  </div>
+                                  <div style={{ width: 180 }}>
+                                    <label style={{ display: 'block', marginBottom: 6 }}>Duración esperada (días)</label>
+                                    <input type="number" min={0} className="form-control" value={expectedDurationDays as any} onChange={(e) => setExpectedDurationDays(e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} />
+                                  </div>
+                                </div>
+                              </IonRow>
+                            </IonCol>
+                          </IonRow>
+                        </IonGrid>
+                        <AssetSelectModal
+                          isOpen={assetModalOpen}
+                          onClose={() => setAssetModalOpen(false)}
+                          assets={assetsList}
+                          initialSelected={modalSelectedAssets}
+                          onConfirm={(ids) => { setAssignedAssets([...ids]); }}
+                        />
                       </div>
-                    ) : (
-                      <div>
-                        {selectedField.isDesign ? (
-                          <div className="prop-group">
-                            <label>{t('templates.builder.properties.designComponent')}</label>
-                            <div style={{ fontSize: 13, color: '#607D8B' }}>{t('templates.builder.properties.designNote')}</div>
-                          </div>
-                        ) : (
-                          <div className="prop-group">
-                            <label>{t('templates.builder.properties.label')}</label>
-                            <input className="form-control" value={selectedField.label ?? ''} onChange={(e) => updateFieldProperty(selectedField.key, 'label', e.target.value)} />
-                          </div>
-                        )}
-                        <div className="prop-group">
-                          <label>{t('templates.builder.properties.required')}</label>
-                          <input type="checkbox" checked={!!selectedField.required} onChange={(e) => updateFieldProperty(selectedField.key, 'required', e.target.checked)} />
-                        </div>
-                        {selectedField.type === 'parts' && (
-                          <div className="prop-group">
-                            <label>{t('templates.builder.properties.partsIncluded')}</label>
-                            <div>
-                              <button className="btn btn-secondary" onClick={() => setPartModalOpen(true)}>
-                                {(Array.isArray(selectedField.parts) && selectedField.parts.length > 0) ? selectedField.parts[0].name : t('templates.builder.actions.selectParts')}
-                              </button>
-                              {(Array.isArray(selectedField.parts) && selectedField.parts.length > 0) ? (
-                                <div style={{ marginTop: 8 }}>
-                                  <label style={{ fontSize: 12, color: '#607D8B' }}>{t('templates.builder.properties.totalQty')}</label>
-                                  <input
-                                    type="number"
-                                    min={1}
-                                    className="form-control"
-                                    style={{ width: 120, marginTop: 4 }}
-                                    value={selectedField.parts[0].qty ?? selectedField.parts[0].quantity ?? 1}
-                                    onChange={(e) => {
-                                      const v = Math.max(1, Number(e.target.value) || 1);
-                                      const next = [...(selectedField.parts || [])];
-                                      next[0] = { ...next[0], qty: v };
-                                      updateFieldProperty(selectedField.key, 'parts', next);
-                                    }}
-                                  />
-                                </div>
-                              ) : null}
-                            </div>
-                          </div>
-                        )}
-                        {selectedField.type === 'supplies' && (
-                          <div className="prop-group">
-                            <label>{t('templates.builder.properties.suppliesIncluded')}</label>
-                            <div>
-                              <button className="btn btn-secondary" onClick={() => setSupplyModalOpen(true)}>
-                                {(Array.isArray(selectedField.supplies) && selectedField.supplies.length > 0) ? selectedField.supplies[0].name : t('templates.builder.actions.selectSupplies')}
-                              </button>
-                              {(Array.isArray(selectedField.supplies) && selectedField.supplies.length > 0) ? (
-                                <div style={{ marginTop: 8 }}>
-                                  <label style={{ fontSize: 12, color: '#607D8B' }}>{t('templates.builder.properties.qty')}</label>
-                                  <input
-                                    type="number"
-                                    min={1}
-                                    className="form-control"
-                                    style={{ width: 120, marginTop: 4 }}
-                                    value={selectedField.supplies[0].qty ?? selectedField.supplies[0].quantity ?? 1}
-                                    onChange={(e) => {
-                                      const v = Math.max(1, Number(e.target.value) || 1);
-                                      const next = [...(selectedField.supplies || [])];
-                                      next[0] = { ...next[0], qty: v };
-                                      updateFieldProperty(selectedField.key, 'supplies', next);
-                                    }}
-                                  />
-                                </div>
-                              ) : null}
-                            </div>
-                          </div>
-                        )}
-                        {selectedField.type === 'select' && (
-                          <div className="prop-group">
-                            <label>{t('templates.builder.properties.options')}</label>
-                            <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                              <input id="newOpt" className="form-control" placeholder={t('templates.builder.placeholders.addOption')} />
-                              <button className="btn btn-secondary" onClick={() => {
-                                const el = document.getElementById('newOpt') as HTMLInputElement | null;
-                                const val = el?.value?.trim();
-                                if (val) {
-                                  const opts = Array.isArray(selectedField.options) ? [...selectedField.options, val] : [val];
-                                  updateFieldProperty(selectedField.key, 'options', opts);
-                                  if (el) el.value = '';
-                                }
-                              }}>{t('templates.builder.actions.add')}</button>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                              {Array.isArray(selectedField.options) && selectedField.options.map((o: string, idx: number) => (
-                                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <div>{o}</div>
-                                  <button className="btn btn-secondary" onClick={() => {
-                                    const opts = (selectedField.options ?? []).filter((_: string, i: number) => i !== idx);
-                                    updateFieldProperty(selectedField.key, 'options', opts);
-                                  }}>{t('templates.builder.actions.remove')}</button>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                    </IonCol>
+                  </IonRow>
+                  <IonRow>
+                    <IonCol sizeXs='9'>
+                      <div style={{ height: '70vh', padding: 10}}>
+                        <div style={{ flex: 1 }}>
+                          
+                          
 
-                        {/* Page title editor for the page that contains the selected field */}
-                        {selectedField && (() => {
-                          const findTopLevelIndex = (key: string) => {
-                            for (let i = 0; i < components.length; i++) {
-                              const p = components[i];
-                              if (p.key === key) return i;
-                              if (p.children && Array.isArray(p.children)) {
-                                for (const col of p.children) {
-                                  if (col.find((ch) => ch.key === key)) return i;
-                                }
-                              }
-                            }
-                            return -1;
-                          };
-                          const idx = findTopLevelIndex(selectedField.key);
-                          if (idx >= 0) {
-                            const pageIndex = components.slice(0, idx).filter((p) => p.type === 'division').length;
+                          <CanvasDrop components={components} setComponents={setComponents} onSelect={onSelect} selectedKey={selectedKey ?? undefined} isPreview={isPreviewMode} deleteField={deleteField} deviceView={deviceView} moveItem={moveItem} pageTitles={pageTitles} setPageTitles={setPageTitles} addFieldToColumn={addFieldToColumn} deleteNestedField={deleteNestedField} updateFieldProperty={updateFieldProperty} />
 
-                            // find the division field that ends this page (the pageIndex-th division)
-                            let divKey: string | null = null;
-                            let divCount = 0;
-                            for (let i = 0; i < components.length; i++) {
-                              if (components[i].type === 'division') {
-                                if (divCount === pageIndex) {
-                                  divKey = components[i].key;
-                                  break;
-                                }
-                                divCount++;
-                              }
-                            }
+                          {message && <div style={{ paddingTop: 8 }}><IonText color="primary">{message}</IonText></div>}
 
-                              const currentTitle = (() => {
-                              if (divKey) {
-                                const divField = components.find((c) => c.key === divKey) as any;
-                                if (divField && typeof divField.pageTitle === 'string' && divField.pageTitle.trim()) return divField.pageTitle;
-                              }
-                              return pageTitles[pageIndex] ?? t('templates.builder.pageDefault', { num: pageIndex + 1 });
-                            })();
-
-                            return (
-                              <div className="prop-group">
-                                <label>{t('templates.builder.properties.pageTitle')}</label>
-                                <input className="form-control" value={currentTitle} onChange={(e) => {
-                                  const v = e.target.value;
-                                  if (divKey) {
-                                    updateFieldProperty && updateFieldProperty(divKey, 'pageTitle', v);
+                          <IonPopover event={favEvent} isOpen={favOpen} onDidDismiss={() => setFavOpen(false)}>
+                            <IonItem lines="none" button onClick={() => {
+                                if (favType && favLabel) {
+                                  // enforce maximum of 5 favorites
+                                    if (favorites.length >= 5) {
+                                    setMessage(t('templates.builder.favorites.maxReached', { max: 5 }));
                                   } else {
-                                    setPageTitles((prev) => ({ ...prev, [pageIndex]: v }));
+                                    setFavorites((prev) => {
+                                      const exists = prev.some((x) => x.type === favType && x.label === favLabel);
+                                      if (exists) return prev;
+                                      const next = [...prev, { type: favType, label: favLabel }];
+                                      persistFavorites(next);
+                                      return next;
+                                    });
+                                    setMessage(t('templates.builder.favorites.added'));
                                   }
-                                }} />
-                              </div>
-                            );
-                          }
-                          return null;
-                        })()}
-
-                        <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                          <button className="btn-icon" title={t('templates.builder.actions.moveUp')} onClick={() => {
-                            const idx = components.findIndex((p) => p.key === selectedField.key);
-                            if (idx > 0) {
-                              moveItem(idx, idx - 1);
-                              setSelectedKey(selectedField.key);
-                            }
-                          }}><i className="fas fa-arrow-up" /></button>
-
-                          <button className="btn-icon" title={t('templates.builder.actions.moveDown')} onClick={() => {
-                            const idx = components.findIndex((p) => p.key === selectedField.key);
-                            if (idx >= 0 && idx < components.length - 1) {
-                              moveItem(idx, idx + 1);
-                              setSelectedKey(selectedField.key);
-                            }
-                          }}><i className="fas fa-arrow-down" /></button>
-
-                          <button className="btn-icon" title={t('templates.builder.actions.remove')} onClick={() => {
-                            setComponents((prev) => prev.filter((p) => p.key !== selectedField.key));
-                            setSelectedKey(null);
-                          }}><i className="fas fa-trash" style={{ color: '#C62828' }} /></button>
+                                }
+                                setFavOpen(false);
+                              }}>
+                              <IonLabel>
+                                <h2><IonIcon icon={starOutline} /> {t('templates.builder.favorites.addToFavorites')}</h2>
+                              </IonLabel>
+                            </IonItem>
+                          </IonPopover>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+                    </IonCol>
+                    <IonCol sizeXs='3'>
+                      <div style={{ height: '70vh', padding: 10}}>
+                        <div className="properties-panel" style={{ opacity: isPreviewMode ? 0.5 : 1, pointerEvents: isPreviewMode ? 'none' : 'all', height: '100%' }}>
+                          
+                          <div className="prop-header">{t('templates.builder.properties.title')}</div>
+                          <div className="prop-body">
+                            {!selectedField ? (
+                              <div className="prop-empty">
+                                <i className="fas fa-mouse-pointer" style={{ fontSize: 36, color: '#90A4AE' }} />
+                                <div style={{ marginTop: 12 }}>{t('templates.builder.selectFieldPrompt')}</div>
+                              </div>
+                            ) : (
+                              <div>
+                                {selectedField.isDesign ? (
+                                  <div className="prop-group">
+                                    <label>{t('templates.builder.properties.designComponent')}</label>
+                                    <div style={{ fontSize: 13, color: '#607D8B' }}>{t('templates.builder.properties.designNote')}</div>
+                                  </div>
+                                ) : (
+                                  <div className="prop-group">
+                                    <label>{t('templates.builder.properties.label')}</label>
+                                    <input className="form-control" value={selectedField.label ?? ''} onChange={(e) => updateFieldProperty(selectedField.key, 'label', e.target.value)} />
+                                  </div>
+                                )}
+                                <div className="prop-group">
+                                  <label>{t('templates.builder.properties.required')}</label>
+                                  <input type="checkbox" checked={!!selectedField.required} onChange={(e) => updateFieldProperty(selectedField.key, 'required', e.target.checked)} />
+                                </div>
+                                {selectedField.type === 'parts' && (
+                                  <div className="prop-group">
+                                    <label>{t('templates.builder.properties.partsIncluded')}</label>
+                                    <div>
+                                      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                                        <button className="btn btn-secondary" onClick={() => { setModalSelectedParts((selectedField?.parts || []).map((p: any) => String(p._id))); setPartModalOpen(true); }}>{t('templates.builder.actions.selectParts')}</button>
+                                      </div>
+
+                                      {Array.isArray(selectedField.parts) && selectedField.parts.length > 0 ? (
+                                        <div style={{ marginTop: 8 }}>
+                                          {selectedField.parts.map((p: any, idx: number) => (
+                                            <div key={p._id || p.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid #f1f1f1' }}>
+                                              <div>
+                                                <div style={{ fontWeight: 700 }}>{p.name}</div>
+                                                <div style={{ fontSize: 12, color: '#607D8B' }}>{p.serial || ''}</div>
+                                              </div>
+                                              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                                <input
+                                                  type="number"
+                                                  min={1}
+                                                  className="form-control"
+                                                  style={{ width: 80 }}
+                                                  value={p.qty ?? p.quantity ?? 1}
+                                                  onChange={(e) => {
+                                                    const v = Math.max(1, Number(e.target.value) || 1);
+                                                    const next = [...(selectedField.parts || [])];
+                                                    next[idx] = { ...next[idx], qty: v };
+                                                    updateFieldProperty(selectedField.key, 'parts', next);
+                                                  }}
+                                                />
+                                                <button className="btn btn-secondary" onClick={() => {
+                                                  const next = (selectedField.parts || []).filter((_: any, i: number) => i !== idx);
+                                                  updateFieldProperty(selectedField.key, 'parts', next);
+                                                }}>{t('templates.builder.actions.remove')}</button>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <div style={{ color: '#607D8B' }}>{t('templates.builder.properties.noParts')}</div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                                {selectedField.type === 'supplies' && (
+                                  <div className="prop-group">
+                                    <label>{t('templates.builder.properties.suppliesIncluded')}</label>
+                                    <div>
+                                      {(() => {
+                                        // For supplies type prefer `supplies` property, but fall back to `parts` if older templates stored them there
+                                        const partsField = (Array.isArray(selectedField.supplies) && selectedField.supplies.length > 0) ? selectedField.supplies : (Array.isArray(selectedField.parts) ? selectedField.parts : []);
+                                        return (
+                                          <>
+                                            <button className="btn btn-secondary" onClick={() => setSupplyModalOpen(true)}>
+                                              {(partsField && partsField.length > 0) ? partsField[0].name : t('templates.builder.actions.selectSupplies')}
+                                            </button>
+                                            {(partsField && partsField.length > 0) ? (
+                                              <div style={{ marginTop: 8 }}>
+                                                <label style={{ fontSize: 12, color: '#607D8B' }}>{t('templates.builder.properties.qty')}</label>
+                                                <input
+                                                  type="number"
+                                                  min={1}
+                                                  className="form-control"
+                                                  style={{ width: 120, marginTop: 4 }}
+                                                  value={partsField[0].qty ?? partsField[0].quantity ?? 1}
+                                                  onChange={(e) => {
+                                                    const v = Math.max(1, Number(e.target.value) || 1);
+                                                    const next = [...(partsField || [])];
+                                                    next[0] = { ...next[0], qty: v };
+                                                    // persist into `supplies` for proper distinction from repuestos
+                                                    updateFieldProperty(selectedField.key, 'supplies', next);
+                                                  }}
+                                                />
+                                              </div>
+                                            ) : null}
+                                          </>
+                                        );
+                                      })()}
+                                    </div>
+                                  </div>
+                                )}
+                                {selectedField.type === 'select' && (
+                                  <div className="prop-group">
+                                    <label>{t('templates.builder.properties.options')}</label>
+                                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                                      <input id="newOpt" className="form-control" placeholder={t('templates.builder.placeholders.addOption')} />
+                                      <button className="btn btn-secondary" onClick={() => {
+                                        const el = document.getElementById('newOpt') as HTMLInputElement | null;
+                                        const val = el?.value?.trim();
+                                        if (val) {
+                                          const opts = Array.isArray(selectedField.options) ? [...selectedField.options, val] : [val];
+                                          updateFieldProperty(selectedField.key, 'options', opts);
+                                          if (el) el.value = '';
+                                        }
+                                      }}>{t('templates.builder.actions.add')}</button>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                      {Array.isArray(selectedField.options) && selectedField.options.map((o: string, idx: number) => (
+                                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                          <div>{o}</div>
+                                          <button className="btn btn-secondary" onClick={() => {
+                                            const opts = (selectedField.options ?? []).filter((_: string, i: number) => i !== idx);
+                                            updateFieldProperty(selectedField.key, 'options', opts);
+                                          }}>{t('templates.builder.actions.remove')}</button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {selectedField && (() => {
+                                  const findTopLevelIndex = (key: string) => {
+                                    for (let i = 0; i < components.length; i++) {
+                                      const p = components[i];
+                                      if (p.key === key) return i;
+                                      if (p.children && Array.isArray(p.children)) {
+                                        for (const col of p.children) {
+                                          if (col.find((ch) => ch.key === key)) return i;
+                                        }
+                                      }
+                                    }
+                                    return -1;
+                                  };
+                                  const idx = findTopLevelIndex(selectedField.key);
+                                  if (idx >= 0) {
+                                    const pageIndex = components.slice(0, idx).filter((p) => p.type === 'division').length;
+
+                                    // find the division field that ends this page (the pageIndex-th division)
+                                    let divKey: string | null = null;
+                                    let divCount = 0;
+                                    for (let i = 0; i < components.length; i++) {
+                                      if (components[i].type === 'division') {
+                                        if (divCount === pageIndex) {
+                                          divKey = components[i].key;
+                                          break;
+                                        }
+                                        divCount++;
+                                      }
+                                    }
+
+                                      const currentTitle = (() => {
+                                      if (divKey) {
+                                        const divField = components.find((c) => c.key === divKey) as any;
+                                        if (divField && typeof divField.pageTitle === 'string' && divField.pageTitle.trim()) return divField.pageTitle;
+                                      }
+                                      return pageTitles[pageIndex] ?? t('templates.builder.pageDefault', { num: pageIndex + 1 });
+                                    })();
+
+                                    return (
+                                      <div className="prop-group">
+                                        <label>{t('templates.builder.properties.pageTitle')}</label>
+                                        <input className="form-control" value={currentTitle} onChange={(e) => {
+                                          const v = e.target.value;
+                                          if (divKey) {
+                                            updateFieldProperty && updateFieldProperty(divKey, 'pageTitle', v);
+                                          } else {
+                                            setPageTitles((prev) => ({ ...prev, [pageIndex]: v }));
+                                          }
+                                        }} />
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                })()}
+
+                                <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                                  <button className="btn-icon" title={t('templates.builder.actions.moveUp')} onClick={() => {
+                                    const idx = components.findIndex((p) => p.key === selectedField.key);
+                                    if (idx > 0) {
+                                      moveItem(idx, idx - 1);
+                                      setSelectedKey(selectedField.key);
+                                    }
+                                  }}><i className="fas fa-arrow-up" /></button>
+
+                                  <button className="btn-icon" title={t('templates.builder.actions.moveDown')} onClick={() => {
+                                    const idx = components.findIndex((p) => p.key === selectedField.key);
+                                    if (idx >= 0 && idx < components.length - 1) {
+                                      moveItem(idx, idx + 1);
+                                      setSelectedKey(selectedField.key);
+                                    }
+                                  }}><i className="fas fa-arrow-down" /></button>
+
+                                  <button className="btn-icon" title={t('templates.builder.actions.remove')} onClick={() => {
+                                    setComponents((prev) => prev.filter((p) => p.key !== selectedField.key));
+                                    setSelectedKey(null);
+                                  }}><i className="fas fa-trash" style={{ color: '#C62828' }} /></button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </IonCol>
+                  </IonRow>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
           </IonContent>
         </IonPage>
       </DndProvider>
@@ -624,9 +711,20 @@ const TemplatesBuilder: React.FC = () => {
         <IonList>
           {templateTypes.length === 0 ? (
             <IonItem lines="none">{t('templates.builder.templateTypes.none')}</IonItem>
-          ) : templateTypes.map((tt) => (
-            <IonItem key={tt._id} button onClick={() => { setTemplateTypeId(String(tt._id)); setTypesPopoverOpen(false); }}>{tt.name}</IonItem>
-          ))}
+          ) : templateTypes.map((tt) => {
+            const isSelected = String(tt._id) === String(templateTypeId);
+            return (
+              <IonItem
+                key={tt._id}
+                button
+                onClick={() => { setTemplateTypeId(String(tt._id)); setTypesPopoverOpen(false); }}
+                style={{ background: isSelected ? 'rgba(25,118,210,0.08)' : undefined, fontWeight: isSelected ? 700 : 400 }}
+              >
+                <div style={{ flex: 1 }}>{tt.name}</div>
+                {isSelected && <IonIcon slot="end" icon={checkmarkOutline} style={{ color: 'var(--ion-color-primary)' }} />}
+              </IonItem>
+            );
+          })}
           <IonItem lines="none">
             <IonButton expand="block" onClick={() => { setTypeModalOpen(true); setTypesPopoverOpen(false); }}>{t('templates.builder.templateTypes.createButton')}</IonButton>
           </IonItem>
@@ -657,17 +755,39 @@ const TemplatesBuilder: React.FC = () => {
         </div>
       </IonModal>
 
-      <PartSelectModal isOpen={partModalOpen} onClose={() => setPartModalOpen(false)} assignedAssetIds={assignedAssets} onSelect={(it) => {
+      <IonModal isOpen={assignedAssetsModalOpen} onDidDismiss={() => setAssignedAssetsModalOpen(false)}>
+        <div style={{ padding: 16, minWidth: 320 }}>
+          <h3>Activos seleccionados</h3>
+          <div style={{ marginTop: 8 }}>
+            {assignedAssets && assignedAssets.length > 0 ? (
+              <ul>
+                {assignedAssets.map((aid) => {
+                  const asset = assetsList.find(a => String(a._id) === String(aid));
+                  return <li key={aid}>{asset ? (asset.name || asset._id) : String(aid)}</li>;
+                })}
+              </ul>
+            ) : (
+              <div style={{ color: '#607D8B' }}>No hay activos seleccionados.</div>
+            )}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+            <IonButton onClick={() => setAssignedAssetsModalOpen(false)}>Cerrar</IonButton>
+          </div>
+        </div>
+      </IonModal>
+
+      <PartSelectModal isOpen={partModalOpen} onClose={() => setPartModalOpen(false)} assignedAssetIds={assignedAssets} initialSelected={modalSelectedParts} onSelect={(it) => {
         if (!selectedField) return;
-        const single = { _id: it._id, name: it.name, serial: it.serial, qty: 1 };
-        updateFieldProperty(selectedField.key, 'parts', [single]);
-        setPartModalOpen(false);
+        // handle array of selected items
+        const arr = Array.isArray(it) ? it : (it ? [it] : []);
+        const mapped = arr.map((s: any) => ({ _id: s._id, name: s.name, serial: s.serial, qty: s.qty ?? 1 }));
+        updateFieldProperty(selectedField.key, 'parts', mapped);
       }} />
-      <SupplySelectModal isOpen={supplyModalOpen} onClose={() => setSupplyModalOpen(false)} assignedAssetIds={assignedAssets} onSelect={(it) => {
+      <SupplySelectModal isOpen={supplyModalOpen} onClose={() => setSupplyModalOpen(false)} onSelect={(it) => {
         if (!selectedField) return;
-        const single = { _id: it._id, name: it.name, sku: it.sku, qty: 1 };
-        updateFieldProperty(selectedField.key, 'supplies', [single]);
-        setSupplyModalOpen(false);
+        const arr = Array.isArray(it) ? it : (it ? [it] : []);
+        const mapped = arr.map((s: any) => ({ _id: s._id, name: s.name, sku: s.sku, qty: s.qty ?? 1 }));
+        updateFieldProperty(selectedField.key, 'supplies', mapped);
       }} />
     </>
   );

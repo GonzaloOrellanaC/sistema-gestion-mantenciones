@@ -6,6 +6,7 @@
       "type": "Tipo",
       "supplier": "Proveedor",
       "purchaseDate": "Fecha de compra",
+      "itemCount": "Cantidad",
       "price": "Precio"
     },
     "filters": {

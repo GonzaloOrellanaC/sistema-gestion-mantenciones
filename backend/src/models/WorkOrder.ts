@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
+import { WORK_ORDER_STATES_ARRAY, WORK_ORDER_STATES, WorkOrderStateValue } from '../utils/workOrderStates';
 
-export type WorkOrderState = 'Creado' | 'Asignado' | 'Iniciado' | 'En revisión' | 'Terminado';
+export type WorkOrderState = WorkOrderStateValue;
 export type WorkOrderUrgency = 'Baja' | 'Media' | 'Alta';
 
 export interface IWorkOrder {
@@ -29,6 +30,7 @@ export interface IWorkOrder {
   history?: Array<any>;
   attachments?: Schema.Types.ObjectId[]; // reference to FileMeta
   deleted?: boolean;
+  progress?: number; // 0-100 percentage of completion
 }
 
 const WorkOrderSchema = new Schema<IWorkOrder>({
@@ -38,13 +40,15 @@ const WorkOrderSchema = new Schema<IWorkOrder>({
   orgSeq: { type: Number, required: true },
   templateId: { type: Schema.Types.ObjectId, ref: 'Template' },
   data: { type: Schema.Types.Mixed },
-  state: { type: String, enum: ['Creado', 'Asignado', 'Iniciado', 'En revisión', 'Terminado'], default: 'Creado' },
+  state: { type: String, enum: WORK_ORDER_STATES_ARRAY as any, default: WORK_ORDER_STATES.CREATED },
   urgency: { type: String, enum: ['Baja', 'Media', 'Alta'], default: 'Media' },
   assigneeId: { type: Schema.Types.ObjectId, ref: 'User' },
   client: { type: Schema.Types.Mixed },
   dates: { type: Schema.Types.Mixed },
   history: { type: [Schema.Types.Mixed], default: [] },
   attachments: { type: [Schema.Types.ObjectId], default: [] },
+  // progress percentage (0-100) representing how much of the work order has been completed
+  progress: { type: Number, default: 0 },
   deleted: { type: Boolean, default: false }
 });
 

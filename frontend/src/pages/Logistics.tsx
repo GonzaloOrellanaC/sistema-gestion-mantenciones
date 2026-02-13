@@ -23,7 +23,7 @@ const Logistics: React.FC = () => {
     <IonPage>
       <IonHeader className="ion-no-border">
         <IonToolbar style={{ padding: '0px 12px' }}>
-          <IonTitle>{t('nav.logistics') || 'Logística'}</IonTitle>
+          <IonTitle>{t('logistics.menuTitle') || 'Logística'}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">

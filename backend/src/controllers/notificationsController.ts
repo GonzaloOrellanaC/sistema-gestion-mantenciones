@@ -33,8 +33,46 @@ export async function listNotifications(req: Request, res: Response) {
   const orgId = req.user?.orgId;
   const userId = req.user?.id;
   try {
-    const docs = await Notification.find({ orgId, userId }).sort({ createdAt: -1 }).limit(100).lean();
-    return res.json({ items: docs });
+    // support optional userId query for admins; default to authenticated user
+    const queryUserId = String(req.query.userId || userId);
+    if (req.query.userId && queryUserId !== userId && !(req as any).user?.isAdmin) {
+      return res.status(403).json({ message: 'forbidden' });
+    }
+
+    const limit = Math.min(100, Math.max(1, parseInt(String(req.query.limit || '10'), 10)));
+    const page = Math.max(1, parseInt(String(req.query.page || '1'), 10));
+    const skip = (page - 1) * limit;
+
+    const filter: any = { orgId, userId: queryUserId };
+
+    const [total, docs] = await Promise.all([
+      NotificationModel.countDocuments(filter),
+      NotificationModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    ]);
+
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+
+    const items = (docs || []).map((d: any) => ({
+      _id: d._id,
+      orgId: d.orgId,
+      userId: d.userId,
+      actorId: d.actorId,
+      message: d.message,
+      meta: d.meta,
+      read: !!d.read,
+      status: d.read ? 'read' : 'unread',
+      createdAt: d.createdAt,
+    }));
+
+    return res.json({
+      items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+      },
+    });
   } catch (err: any) {
     console.error('listNotifications err', err);
     return res.status(500).json({ message: err.message || 'server error' });

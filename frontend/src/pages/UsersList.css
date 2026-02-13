@@ -63,7 +63,8 @@
 .users-table tbody tr:hover { background: rgba(0,0,0,0.02); }
 
 .user-cell { display: flex; align-items: center; gap: 10px; }
-.user-avatar-sm { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--ion-color-primary); color: white; font-weight: 600; }
+.user-avatar-sm { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--ion-color-primary); color: white; font-weight: 600; position: relative; z-index: 2; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.user-avatar-sm .avatar-initial { display: inline-block; z-index: 3; position: relative; pointer-events: none; }
 .user-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .user-edit { color: var(--ion-color-primary); }
 

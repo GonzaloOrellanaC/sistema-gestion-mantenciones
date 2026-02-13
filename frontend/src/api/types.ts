@@ -3,6 +3,7 @@ export type PaginationResponse<T> = {
   total: number;
   page?: number;
   limit?: number;
+  pages?: number;
 };
 
 export type User = {

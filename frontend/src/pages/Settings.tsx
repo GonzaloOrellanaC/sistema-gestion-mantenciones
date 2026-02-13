@@ -14,6 +14,9 @@ const Settings: React.FC = () => {
   const [currency, setCurrency] = useState<string>(() => {
     try { return localStorage.getItem('appCurrency') || 'CLP'; } catch { return 'CLP'; }
   });
+  const [weekStart, setWeekStart] = useState<string>(() => {
+    try { return localStorage.getItem('weekStart') || 'monday'; } catch { return 'monday'; }
+  });
 
   useEffect(() => {
     try { localStorage.setItem('appLanguage', language); } catch {}
@@ -28,10 +31,14 @@ const Settings: React.FC = () => {
     try { localStorage.setItem('appCurrency', currency); } catch {}
   }, [currency]);
 
+  useEffect(() => {
+    try { localStorage.setItem('weekStart', weekStart); } catch {}
+  }, [weekStart]);
+
   return (
     <IonPage>
       <IonHeader className='ion-no-border'>
-        <IonToolbar style={{paddingLeft: 10}}>
+          <IonToolbar style={{paddingLeft: 10}}>
           <IonTitle>{t('settings.title')}</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -44,7 +51,6 @@ const Settings: React.FC = () => {
               <IonSelectOption value="en">🇺🇸 {t('common.languages.english')}</IonSelectOption>
             </IonSelect>
           </IonItem>
-
           <IonItem>
             <IonLabel>{t('settings.emailNotifications')}</IonLabel>
             <IonToggle checked={emailEnabled} onIonChange={e => setEmailEnabled(!!e.detail.checked)} />
@@ -55,6 +61,13 @@ const Settings: React.FC = () => {
             <IonSelect value={currency} placeholder={t('settings.currency')} onIonChange={e => setCurrency(e.detail.value!)}>
               <IonSelectOption value="USD">USD</IonSelectOption>
               <IonSelectOption value="CLP">CLP</IonSelectOption>
+            </IonSelect>
+          </IonItem>
+          <IonItem>
+            <IonLabel>{t('settings.weekStart') || 'Week start'}</IonLabel>
+            <IonSelect value={weekStart} onIonChange={e => setWeekStart(e.detail.value!)}>
+              <IonSelectOption value="monday">{t('settings.weekStartMonday') || 'Monday'}</IonSelectOption>
+              <IonSelectOption value="sunday">{t('settings.weekStartSunday') || 'Sunday'}</IonSelectOption>
             </IonSelect>
           </IonItem>
 

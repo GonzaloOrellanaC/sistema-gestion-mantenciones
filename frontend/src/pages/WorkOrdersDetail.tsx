@@ -26,6 +26,7 @@ import inventoryApi from '../api/inventory';
 import assetsApi from '../api/assets';
 import templatesApi from '../api/templates';
 import WorkOrdersCosts from './WorkOrdersCosts';
+import { getLocaleKeyForState } from '../constants/workOrderStates';
 import { chevronBackOutline } from 'ionicons/icons';
 
 // Module-level caches to deduplicate work order fetches (prevents double requests in StrictMode)
@@ -251,7 +252,12 @@ const WorkOrdersDetail: React.FC = () => {
               <IonList>
                 <IonItem>
                   <IonLabel><strong>{t('workOrderDetail.labels.state')}:</strong></IonLabel>
-                  <IonText slot="end">{wo.state || wo.status || '-'}</IonText>
+                  <IonText slot="end">{(() => {
+                    const s = wo && (wo.state || wo.status);
+                    if (!s) return '-';
+                    const key = getLocaleKeyForState(s);
+                    try { return t(String(key)); } catch (e) { return String(s); }
+                  })()}</IonText>
                 </IonItem>
                 <IonItem>
                   <IonLabel><strong>{t('workOrderDetail.labels.template')}:</strong></IonLabel>
@@ -367,7 +373,12 @@ const WorkOrdersDetail: React.FC = () => {
                   <IonItem key={idx}>
                     <div style={{ width: '100%' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <div><strong>{h.to}</strong> &middot; <small>{formatDate(h.at)}</small></div>
+                        <div><strong>{(() => {
+                          const to = h.to;
+                          if (!to) return '-';
+                          const key = getLocaleKeyForState(to);
+                          try { return t(String(key)); } catch (e) { return String(to); }
+                        })()}</strong> &middot; <small>{formatDate(h.at)}</small></div>
                         <div style={{ color: '#666' }}>
                           {h.userId ? (
                             <a

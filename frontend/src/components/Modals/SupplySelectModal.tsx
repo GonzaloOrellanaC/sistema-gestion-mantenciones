@@ -6,15 +6,15 @@ import * as suppliesApi from '../../api/supplies';
 type Props = {
   isOpen: boolean;
   onClose: () => void;
+  onSelect: (items: any[]) => void;
   assignedAssetIds?: string[];
-  onSelect: (item: any) => void;
 };
 
-const SupplySelectModal: React.FC<Props> = ({ isOpen, onClose, assignedAssetIds = [], onSelect }) => {
+const SupplySelectModal: React.FC<Props> = ({ isOpen, onClose, onSelect, assignedAssetIds = [] }) => {
   const [query, setQuery] = useState('');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState<any | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Record<string, boolean>>({});
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -24,7 +24,10 @@ const SupplySelectModal: React.FC<Props> = ({ isOpen, onClose, assignedAssetIds 
       setLoading(true);
       try {
         const params: any = { limit: 200 };
-        if (assignedAssetIds && assignedAssetIds.length > 0) params.assetIds = assignedAssetIds.join(',');
+        // If assignedAssetIds available, pass them to API to scope supplies to selected assets
+        if (assignedAssetIds && Array.isArray(assignedAssetIds) && assignedAssetIds.length > 0) {
+          params.assetIds = assignedAssetIds.join(',');
+        }
         const res: any = await suppliesApi.getSupplies(params);
         if (!mounted) return;
         setItems(res.items || res.items || []);
@@ -36,7 +39,7 @@ const SupplySelectModal: React.FC<Props> = ({ isOpen, onClose, assignedAssetIds 
     };
     load();
     return () => { mounted = false; };
-  }, [isOpen, assignedAssetIds]);
+  }, [isOpen]);
 
   const filtered = items.filter((it) => {
     if (!query) return true;
@@ -60,34 +63,31 @@ const SupplySelectModal: React.FC<Props> = ({ isOpen, onClose, assignedAssetIds 
         ) : (
           <div>
             <IonList>
-              {filtered.map((it) => (
-                <IonItem key={it._id} button onClick={() => { setSelected(it); }}>
-                  <IonLabel>
-                    <div style={{ fontWeight: 700 }}>{it.name}</div>
-                    <div style={{ fontSize: 12, color: '#607D8B' }}>{it.sku || it.unit || ''}</div>
-                  </IonLabel>
-                </IonItem>
-              ))}
+              {filtered.map((it) => {
+                const isSel = !!selectedIds[String(it._id)];
+                return (
+                  <IonItem key={it._id} button onClick={() => setSelectedIds((p) => ({ ...p, [String(it._id)]: !p[String(it._id)] }))} style={isSel ? { background: 'rgba(25,118,210,0.06)' } : undefined}>
+                    <IonLabel>
+                      <div style={{ fontWeight: 700 }}>{it.name}</div>
+                      <div style={{ fontSize: 12, color: '#607D8B' }}>{it.sku || it.unit || ''}</div>
+                    </IonLabel>
+                  </IonItem>
+                );
+              })}
               {filtered.length === 0 && <div style={{ padding: 16, color: '#90A4AE' }}>{t('supplySelect.empty')}</div>}
             </IonList>
-
-            {selected && (
-              <div style={{ padding: 12, borderTop: '1px solid #eee' }}>
-                <div style={{ fontWeight: 700 }}>{selected.name}</div>
-                <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-                    <IonButton fill="clear" onClick={() => setSelected(null)}>{t('supplySelect.cancel')}</IonButton>
-                    <IonButton onClick={() => { onSelect({ ...selected }); setSelected(null); onClose(); }}>{t('supplySelect.confirm')}</IonButton>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
       </IonContent>
       <IonFooter>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: 12 }}>
-          <IonButton fill="clear" onClick={onClose}>{t('common.close')}</IonButton>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: 12, gap: 8 }}>
+          <IonButton fill="clear" onClick={() => { setSelectedIds({}); onClose(); }}>{t('supplySelect.cancel')}</IonButton>
+          <IonButton onClick={() => {
+            const selected = items.filter((it) => selectedIds[String(it._id)]).map((s) => ({ _id: s._id, name: s.name, sku: s.sku, qty: 1 }));
+            onSelect(selected);
+            setSelectedIds({});
+            onClose();
+          }} disabled={Object.keys(selectedIds).filter(k => selectedIds[k]).length === 0}>{t('supplySelect.confirm')}</IonButton>
         </div>
       </IonFooter>
     </IonModal>

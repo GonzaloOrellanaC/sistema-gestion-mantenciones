@@ -25,7 +25,14 @@ const WorkOrdersCalendar: React.FC = () => {
     const [hoveredDates, setHoveredDates] = useState<any>(null);
     const [displayMode, setDisplayMode] = useState<string>('created'); // 'created' | 'assigned' | 'scheduled' | 'assignee:<id>'
     const [assigneeOptions, setAssigneeOptions] = useState<Array<{ id: string; label: string }>>([]);
-    const [firstDayOfWeek, setFirstDayOfWeek] = useState<number>(1); // 1 = Monday (default), 0 = Sunday
+    const [firstDayOfWeek, setFirstDayOfWeek] = useState<number>(() => {
+        try {
+            const v = localStorage.getItem('weekStart') || 'monday';
+            return v === 'sunday' ? 0 : 1;
+        } catch (e) {
+            return 1;
+        }
+    }); // 1 = Monday (default), 0 = Sunday
     const [popoverOpen, setPopoverOpen] = useState(false);
     const [popoverEvent, setPopoverEvent] = useState<any>(undefined);
     const [modalOpen, setModalOpen] = useState(false);
@@ -233,7 +240,7 @@ const WorkOrdersCalendar: React.FC = () => {
                                 </IonButton>
                                 <IonPopover isOpen={popoverOpen} event={popoverEvent} onDidDismiss={() => setPopoverOpen(false)}>
                                 <IonList>
-                                    <IonRadioGroup value={firstDayOfWeek} onIonChange={ev => { setFirstDayOfWeek(Number(ev.detail.value)); setPopoverOpen(false); }}>
+                                    <IonRadioGroup value={firstDayOfWeek} onIonChange={ev => { const v = Number(ev.detail.value); setFirstDayOfWeek(v); try { localStorage.setItem('weekStart', v === 0 ? 'sunday' : 'monday'); } catch {} setPopoverOpen(false); }}>
                                     <IonItem>
                                         <IonLabel>{t('calendar.firstDay.monday')}</IonLabel>
                                         <IonRadio slot="start" value={1} />

@@ -8,6 +8,9 @@
       "USD": "USD",
       "CLP": "CLP"
     },
+    "weekStart": "Inicio de la semana",
+    "weekStartMonday": "Lunes",
+    "weekStartSunday": "Domingo",
     "savedToast": "Ajustes guardados"
   }
 }

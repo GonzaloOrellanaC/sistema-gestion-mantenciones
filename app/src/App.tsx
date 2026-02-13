@@ -9,6 +9,7 @@ import WorkOrderEdit from './pages/WorkOrderEdit';
 import TemplatesList from './pages/TemplatesList';
 import Profile from './pages/Profile';
 import EditarPerfil from './pages/EditarPerfil';
+import Settings from './pages/Settings';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
@@ -44,6 +45,7 @@ import '@ionic/react/css/palettes/dark.system.css';
 /* Theme variables */
 import './theme/variables.css';
 import { listOutline, personOutline, notificationsOutline } from 'ionicons/icons';
+import { useTranslation } from 'react-i18next';
 import NotificationToast from './components/NotificationToast';
 import MyAssignations from './pages/MyAssignations';
 import Notifications from './pages/Notifications';
@@ -104,6 +106,11 @@ const App: React.FC = () => (
                 <Notifications />
               </ProtectedRoute>
             </Route>
+            <Route exact path="/settings">
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            </Route>
             <Route exact path="/editar-perfil">
               <ProtectedRoute>
                 <EditarPerfil />
@@ -123,21 +130,22 @@ export default App;
 const BottomTabs = () => {
   const { token, unreadCount } = useAuth() as any;
   if (!token) return null;
+  const { t } = useTranslation();
 
   return (
     <IonTabBar slot="bottom">
       <IonTabButton tab='my-assignations' href='/my-assignations'>
         <IonIcon icon={listOutline} />
-        <span style={{ fontSize: 12 }}>Órdenes</span>
+        <span style={{ fontSize: 12 }}>{t('nav.orders')}</span>
       </IonTabButton>
       <IonTabButton tab='notifications' href='/notifications'>
         <IonIcon icon={notificationsOutline} />
-        <span style={{ fontSize: 12 }}>Notifs</span>
+        <span style={{ fontSize: 12 }}>{t('nav.notifications')}</span>
         {unreadCount > 0 && <div style={{ position: 'absolute', right: 8, top: 6 }}><IonBadge color='danger'>{unreadCount}</IonBadge></div>}
       </IonTabButton>
       <IonTabButton tab='profile' href='/profile'>
         <IonIcon icon={personOutline} />
-        <span style={{ fontSize: 12 }}>Perfil</span>
+        <span style={{ fontSize: 12 }}>{t('nav.profile')}</span>
       </IonTabButton>
     </IonTabBar>
   )

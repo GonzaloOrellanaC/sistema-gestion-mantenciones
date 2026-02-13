@@ -70,7 +70,7 @@ const IllustrationDashboard: React.FC = () => (
 const FeatureLogo: React.FC<{ fallbackIcon?: any; style?: React.CSSProperties }> = ({ fallbackIcon, style }) => {
   return (
     <div className="icon-wrapper" style={style}>
-      {fallbackIcon && <IonIcon icon={fallbackIcon} />}
+      <img src="/sgm-isotype.svg" alt="SGM" className="feature-logo" />
     </div>
   );
 };
@@ -87,6 +87,7 @@ const LandingPage: React.FC = () => {
         <IonToolbar className="landing-toolbar landing-header">
           <div className="section-container header-inner" style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
             <div className="brand-row">
+              <img src="/sgm-isotype.svg" alt="SGM" className="hero-logo" style={{ width: 56, height: 56, marginRight: 12 }} />
               <IonTitle className="logo-text">
                 <span className="logo-highlight">SGM</span> System
               </IonTitle>

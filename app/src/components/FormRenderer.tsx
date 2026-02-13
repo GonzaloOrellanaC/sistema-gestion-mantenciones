@@ -29,7 +29,7 @@ type Field = {
   children?: Field[][];
 };
 
-const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave?: (payload: any) => void; onProgress?: (percent: number) => void; onRegisterSave?: (fn: () => void) => void; initialData?: any; onFieldBlur?: (snapshot: any) => void }> = ({ schema, showSaveButton, onSave, onProgress, onRegisterSave, initialData, onFieldBlur }) => {
+const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave?: (payload: any) => void | Promise<void>; onProgress?: (percent: number) => void; onRegisterSave?: (fn: () => void) => void; onActivePageChange?: (activeIndex: number, pagesCount: number) => void; initialData?: any; onFieldBlur?: (snapshot: any) => void }> = ({ schema, showSaveButton, onSave, onProgress, onRegisterSave, onActivePageChange, initialData, onFieldBlur }) => {
   // split schema into pages by 'division' fields and collect page titles
   // NOTE: a division's `pageTitle` should be placed on the page that precedes the division
   const { pages, pageTitles } = useMemo(() => {
@@ -63,6 +63,13 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
   }, [schema]);
 
   const [activeIndex, setActiveIndex] = useState(0);
+  useEffect(() => {
+    try {
+      if (typeof onActivePageChange === 'function') onActivePageChange(activeIndex, pages.length);
+    } catch (e) {
+      // ignore
+    }
+  }, [activeIndex, pages.length, onActivePageChange]);
   // photos previews per field id
   const [photos, setPhotos] = useState<Record<string, string>>({});
   // generic values per-field (text/select/radio etc.)
@@ -82,6 +89,8 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
   const [addImagePreview, setAddImagePreview] = useState<Record<string, string>>({});
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  // map from internal uid (uid used in UI/state keys) to the canonical field id from the schema
+  const uidFieldMapRef = useRef<Record<string, string>>({});
 
   useEffect(() => {
     // when modal opens and stream is available, bind to video
@@ -113,16 +122,223 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
     };
   }, [cameraOpenFor]);
 
+  // rebuild uid -> fieldId map whenever pages change
+  useEffect(() => {
+    try {
+      const map: Record<string, string> = {};
+      pages.forEach((page, pidx) => {
+        page.forEach((field, fidx) => {
+          const uid = `${field.id || 'field'}-${pidx}-${fidx}`;
+          const fieldId = field && (field.id || field._id || field.key || field.name) || uid;
+          map[uid] = fieldId;
+        });
+      });
+      uidFieldMapRef.current = map;
+    } catch (e) { /* ignore mapping build errors */ }
+  }, [pages]);
+
   // populate internal state from initialData when provided (restore from DB or backup)
   useEffect(() => {
     if (!initialData) return;
     try {
-      const d = initialData as any;
-      if (d.values) setValues(d.values);
-      if (d.photos) setPhotos(d.photos);
-      if (d.filesMap) setFilesMap(d.filesMap);
-      if (d.locations) setLocations(d.locations);
-      if (d.dynamicLists) setDynamicLists(d.dynamicLists);
+      // move helpers: collect file fields, normalize payload and validate signatures
+      const collectFileFields = (components: any[] = [], map: any = {}) => {
+        if (!Array.isArray(components)) return map;
+        for (const c of components) {
+          try {
+            const t = (c && c.type) || (c && c.component) || '';
+            const id = c && (c.id || c._id || c.key || c.name || null);
+            if (id && ['image', 'file', 'photo', 'attachment', 'camera'].includes(String(t))) {
+              map[id] = String(t) === 'image' || String(t) === 'photo' || String(t) === 'camera' ? 'image' : 'file';
+            }
+            if (c.components && Array.isArray(c.components)) collectFileFields(c.components, map);
+            if (c.items && Array.isArray(c.items)) collectFileFields(c.items, map);
+            if (c.columns && Array.isArray(c.columns)) {
+              for (const col of c.columns) if (col && col.components) collectFileFields(col.components, map);
+            }
+          } catch (e) { }
+        }
+        return map;
+      };
+
+      const collectSignatureFields = (components: any[] = [], set: any = {}) => {
+        if (!Array.isArray(components)) return set;
+        for (const c of components) {
+          try {
+            const t = (c && c.type) || (c && c.component) || '';
+            const id = c && (c.id || c._id || c.key || c.name || null);
+            if (id && ['signature', 'signature-pad', 'firma'].includes(String(t))) set[id] = true;
+            if (c.components && Array.isArray(c.components)) collectSignatureFields(c.components, set);
+            if (c.items && Array.isArray(c.items)) collectSignatureFields(c.items, set);
+            if (c.columns && Array.isArray(c.columns)) {
+              for (const col of c.columns) if (col && col.components) collectSignatureFields(col.components, set);
+            }
+          } catch (e) { }
+        }
+        return set;
+      };
+
+      const normalizePayloadFiles = (payload: any, schemaComponents: any[] | null) => {
+        if (!payload) return payload;
+        const p = JSON.parse(JSON.stringify(payload));
+        const fileMap = collectFileFields(schemaComponents || []);
+        p.photos = p.photos || {};
+        p.filesMap = p.filesMap || {};
+        p.dynamicLists = p.dynamicLists || p.dynamicLists;
+
+        const mapKeyToFieldId = (key: string) => {
+          const map = uidFieldMapRef.current || {};
+          if (map[key]) return map[key];
+          for (const base of Object.keys(map)) {
+            if (key === base || key.startsWith(`${base}-`) || key.startsWith(`${base}:`)) return map[base];
+          }
+          return key;
+        };
+
+        const newPhotos: Record<string, any> = {};
+        const newFilesMap: Record<string, any> = {};
+        const newDynamicLists: Record<string, any> = {};
+
+        // convert data URLs stored in values into photos/filesMap under canonical field ids
+        if (p.values && typeof p.values === 'object') {
+          for (const key of Object.keys(p.values)) {
+            const v = p.values[key];
+            if (!v || typeof v !== 'string') continue;
+            if (!v.startsWith('data:')) continue;
+            const ftype = fileMap[key] || null;
+            const mapped = mapKeyToFieldId(key);
+            if (ftype === 'image') {
+              newPhotos[mapped] = v;
+            } else {
+              newFilesMap[mapped] = { url: v, name: key, fieldId: mapped };
+            }
+            delete p.values[key];
+          }
+        }
+
+        // existing photos: remap keys
+        Object.keys(p.photos || {}).forEach(k => {
+          const v = p.photos[k];
+          const mapped = mapKeyToFieldId(k);
+          if (v && typeof v === 'object') newPhotos[mapped] = v;
+          else newPhotos[mapped] = v;
+        });
+
+        // existing filesMap: remap keys and attach fieldId
+        Object.keys(p.filesMap || {}).forEach(k => {
+          const item = p.filesMap[k];
+          const mapped = mapKeyToFieldId(k);
+          if (item && typeof item === 'object') {
+            newFilesMap[mapped] = { ...(item as any), fieldId: mapped };
+          } else if (typeof item === 'string') {
+            newFilesMap[mapped] = { url: item, name: k, fieldId: mapped };
+          }
+        });
+
+        // dynamic lists: remap keys; normalize image items
+        Object.keys(p.dynamicLists || {}).forEach(k => {
+          const mapped = mapKeyToFieldId(k);
+          const arr = p.dynamicLists[k] || [];
+          const outArr = arr.map((it: any) => {
+            if (!it) return it;
+            if (it.type === 'image' && it.value && typeof it.value === 'object') {
+              if (typeof it.value.data === 'string') return { ...it, value: it.value.data };
+              if (typeof it.value.url === 'string') return { ...it, value: it.value.url };
+            }
+            return it;
+          });
+          newDynamicLists[mapped] = outArr;
+        });
+
+        p.photos = newPhotos;
+        p.filesMap = newFilesMap;
+        p.dynamicLists = newDynamicLists;
+        return p;
+      };
+
+      const validateSignatureUrls = async (payload: any, schemaComponents: any[] | null) => {
+        if (!payload) return [];
+        const sigFields = collectSignatureFields(schemaComponents || []);
+        const errors: Array<{ field: string; url: string; reason: string }> = [];
+        const checks: Array<Promise<void>> = [];
+        const pushCheck = (field: string, url: any) => {
+          if (!url || typeof url !== 'string') {
+            errors.push({ field, url: String(url), reason: 'missing or non-string url' });
+            return;
+          }
+          const okFormat = url.startsWith('http') || url.startsWith('/') || url.includes('/files/');
+          if (!okFormat) {
+            errors.push({ field, url, reason: 'invalid url format' });
+            return;
+          }
+          checks.push((async () => {
+            try {
+              const resp = await fetch(url, { method: 'HEAD' });
+              if (!resp.ok) errors.push({ field, url, reason: `http status ${resp.status}` });
+            } catch (e: any) {
+              errors.push({ field, url, reason: e && e.message ? e.message : 'network error' });
+            }
+          })());
+        };
+        Object.keys(payload.photos || {}).forEach(k => { if (sigFields[k]) pushCheck(k, payload.photos[k]); });
+        Object.keys(payload.filesMap || {}).forEach(k => { if (sigFields[k]) pushCheck(k, payload.filesMap[k] && payload.filesMap[k].url); });
+        Object.keys(payload.dynamicLists || {}).forEach(k => {
+          if (!sigFields[k]) return;
+          (payload.dynamicLists[k] || []).forEach((it: any, idx: number) => { const v = it && (it.value || it.url); pushCheck(`${k}[${idx}]`, v); });
+        });
+        Object.keys(payload.values || {}).forEach(k => { if (sigFields[k]) pushCheck(k, payload.values[k]); });
+        await Promise.all(checks);
+        return errors;
+      };
+
+      const d = normalizePayloadFiles(initialData as any, schema);
+
+      // remap canonical fieldId-keyed payload back into UID-keyed state so UI components find them
+      const map = uidFieldMapRef.current || {};
+      const fieldIdToUids: Record<string, string[]> = {};
+      Object.keys(map).forEach(u => {
+        const fid = map[u];
+        if (!fieldIdToUids[fid]) fieldIdToUids[fid] = [];
+        fieldIdToUids[fid].push(u);
+      });
+
+      const remapToUids = (obj: Record<string, any> | undefined) => {
+        const out: Record<string, any> = {};
+        if (!obj) return out;
+        // for each key in obj (which may be a fieldId), assign to all matching uids
+        Object.keys(obj).forEach(k => {
+          const val = obj[k];
+          const uids = fieldIdToUids[k] || (map[k] ? [k] : []);
+          if (uids && uids.length) {
+            uids.forEach(uid => { out[uid] = val; });
+          } else {
+            // fallback: keep original key if no mapping found
+            out[k] = val;
+          }
+        });
+        return out;
+      };
+
+      const uiValues = remapToUids(d.values || {});
+      const uiPhotos = remapToUids(d.photos || {});
+      const uiFiles = remapToUids(d.filesMap || {});
+      const uiDynamic = remapToUids(d.dynamicLists || {});
+
+      if (uiValues) setValues(uiValues);
+      if (uiPhotos) setPhotos(uiPhotos);
+      if (uiFiles) setFilesMap(uiFiles);
+      if (d.locations) setLocations(remapToUids(d.locations || {}));
+      if (uiDynamic) setDynamicLists(uiDynamic);
+      // validate signature urls and alert
+      (async () => {
+        try {
+          const sigErrs = await validateSignatureUrls(d, schema);
+          if (sigErrs && sigErrs.length) {
+            const msg = sigErrs.map((e: any) => `${e.field}: ${e.reason} -> ${e.url}`).join('\n');
+            try { window.alert(`Error al cargar Firma/Imagen:\n${msg}`); } catch (e) { console.error('alert err', e); }
+          }
+        } catch (e) { console.error('validateSignatureUrls err', e); }
+      })();
     } catch (e) {
       // ignore
     }
@@ -174,7 +390,102 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
   useEffect(() => {
     if (typeof onRegisterSave === 'function') {
       onRegisterSave(() => {
-        if (typeof onSave === 'function') onSave({ values, photos, filesMap, locations, dynamicLists });
+        if (typeof onSave === 'function') {
+          // ensure payload normalized before sending
+          const normalizePayloadFiles = (payload: any, schemaComponents: any[] | null) => {
+            if (!payload) return payload;
+            const p = JSON.parse(JSON.stringify(payload));
+            const collectFileFields = (components: any[] = [], map: any = {}) => {
+              if (!Array.isArray(components)) return map;
+              for (const c of components) {
+                try {
+                  const t = (c && c.type) || (c && c.component) || '';
+                  const id = c && (c.id || c._id || c.key || c.name || null);
+                  if (id && ['image', 'file', 'photo', 'attachment', 'camera'].includes(String(t))) {
+                    map[id] = String(t) === 'image' || String(t) === 'photo' || String(t) === 'camera' ? 'image' : 'file';
+                  }
+                  if (c.components && Array.isArray(c.components)) collectFileFields(c.components, map);
+                  if (c.items && Array.isArray(c.items)) collectFileFields(c.items, map);
+                  if (c.columns && Array.isArray(c.columns)) {
+                    for (const col of c.columns) if (col && col.components) collectFileFields(col.components, map);
+                  }
+                } catch (e) { }
+              }
+              return map;
+            };
+            const fileMap = collectFileFields(schemaComponents || []);
+            p.photos = p.photos || {};
+            p.filesMap = p.filesMap || {};
+            p.dynamicLists = p.dynamicLists || p.dynamicLists;
+
+            const mapKeyToFieldId = (key: string) => {
+              const map = uidFieldMapRef.current || {};
+              if (map[key]) return map[key];
+              for (const base of Object.keys(map)) {
+                if (key === base || key.startsWith(`${base}-`) || key.startsWith(`${base}:`)) return map[base];
+              }
+              return key;
+            };
+
+            const newPhotos: Record<string, any> = {};
+            const newFilesMap: Record<string, any> = {};
+            const newDynamicLists: Record<string, any> = {};
+
+            if (p.values && typeof p.values === 'object') {
+              for (const key of Object.keys(p.values)) {
+                const v = p.values[key];
+                if (!v || typeof v !== 'string') continue;
+                if (!v.startsWith('data:')) continue;
+                const ftype = fileMap[key] || null;
+                const mapped = mapKeyToFieldId(key);
+                if (ftype === 'image') {
+                  newPhotos[mapped] = v;
+                } else {
+                  newFilesMap[mapped] = { url: v, name: key, fieldId: mapped };
+                }
+                delete p.values[key];
+              }
+            }
+
+            Object.keys(p.photos || {}).forEach(k => {
+              const v = p.photos[k];
+              const mapped = mapKeyToFieldId(k);
+              if (v && typeof v === 'object') newPhotos[mapped] = v;
+              else newPhotos[mapped] = v;
+            });
+
+            Object.keys(p.filesMap || {}).forEach(k => {
+              const item = p.filesMap[k];
+              const mapped = mapKeyToFieldId(k);
+              if (item && typeof item === 'object') {
+                newFilesMap[mapped] = { ...(item as any), fieldId: mapped };
+              } else if (typeof item === 'string') {
+                newFilesMap[mapped] = { url: item, name: k, fieldId: mapped };
+              }
+            });
+
+            Object.keys(p.dynamicLists || {}).forEach(k => {
+              const mapped = mapKeyToFieldId(k);
+              const arr = p.dynamicLists[k] || [];
+              const outArr = arr.map((it: any) => {
+                if (!it) return it;
+                if (it.type === 'image' && it.value && typeof it.value === 'object') {
+                  if (typeof it.value.data === 'string') return { ...it, value: it.value.data };
+                  if (typeof it.value.url === 'string') return { ...it, value: it.value.url };
+                }
+                return it;
+              });
+              newDynamicLists[mapped] = outArr;
+            });
+
+            p.photos = newPhotos;
+            p.filesMap = newFilesMap;
+            p.dynamicLists = newDynamicLists;
+            return p;
+          };
+          const payload = normalizePayloadFiles({ values, photos, filesMap, locations, dynamicLists }, schema);
+          onSave(payload);
+        }
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -317,7 +628,7 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
         >
           {pages.map((page, pidx) => (
             <SwiperSlide key={pidx}>
-              <div style={{marginTop: 50, height: 'calc(100vh - 165px)', overflowY: 'auto' }}>
+              <div style={{marginTop: 50, height: `calc(100vh - ${activeIndex < pages.length - 1 ? 165 : (165 + 76)}px)`, overflowY: 'auto' }}>
                 {/* Page title from division.field.pageTitle if provided */}
                 {pageTitles && pageTitles[pidx] && pageTitles[pidx].length > 0 && (
                   <div style={{ padding: '8px 16px', fontSize: '1.1rem', fontWeight: 700, color: '#263238' }}>{pageTitles[pidx]}</div>
@@ -472,8 +783,8 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
                                         return (
                                           <div>
                                             <div style={{ width: '100%', height: 120, borderRadius: 8, border: '1px dashed #ECEFF1', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                              {values[innerUid] ? (
-                                                <img src={values[innerUid]} alt="signature" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                                              { (filesMap[innerUid] && filesMap[innerUid].url) || values[innerUid] ? (
+                                                <img src={(filesMap[innerUid] && filesMap[innerUid].url) || values[innerUid]} alt="signature" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
                                               ) : (
                                                 <div style={{ color: '#90A4AE', fontWeight: 600 }}>Firmar aquí</div>
                                               )}
@@ -510,7 +821,7 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
                               <CheckboxField field={field as any} uid={uid} values={values} setValues={setValues} photos={photos} filesMap={filesMap} dynamicLists={dynamicLists} locations={locations} onFieldBlur={onFieldBlur} />
                             )}
                             {field.type === 'signature' && (
-                                <SignatureField field={field as any} uid={uid} values={values} openSignature={(u: string) => setSignatureOpenFor(u)} />
+                                <SignatureField field={field as any} uid={uid} filesMap={filesMap} openSignature={(u: string) => setSignatureOpenFor(u)} />
                             )}
                             </IonCardContent>
                         </IonCard>
@@ -570,10 +881,12 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
         {/* Signature modal */}
         <SignatureModal isOpen={!!signatureOpenFor} onClose={() => setSignatureOpenFor(null)} onSave={(dataUrl) => {
             if (signatureOpenFor) {
-              const newValues = { ...(values || {}), [signatureOpenFor]: dataUrl };
-              setValues(prev => ({ ...prev, [signatureOpenFor]: dataUrl }));
+              // save signature as a file entry so it persists and can be displayed consistently
+              const sigEntry = { name: 'signature.png', url: dataUrl };
+              const newFiles = { ...(filesMap || {}), [signatureOpenFor]: sigEntry };
+              setFilesMap(prev => ({ ...(prev || {}), [signatureOpenFor]: sigEntry }));
               setSignatureOpenFor(null);
-              if (onFieldBlur) onFieldBlur({ values: newValues, photos, filesMap, dynamicLists, locations });
+              if (onFieldBlur) onFieldBlur({ values, photos, filesMap: newFiles, dynamicLists, locations });
             }
         }} />
       </div>
@@ -582,17 +895,7 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
       <SyncSwiper activeIndex={activeIndex} pagesCount={pages.length} />
 
       {/* Guardar button shown on last page when requested */}
-      {showSaveButton && activeIndex === pages.length - 1 && (
-        <div style={{ padding: 16, display: 'flex', justifyContent: 'center' }}>
-          <IonButton onClick={() => {
-            if (typeof onSave === 'function') {
-              onSave({ values, photos, filesMap, locations, dynamicLists });
-            }
-          }}>
-            Guardar
-          </IonButton>
-        </div>
-      )}
+      { /* Guardar button moved to WorkOrderEdit - keep FormRenderer purely presentational */ }
     </div>
   );
 };

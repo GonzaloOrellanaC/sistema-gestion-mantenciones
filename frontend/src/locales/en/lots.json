@@ -6,6 +6,7 @@
       "type": "Type",
       "supplier": "Supplier",
       "purchaseDate": "Purchase date",
+      "itemCount": "Items",
       "price": "Price"
     },
     "filters": {

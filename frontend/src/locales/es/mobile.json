@@ -1,0 +1,19 @@
+{
+  "badge": "App Móvil",
+  "title": "Accede y gestiona órdenes desde tu dispositivo móvil",
+  "description": "La app móvil permite a técnicos y supervisores consultar órdenes, adjuntar fotos y registrar avance en campo sin complicaciones.",
+  "scanTitle": "Escaneo rápido",
+  "scanDesc": "Escanea códigos de activos y partes desde la app para acelerar la gestión.",
+  "photoTitle": "Fotos y evidencia",
+  "photoDesc": "Adjunta imágenes del trabajo realizado para mejorar trazabilidad.",
+  "noInstallTitle": "Sin instalación obligatoria",
+  "noInstallDesc": "Acceso rápido vía web o con instalación ligera para equipos de campo.",
+  "mockup": {
+    "greeting": "Bienvenido",
+    "pending": "Órdenes Pendientes",
+    "ot1": "Cambio de filtro",
+    "ot1Loc": "Planta Central",
+    "ot2": "Revisión de motor",
+    "ot2Loc": "Bodega 3"
+  }
+}

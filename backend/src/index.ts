@@ -35,6 +35,7 @@ import pushRoutes from './routes/push';
 import costsRoutes from './routes/costs';
 import metricsRoutes from './routes/metrics';
 import reportingRoutes from './routes/reporting';
+import publicRoutes from './routes/public';
 
 const PORT = process.env.PORT || 5102;
 const app = express();
@@ -49,7 +50,9 @@ const allowedOrigins = [FRONTEND_URL, APP_URL, APP_URL_EXTERNAL, 'https://localh
 const io = new IOServer(server, { cors: { origin: allowedOrigins, credentials: true } });
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
-app.use(express.json());
+// increase global body size limits to accept large offline-save payloads (base64 data URLs)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 
 app.get('/', (req, res, next) => {
@@ -92,6 +95,8 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/costs', costsRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/reporting', reportingRoutes);
+// Public endpoints (token-based access)
+app.use('/public', publicRoutes);
 
 // Serve uploaded images publicly from backend/files/images
 const imagesPath = path.join(__dirname, '..', 'files', 'images');
@@ -140,6 +145,7 @@ app.set('io', io);
 connectDB()
   .then(() => {
     server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    
   })
   .catch((err) => {
     console.error('Failed to connect DB', err);

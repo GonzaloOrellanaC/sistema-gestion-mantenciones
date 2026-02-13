@@ -40,10 +40,10 @@ const Login: React.FC = () => {
 
           <div className="login-card">
             <div className="input-group">
-              <input value={email} onChange={e => setEmail((e.target as any).value)} type="text" placeholder="Usuario" className="input-field" />
+              <input value={email} onChange={e => setEmail((e.target as any).value.toLowerCase())} type={'email'} placeholder="Usuario" className="input-field" />
             </div>
             <div className="input-group" style={{ marginBottom: '2rem' }}>
-              <input value={password} onChange={e => setPassword((e.target as any).value)} type="password" placeholder="Contraseña" className="input-field" />
+              <input value={password} onChange={e => setPassword((e.target as any).value)} type={'password'} placeholder="Contraseña" className="input-field" />
             </div>
             <IonButton expand="block" className="btn-primary" onClick={onSubmit}>Ingresar</IonButton>
           </div>

@@ -129,7 +129,7 @@ const Lots: React.FC = () => {
     <IonPage>
       <IonHeader className="ion-no-border">
         <IonToolbar style={{ padding: '0px 12px' }}>
-          <IonButton slot="start" fill="clear" color={'dark'} onClick={() => history.goBack()}>
+          <IonButton slot="start" fill="clear" color={'dark'} onClick={() => history.replace('/logistics')}>
             <IonIcon icon={chevronBackOutline} />
           </IonButton>
           <IonTitle>{t('logistics.items.lots') || 'Lotes'}</IonTitle>
@@ -153,6 +153,7 @@ const Lots: React.FC = () => {
                           <th style={{ textAlign: 'left', padding: '8px 12px' }}>{t('lots.headers.branch') || 'Branch'}</th>
                           <th style={{ textAlign: 'left', padding: '8px 12px' }}>{t('lots.headers.supplier') || 'Supplier'}</th>
                           <th style={{ textAlign: 'left', padding: '8px 12px' }}>{t('lots.headers.purchaseDate') || 'Purchase Date'}</th>
+                          <th style={{ textAlign: 'right', padding: '8px 12px' }}>{t('lots.headers.itemCount') || 'Items'}</th>
                           <th style={{ textAlign: 'right', padding: '8px 12px' }}>{t('lots.headers.price') || 'Price'}</th>
                           <th style={{ textAlign: 'center', padding: '8px 12px' }}>{t('lists.actions') || 'Actions'}</th>
                         </tr>
@@ -186,6 +187,15 @@ const Lots: React.FC = () => {
                             <td style={{ padding: '10px 12px' }}>{(l.branchId && typeof l.branchId === 'object') ? (l.branchId.name || l.branchId._id) : (l.branchId || '-')}</td>
                             <td style={{ padding: '10px 12px', color: '#666' }}>{l.supplier || '-'}</td>
                             <td style={{ padding: '10px 12px' }}>{l.purchaseDate ? dateFormatter.format(new Date(l.purchaseDate)) : '-'}</td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right' }}>{(() => {
+                              if (Array.isArray(l.items)) return l.items.length;
+                              if (typeof l.itemsCount === 'number') return l.itemsCount;
+                              if (typeof l.count === 'number') return l.count;
+                              if (typeof l.quantity === 'number') return l.quantity;
+                              if (typeof l.totalItems === 'number') return l.totalItems;
+                              if (typeof l.total === 'number') return l.total;
+                              return '-';
+                            })()}</td>
                             <td style={{ padding: '10px 12px', textAlign: 'right' }}>{typeof l.price === 'number' ? currencyFormatter.format(l.price) : '-'}</td>
                             <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                               <IonButton fill="clear" size="small" onClick={(e) => { e.stopPropagation(); history.push(`/logistics/lots/edit/${l._id}`); }}>{t('lists.edit') || 'Edit'}</IonButton>

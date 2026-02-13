@@ -151,4 +151,33 @@ export async function getById(req: Request, res: Response) {
   }
 }
 
-export default { list, create, getById };
+export async function availability(req: Request, res: Response) {
+  try {
+    const orgId = (req as any).user?.orgId;
+    const { supplyIds } = req.body || {};
+    if (!Array.isArray(supplyIds) || supplyIds.length === 0) return res.json({ items: [] });
+
+    const aggOrgId = new mongoose.Types.ObjectId(String(orgId));
+    const aggIds = supplyIds.map((s: any) => new mongoose.Types.ObjectId(String(s)));
+    const agg = await SupplyInventory.aggregate([
+      { $match: { orgId: aggOrgId, itemId: { $in: aggIds } } },
+      { $group: { _id: '$itemId', remaining: { $sum: '$remainingQuantity' }, initial: { $sum: '$initialQuantity' } } }
+    ]).allowDiskUse(true);
+
+    const remMap: Record<string, number> = {};
+    const initMap: Record<string, number> = {};
+    agg.forEach((a: any) => { remMap[String(a._id)] = a.remaining || 0; initMap[String(a._id)] = a.initial || 0; });
+
+    const supplies = await Supply.find({ orgId, _id: { $in: supplyIds } }).lean();
+    const byId: Record<string, any> = {};
+    supplies.forEach((s: any) => { byId[String(s._id)] = s; });
+
+    const items = supplyIds.map((id: any) => ({ supplyId: id, available: remMap[String(id)] || 0, initial: initMap[String(id)] || 0, supply: byId[String(id)] || null }));
+    return res.json({ items });
+  } catch (err: any) {
+    console.error(err);
+    return res.status(err.status || 500).json({ message: err.message || 'Server error' });
+  }
+}
+
+export default { list, create, getById, availability };

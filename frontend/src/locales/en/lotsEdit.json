@@ -23,5 +23,15 @@
       "supply": "Supply",
       "repuesto": "Part"
     }
+    ,
+    "placeholders": {
+      "itemId": "Item id or name"
+    },
+    "items": {
+      "title": "Items in lot",
+      "quantity": "Qty",
+      "unitPrice": "Unit price",
+      "none": "No items in this lot"
+    }
   }
 }

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -26,6 +26,7 @@ import Organization from './pages/Organization';
 // Reporting page removed from routes for now.
 import WorkOrdersList from './pages/WorkOrdersList';
 import WorkOrdersCreate from './pages/WorkOrdersCreate';
+import WorkOrdersReview from './pages/WorkOrdersReview';
 import RoleCreate from './pages/RoleCreate';
 import AssetsList from './pages/AssetsList';
 import AssetsBulkUpload from './pages/AssetsBulkUpload';
@@ -33,7 +34,6 @@ import AssetCreate from './pages/AssetCreate';
 import AssetDetail from './pages/AssetDetail';
 import ProfileEdit from './pages/ProfileEdit';
 import Supplies from './pages/Supplies';
-import SupplyCreate from './pages/SupplyCreate';
 import SupplyEdit from './pages/SupplyEdit';
 import Parts from './pages/Parts';
 import PartsEdit from './pages/PartsEdit';
@@ -43,6 +43,7 @@ import Lots from './pages/Lots';
 import WarehouseAdmin from './pages/WarehouseAdmin';
 import WorkOrdersCalendar from './pages/WorkOrdersCalendar';
 import Settings from './pages/Settings';
+import PublicWorkOrderTimeline from './pages/PublicWorkOrderTimeline';
 
 import './theme/components.scss'
 
@@ -78,7 +79,6 @@ import 'swiper/css/pagination';
 /* Theme variables */
 import './theme/variables.css';
 import './styles/template.css';
-import LandingPage from './pages/Landing';
 
 setupIonicReact();
 
@@ -130,56 +130,59 @@ const App: React.FC = () => {
   return (
     <IonRouterOutlet>
       <Route exact path="/auth/login" component={Login}/>
-    <Route exact path="/auth/register" component={Register}/>
-    <Route exact path="/auth/forgot" component={ForgotPassword}/>
-    <Route exact path="/auth/reset/:token" component={ChangePassword}/>
+      <Route exact path="/auth/register" component={Register}/>
+      <Route exact path="/auth/forgot" component={ForgotPassword}/>
+      <Route exact path="/auth/reset/:token" component={ChangePassword}/>
       <Route exact path="/dashboard" render={() => {
         if (loading) return null;
         if (!token) return <Redirect to="/auth/login" />;
         if (hasPermission('verTablero')) return <Dashboard />;
         return <Redirect to={firstAccessible()} />;
       }} />
-    <Route exact path="/files/upload" component={FilesUpload}/>
-    <ProtectedRoute exact path="/roles" component={RolesList} permissionKey="verRoles" />
-    <ProtectedRoute exact path="/roles/new" component={RoleCreate} permissionKey="verRoles" />
-    <ProtectedRoute exact path="/roles/edit/:id" component={RoleCreate} permissionKey="verRoles" />
-    <ProtectedRoute exact path="/templates" component={TemplatesList} permissionKey="verPautas" />
-    <ProtectedRoute exact path="/templates/create" component={TemplatesBuilder} permissionKey="verPautas" />
-    <ProtectedRoute exact path="/templates/:id/edit" component={TemplatesBuilder} permissionKey="verPautas" />
-    <ProtectedRoute exact path="/templates/:id/preview" component={TemplatePreview} permissionKey="verPautas" />
-    <ProtectedRoute exact path="/users" component={UsersList} permissionKey="verUsuarios" />
-    <ProtectedRoute exact path="/users/new" component={UsersCreate} permissionKey="verUsuarios" />
-    <ProtectedRoute exact path="/users/:id/edit" component={UsersCreate} permissionKey="verUsuarios" />
-    <ProtectedRoute exact path="/branches" component={BranchesList} permissionKey="verSucursales" />
-    <ProtectedRoute exact path="/branches/new" component={BranchCreate} permissionKey="verSucursales" />
-    <ProtectedRoute exact path="/branches/:id/edit" component={BranchCreate} permissionKey="verSucursales" />
-    <ProtectedRoute exact path="/organization" component={Organization} permissionKey="verOrganizacion" />
-    {/* /reporting route intentionally removed */}
-    <ProtectedRoute exact path="/work-orders" component={WorkOrdersList} permissionKey="verOT" />
-    <ProtectedRoute exact path="/work-orders/create" component={WorkOrdersCreate} permissionKey="verOT" />
-    <ProtectedRoute exact path="/work-orders/edit/:id" component={WorkOrdersCreate} permissionKey="verOT" />
-    <ProtectedRoute exact path="/work-orders/view/:id" component={WorkOrdersDetail} permissionKey="verOT" />
-    <ProtectedRoute exact path="/work-orders/assign/:id" component={WorkOrderAssign} permissionKey="verOT" />
-    <Route exact path="/calendar" component={WorkOrdersCalendar} />
-    <ProtectedRoute exact path="/assets" component={AssetsList} permissionKey="verActivos" />
-    <ProtectedRoute exact path="/assets/upload/bulk" component={AssetsBulkUpload} permissionKey="verActivos" />
-    <ProtectedRoute exact path="/assets/:id" component={AssetDetail} permissionKey="verActivos" />
-    <ProtectedRoute exact path="/assets/new" component={AssetCreate} permissionKey="verActivos" />
-    <ProtectedRoute exact path="/assets/:id/edit" component={AssetCreate} permissionKey="verActivos" />
-    <Route exact path="/profile/edit" component={ProfileEdit} />
-    <Route exact path="/settings" component={Settings} />
-    <Route exact path="/logistics/supplies" component={Supplies} />
-    <Route exact path="/logistics/supplies/new" component={SupplyEdit} />
-    <Route exact path="/logistics/supplies/:id/edit" component={SupplyEdit} />
-    <Route exact path="/logistics/parts" component={Parts} />
-    <Route exact path="/logistics/parts/new" component={PartsEdit} />
-    <Route exact path="/logistics/parts/edit/:id" component={PartsEdit} />
-    <Route exact path="/logistics/lots/edit/:id" component={LotEdit} />
-    <Route exact path="/logistics/lots" component={Lots} />
-    <Route exact path="/logistics" component={Logistics} />
-    <Route exact path="/warehouses" component={WarehouseAdmin} />
-    <Route exact path="/" render={() => <Redirect to="/auth/login" />} />
-  </IonRouterOutlet>
+      <Route exact path="/files/upload" component={FilesUpload}/>
+      <ProtectedRoute exact path="/roles" component={RolesList} permissionKey="verRoles" />
+      <ProtectedRoute exact path="/roles/new" component={RoleCreate} permissionKey="verRoles" />
+      <ProtectedRoute exact path="/roles/edit/:id" component={RoleCreate} permissionKey="verRoles" />
+      <ProtectedRoute exact path="/templates" component={TemplatesList} permissionKey="verPautas" />
+      <ProtectedRoute exact path="/templates/create" component={TemplatesBuilder} permissionKey="verPautas" />
+      <ProtectedRoute exact path="/templates/:id/edit" component={TemplatesBuilder} permissionKey="verPautas" />
+      <ProtectedRoute exact path="/templates/:id/preview" component={TemplatePreview} permissionKey="verPautas" />
+      <ProtectedRoute exact path="/users" component={UsersList} permissionKey="verUsuarios" />
+      <ProtectedRoute exact path="/users/new" component={UsersCreate} permissionKey="verUsuarios" />
+      <ProtectedRoute exact path="/users/:id/edit" component={UsersCreate} permissionKey="verUsuarios" />
+      <ProtectedRoute exact path="/branches" component={BranchesList} permissionKey="verSucursales" />
+      <ProtectedRoute exact path="/branches/new" component={BranchCreate} permissionKey="verSucursales" />
+      <ProtectedRoute exact path="/branches/:id/edit" component={BranchCreate} permissionKey="verSucursales" />
+      <ProtectedRoute exact path="/organization" component={Organization} permissionKey="verOrganizacion" />
+      {/* /reporting route intentionally removed */}
+      <ProtectedRoute exact path="/work-orders" component={WorkOrdersList} permissionKey="verOT" />
+      <ProtectedRoute exact path="/work-orders/create" component={WorkOrdersCreate} permissionKey="verOT" />
+      <ProtectedRoute exact path="/work-orders/edit/:id" component={WorkOrdersCreate} permissionKey="verOT" />
+      <ProtectedRoute exact path="/work-orders/view/:id" component={WorkOrdersDetail} permissionKey="supervisar" />
+      <ProtectedRoute exact path="/work-orders/review/:id" component={WorkOrdersReview} permissionKey="supervisar" />
+      <ProtectedRoute exact path="/work-orders/assign/:id" component={WorkOrderAssign} permissionKey="verOT" />
+      <Route exact path="/calendar" component={WorkOrdersCalendar} />
+      <Route exact path="/public/work-order/:token" component={PublicWorkOrderTimeline} />
+      <Route exact path="/public/work-orders/:token" component={PublicWorkOrderTimeline} />
+      <ProtectedRoute exact path="/assets" component={AssetsList} permissionKey="verActivos" />
+      <ProtectedRoute exact path="/assets/upload/bulk" component={AssetsBulkUpload} permissionKey="verActivos" />
+      <ProtectedRoute exact path="/assets/:id" component={AssetDetail} permissionKey="verActivos" />
+      <ProtectedRoute exact path="/assets/new" component={AssetCreate} permissionKey="verActivos" />
+      <ProtectedRoute exact path="/assets/:id/edit" component={AssetCreate} permissionKey="verActivos" />
+      <Route exact path="/profile/edit" component={ProfileEdit} />
+      <Route exact path="/settings" component={Settings} />
+      <Route exact path="/logistics/supplies" component={Supplies} />
+      <Route exact path="/logistics/supplies/new" component={SupplyEdit} />
+      <Route exact path="/logistics/supplies/:id/edit" component={SupplyEdit} />
+      <Route exact path="/logistics/parts" component={Parts} />
+      <Route exact path="/logistics/parts/new" component={PartsEdit} />
+      <Route exact path="/logistics/parts/edit/:id" component={PartsEdit} />
+      <Route exact path="/logistics/lots/edit/:id" component={LotEdit} />
+      <Route exact path="/logistics/lots" component={Lots} />
+      <Route exact path="/logistics" component={Logistics} />
+      <Route exact path="/warehouses" component={WarehouseAdmin} />
+      <Route exact path="/" render={() => <Redirect to="/auth/login" />} />
+    </IonRouterOutlet>
   );
 };
 

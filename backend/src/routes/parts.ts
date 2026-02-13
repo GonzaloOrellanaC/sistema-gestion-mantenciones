@@ -9,6 +9,7 @@ router.post('/', partsController.create);
 router.post('/availability', partsController.availability);
 router.get('/', partsController.list);
 router.get('/:id', partsController.getOne);
+router.get('/:id/usage-history', partsController.usageHistory);
 router.put('/:id', partsController.update);
 router.delete('/:id', partsController.remove);
 

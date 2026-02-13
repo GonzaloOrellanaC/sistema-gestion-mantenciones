@@ -3,10 +3,11 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\" \"npm run dev --prefix app\"",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\" \"npm run dev --prefix app\" \"npm run dev --prefix landing\"",
     "dev-frontend": "npm run dev --prefix frontend",
     "dev-backend": "npm run dev --prefix backend",
     "dev-app": "npm run dev --prefix app",
+    "dev-landing": "npm run dev --prefix landing",
     "dev-backend-frontend": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
     "start": "concurrently \"npm run start --prefix backend\" \"npm run preview --prefix frontend\""
   },

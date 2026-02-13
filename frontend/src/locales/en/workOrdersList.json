@@ -12,17 +12,21 @@
       "end": "End",
       "asset": "Asset",
       "state": "State",
+      "progress": "Progress",
       "assigned": "Assigned",
       "actions": "Actions"
     },
     "toasts": {
       "assignUpdated": "Assignment updated",
-      "assignError": "Error assigning order"
+      "assignError": "Error assigning order",
+      "shareCopied": "Share link created and copied to clipboard",
+      "shareError": "Could not create share link"
     },
     "noPermission": {
       "create": "You don't have permission to create WOs",
       "edit": "You don't have permission to edit WOs",
-      "assign": "You don't have permission to assign WOs"
+      "assign": "You don't have permission to assign WOs",
+      "share": "You don't have permission to share this WO"
     },
     "popover": {
       "assignHeader": "Assign user",

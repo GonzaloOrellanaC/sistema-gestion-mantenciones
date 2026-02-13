@@ -1,0 +1,19 @@
+{
+  "badge": "Mobile App",
+  "title": "Access and manage work orders from your phone",
+  "description": "The mobile app lets technicians and supervisors view orders, attach photos and record progress in the field.",
+  "scanTitle": "Quick Scan",
+  "scanDesc": "Scan asset and part codes from the app to speed up workflows.",
+  "photoTitle": "Photos & Evidence",
+  "photoDesc": "Attach pictures of the work performed for better traceability.",
+  "noInstallTitle": "No mandatory install",
+  "noInstallDesc": "Fast access via web or lightweight install for field teams.",
+  "mockup": {
+    "greeting": "Welcome",
+    "pending": "Pending Orders",
+    "ot1": "Filter replacement",
+    "ot1Loc": "Main Plant",
+    "ot2": "Engine check",
+    "ot2Loc": "Warehouse 3"
+  }
+}

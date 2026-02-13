@@ -3,6 +3,18 @@
     "editProfile": "Editar perfil",
     "logout": "Cerrar sesión",
     "trialActive": "Periodo de prueba activo",
-    "trialDaysRemaining": "{{days}} días restantes — Pulse para ver detalles"
+    "trialDaysRemaining": "{{days}} días restantes — Pulse para ver detalles",
+    "dashboard": "Tablero",
+    "users": "Usuarios",
+    "roles": "Roles",
+    "workOrders": "Órdenes",
+    "calendar": "Calendario",
+    "templates": "Plantillas",
+    "supplies": "Insumos",
+    "parts": "Repuestos",
+    "logistics": "Logística",
+    "assets": "Activos",
+    "organization": "Organización",
+    "branches": "Sucursales"
   }
 }

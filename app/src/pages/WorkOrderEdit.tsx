@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonSpinner, IonButtons, IonButton, IonIcon } from '@ionic/react';
-import { getWorkOrder, updateWorkOrder, startWorkOrder } from '../api/workOrders';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonSpinner, IonButtons, IonButton, IonIcon, IonFooter, IonModal, IonText } from '@ionic/react';
+import { getWorkOrder, updateWorkOrder, startWorkOrder, offlineSaveWorkOrder, submitForReview } from '../api/workOrders';
+import { emitWorkOrderUpdated } from '../utils/eventBus';
 import { getTemplate } from '../api/templates';
 import FormRenderer from '../components/FormRenderer';
 import { useWorkOrder } from '../context/WorkOrderContext';
@@ -9,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { normalizeStructure } from '../utils/structure';
 import { chevronBackOutline, cloudUploadOutline, saveOutline } from 'ionicons/icons';
 import { LoadingModal } from '../components/modals/LoadingModal';
+import { WORK_ORDER_STATES } from '../constants/workOrderStates';
 
 // Prevent duplicate startWorkOrder requests across component remounts (Strict Mode)
 const _startWorkOrderLocks = new Set<string>();
@@ -26,7 +28,28 @@ const WorkOrderEdit: React.FC = () => {
   const [messageLoading, setMessageLoading] = useState('Cargando orden de trabajo...');
   const [progress, setProgress] = useState(0);
   const [orderData, setOrderData] = useState<any>(null);
+  const [showStartModal, setShowStartModal] = useState(false);
+  const _startModalShown = React.useRef(false);
   const saveTriggerRef = React.useRef<() => void>(() => {});
+  const [syncing, setSyncing] = useState(false);
+  const [formActiveIndex, setFormActiveIndex] = useState(0);
+  const [formPagesCount, setFormPagesCount] = useState(1);
+
+  useEffect(() => {
+    // show start modal once when entering edit if order not started
+    if (!orderData) return;
+    if (_startModalShown.current) return;
+    try {
+      const status = orderData.status || (orderData as any).state;
+      const s = String(status || '').toLowerCase();
+      if (!s || s !== String(WORK_ORDER_STATES.STARTED).toLowerCase()) {
+        setShowStartModal(true);
+        _startModalShown.current = true;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [orderData]);
 
   useEffect(() => {
     // always attempt to reconcile server/local data when loading the page
@@ -45,45 +68,11 @@ const WorkOrderEdit: React.FC = () => {
           const template = await getTemplate(tmpl);
           setStruct(normalizeStructure(template?.structure || null));
         } else {
-          // nothing available
-          setStruct({ components: [] });
-        }
-        // mark order as started when user (assignee) opens this edit page and let backend append history
-        try {
-          if (order && order.state !== 'Iniciado' && order.state !== 'En ejecución') {
-            // guard against duplicate start requests (React StrictMode may mount/unmount/remount)
-            if (!_startWorkOrderLocks.has(params.id)) {
-              _startWorkOrderLocks.add(params.id);
-              try {
-                const updated = await startWorkOrder(params.id);
-                // server performs transition and returns updated work order with history
-                if (updated) setOrderData(updated);
-              } catch (e) {
-                // on error, release lock so a retry is possible
-                _startWorkOrderLocks.delete(params.id);
-                // fallback: if start endpoint fails (permissions), still update local view to keep UX
-                console.error('Error calling startWorkOrder', e);
-                const nowIso = new Date().toISOString();
-                const actorId = (user && ((user._id || user.id) as any)) || null;
-                const historyEntry: any = {
-                  from: order.state || null,
-                  to: 'Iniciado',
-                  note: actorId ? `Iniciada por ${(user.firstName || user.name || 'usuario')}` : 'Iniciada',
-                  at: { $date: nowIso }
-                };
-                if (actorId) historyEntry.userId = { $oid: actorId };
-                const newHistory = Array.isArray(order.history) ? [...order.history, historyEntry] : [historyEntry];
-                setOrderData((prev: any) => ({ ...(prev || {}), state: 'Iniciado', history: newHistory }));
-              }
-            } else {
-              // another instance already triggered startWorkOrder for this id; skip to avoid duplicate history entries
-              console.debug('startWorkOrder already in progress for', params.id);
-            }
-          }
-        } catch (e) {
-          // ignore
+          // progress is calculated inside FormRenderer and passed via onProgress.
         }
         // After structure loaded, reconcile server data and local backup
+
+        
         try {
           const backupKey = `wo-backup:${params.id}`;
           const localBackup = await idbGet(backupKey).catch(() => null);
@@ -151,9 +140,183 @@ const WorkOrderEdit: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
+  // debounce sending progress to backend to avoid spamming updates
+  useEffect(() => {
+    let timer: any = null;
+    if (progress !== null && progress !== undefined) {
+      timer = setTimeout(async () => {
+        try {
+          await updateWorkOrder(params.id, { progress });
+        } catch (e) {
+          // ignore update errors
+          console.warn('Failed to persist progress', e);
+        }
+      }, 2000);
+    }
+    return () => { if (timer) clearTimeout(timer); };
+  }, [progress, params.id]);
+
   const handleSave = () => {
     // placeholder - replaced by async handler below when FormRenderer calls onSave
   }
+
+  const handleManualSave = async () => {
+    // Trigger form save which also stores to IndexedDB
+    try {
+      try { saveTriggerRef.current && saveTriggerRef.current(); } catch (e) { console.error('form save trigger err', e); }
+      // small delay to allow idbPut to complete
+      await new Promise(r => setTimeout(r, 250));
+      const backupKey = `wo-backup:${params.id}`;
+      const localBackup = await idbGet(backupKey).catch(() => null);
+      if (!localBackup) {
+        console.warn('No local backup found for', backupKey);
+        return;
+      }
+      if (!navigator.onLine) {
+        console.warn('Offline: will not sync to server now');
+        return;
+      }
+      setSyncing(true);
+      // preparedBackup is the local backup (FormRenderer writes normalized payload to IndexedDB)
+      const preparedBackup = localBackup;
+      // normalize payload so backend receives expected shapes for images/files
+      // call backend offline-save endpoint with normalized payload
+      try {
+        // Manual save only syncs data, do not submit for review
+        await syncBackupToServer(false);
+      } catch (e) {
+        console.error('sync to server failed', e);
+      }
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  // Reusable normalization + sync logic so FormRenderer's Guardar can trigger it directly
+  const syncBackupToServer = async (submitForReviewFlag: boolean = true) => {
+    const backupKey = `wo-backup:${params.id}`;
+    const localBackup = await idbGet(backupKey).catch(() => null);
+    if (!localBackup) {
+      console.warn('No local backup found for', backupKey);
+      return false;
+    }
+    if (!navigator.onLine) {
+      console.warn('Offline: will not sync to server now');
+      return false;
+    }
+
+    // If there was a pending state change stored in the local backup, apply it first
+    if (localBackup._pendingState) {
+      try {
+        await updateWorkOrder(params.id, localBackup._pendingState);
+        // remove pending marker after successful update
+        delete localBackup._pendingState;
+        try { await idbPut(backupKey, localBackup); } catch (e) { /* ignore */ }
+      } catch (e) {
+        console.warn('Failed to apply pending state update before sync', e);
+      }
+    }
+
+    const normalizeForBackend = (p: any) => {
+      const copy = JSON.parse(JSON.stringify(p || {}));
+      // photos: allow either string or { url: string } shapes
+      if (copy.photos && typeof copy.photos === 'object') {
+        for (const k of Object.keys(copy.photos)) {
+          const v = copy.photos[k];
+          if (v && typeof v === 'object') {
+            if (typeof v.url === 'string') copy.photos[k] = v.url;
+            else if (typeof v.data === 'string') copy.photos[k] = v.data;
+          }
+        }
+      }
+      // filesMap: ensure item.url is a string (data URL) when available
+      if (copy.filesMap && typeof copy.filesMap === 'object') {
+        for (const k of Object.keys(copy.filesMap)) {
+          const item = copy.filesMap[k];
+          if (item && typeof item === 'object') {
+            if (item.url && typeof item.url === 'object' && typeof item.url.url === 'string') item.url = item.url.url;
+            if (!item.url && typeof item.data === 'string') item.url = item.data;
+          }
+        }
+      }
+      // dynamicLists: image items may store value as object { url } or { data }
+      if (copy.dynamicLists && typeof copy.dynamicLists === 'object') {
+        for (const fieldId of Object.keys(copy.dynamicLists)) {
+          const arr = copy.dynamicLists[fieldId] || [];
+          for (let i = 0; i < arr.length; i++) {
+            const it = arr[i];
+            if (it && it.type === 'image') {
+              if (it.value && typeof it.value === 'object') {
+                if (typeof it.value.url === 'string') arr[i].value = it.value.url;
+                else if (typeof it.value.data === 'string') arr[i].value = it.value.data;
+              }
+            }
+          }
+        }
+      }
+      return copy;
+    };
+
+    const normalized = normalizeForBackend(localBackup);
+    await offlineSaveWorkOrder(params.id, { data: normalized });
+    const nowIso = new Date().toISOString();
+    setOrderData((prev: any) => ({ ...(prev || {}), data: normalized, dates: { ...(prev && prev.dates ? prev.dates : {}), end: nowIso } }));
+    try {
+      if (!submitForReviewFlag) {
+        // do not submit for review; just sync the backup and return
+        return true;
+      }
+      // fetch current server state; avoid duplicate transition to 'En revisión'
+      let serverWo: any = null;
+      try { serverWo = await getWorkOrder(params.id); } catch (gErr) { /* ignore */ }
+      const serverState = serverWo ? (serverWo.status || serverWo.state) : null;
+      const srv = String(serverState || '').toLowerCase();
+      const underReviewKeys = [String(WORK_ORDER_STATES.UNDER_REVIEW).toLowerCase(), 'en revisión', 'en revision'];
+      if (!underReviewKeys.includes(srv)) {
+        const submitted = await submitForReview(params.id);
+        if (submitted) {
+          try {
+            if (window.history.length > 1) {
+              history.goBack();
+            } else {
+              history.replace(`/work-orders/${params.id}`);
+            }
+          } catch (navErr) {
+            history.replace(`/work-orders/${params.id}`);
+          }
+          return true;
+        }
+      } else {
+        // already en revisión on server, just navigate back
+        try {
+          if (window.history.length > 1) {
+            history.goBack();
+          } else {
+            history.replace(`/work-orders/${params.id}`);
+          }
+        } catch (navErr) {
+          history.replace(`/work-orders/${params.id}`);
+        }
+        return true;
+      }
+    } catch (e) {
+      console.warn('submit for review failed', e);
+    }
+    return false;
+  };
+
+  // Called when FormRenderer's internal Guardar button is pressed (it already ran onSave)
+  const handleSaveAndSyncFromForm = async () => {
+    setSyncing(true);
+    try {
+      // Form's internal save should behave like manual save: sync only, do not submit
+      await syncBackupToServer(false);
+    } catch (e) {
+      console.error('save-and-sync failed', e);
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   // IndexedDB helpers for storing backups locally
   const idbPut = (key: string, value: any) => new Promise<void>((resolve, reject) => {
@@ -201,9 +364,10 @@ const WorkOrderEdit: React.FC = () => {
     return new File([u8arr], filename || 'file', { type: mime });
   };
 
+
   const handleSaveAsync = async (payload: any, orderArg?: any) => {
     try {
-      // store local backup (base64 included)
+      // store local backup (base64 included) - payload is already normalized by FormRenderer
       const backupKey = `wo-backup:${params.id}`;
       await idbPut(backupKey, payload);
 
@@ -247,10 +411,11 @@ const WorkOrderEdit: React.FC = () => {
         return;
       }
 
-      // store local backup (single key)
-      await idbPut(backupKey, finalPayload).catch(() => {});
-      // update local orderData to reflect saved payload
-      setOrderData((prev: any) => ({ ...(prev || {}), data: finalPayload }));
+        // store local backup (single key)
+        await idbPut(backupKey, finalPayload).catch(() => {});
+        // update local orderData to reflect saved payload
+        setOrderData((prev: any) => ({ ...(prev || {}), data: finalPayload }));
+        try { emitWorkOrderUpdated({ id: params.id, workOrder: { data: finalPayload } }); } catch (e) { /* ignore */ }
     } catch (err) {
       console.error('save err', err);
     }
@@ -271,22 +436,84 @@ const WorkOrderEdit: React.FC = () => {
               <IonButton fill={'clear'} disabled>
                 {progress}%
               </IonButton>
-              <IonButton title='Guardar' onClick={() => { try { saveTriggerRef.current && saveTriggerRef.current(); } catch (e) { console.error(e); } }}>
+              <IonButton title='Guardar' onClick={() => { try { handleManualSave(); } catch (e) { console.error(e); } }}>
                 <IonIcon icon={saveOutline} />
               </IonButton>
             </IonButtons>
         </IonToolbar>
       </IonHeader>
+      <IonModal isOpen={showStartModal} onDidDismiss={() => setShowStartModal(false)}>
+        <IonContent className="ion-padding">
+          <h2>Iniciar actividad</h2>
+          <IonText>
+            {`Iniciará la actividad de la Orden de trabajo ${orderData ? (orderData.orgSeq || orderData.orgSeq === 0 ? orderData.orgSeq : orderData._id) : ''}`}
+          </IonText>
+          <div style={{ marginTop: 18, display: 'flex', gap: 8, justifyContent: 'center' }}>
+            <IonButton color="primary" onClick={async () => {
+              const nowIso = new Date().toISOString();
+              // optimistically update local state so UI reflects change immediately
+              setOrderData((prev: any) => ({ ...(prev || {}), dates: { ...(prev && prev.dates ? prev.dates : {}), start: nowIso }, state: WORK_ORDER_STATES.STARTED }));
+              try { emitWorkOrderUpdated({ id: params.id, workOrder: { dates: { start: nowIso }, state: WORK_ORDER_STATES.STARTED } }); } catch (e) { /* ignore */ }
+              _startModalShown.current = true;
+
+              const payload = { dates: { start: nowIso }, state: WORK_ORDER_STATES.STARTED };
+              if (navigator.onLine) {
+                try {
+                  // try persist to server
+                  const response = await updateWorkOrder(params.id, payload);
+                  console.log('Start work order response', response);
+                  // refresh order from server to ensure canonical state
+                  try {
+                    const refreshed = await getWorkOrder(params.id);
+                    if (refreshed) setOrderData(refreshed);
+                  } catch (rfErr) {
+                    console.warn('Failed to refresh order after update', rfErr);
+                  }
+                } catch (e) {
+                  console.warn('Failed to update start status online', e);
+                  // store pending state so user can retry sync with Guardar
+                  try {
+                    const backupKey = `wo-backup:${params.id}`;
+                    const localBackup = await idbGet(backupKey).catch(() => ({}));
+                    localBackup._pendingState = { ...payload, _ts: new Date().toISOString() };
+                    await idbPut(backupKey, localBackup);
+                  } catch (putErr) {
+                    console.warn('Failed to save pending state locally after update error', putErr);
+                  }
+                }
+              } else {
+                // offline: store pending state in local backup so sync will apply it later
+                try {
+                  const backupKey = `wo-backup:${params.id}`;
+                  const localBackup = await idbGet(backupKey).catch(() => ({}));
+                  localBackup._pendingState = { ...payload, _ts: new Date().toISOString() };
+                  await idbPut(backupKey, localBackup);
+                } catch (e) {
+                  console.warn('Failed to save pending state locally', e);
+                }
+              }
+              setShowStartModal(false);
+            }}>Iniciar</IonButton>
+            <IonButton color="medium" onClick={() => { setShowStartModal(false); try { history.goBack(); } catch (e) { /* ignore */ } }}>Cancelar</IonButton>
+          </div>
+        </IonContent>
+      </IonModal>
       <IonContent>
           { (struct && Array.isArray(struct.components)) ? (
-            <FormRenderer 
-              schema={struct.components} 
-              showSaveButton={true} 
-              onSave={handleSaveAsync} 
-              onRegisterSave={(fn: () => void) => { saveTriggerRef.current = fn; }} 
-              onProgress={(p: number) => setProgress(p)} initialData={(orderData && (orderData._initialDataFromSync || orderData.data)) || null}
-              onFieldBlur={handleSaveAsync}
+            <div>
+              <FormRenderer 
+                schema={struct.components} 
+                showSaveButton={true} 
+                onSave={handleSaveAsync} 
+                onRegisterSave={(fn: () => void) => { saveTriggerRef.current = fn; }} 
+                onProgress={(p: number) => setProgress(p)}
+                onActivePageChange={(i: number, count: number) => { setFormActiveIndex(i); setFormPagesCount(count); }}
+                initialData={(orderData && (orderData._initialDataFromSync || orderData.data)) || null}
+                onFieldBlur={handleSaveAsync}
               />
+
+              
+            </div>
               
           ) : loading ? (
             <div style={{ padding: 16 }}><IonSpinner /></div>
@@ -295,6 +522,47 @@ const WorkOrderEdit: React.FC = () => {
           )
         }
       </IonContent>
+      {/* Moved Guardar button here so sync logic stays in page scope; show only on last page */}
+      { (formPagesCount > 0 && formActiveIndex === formPagesCount - 1) && (
+        <IonFooter>
+          <div style={{ padding: 16, display: 'flex', justifyContent: 'center' }}>
+            <IonButton disabled={syncing} onClick={async () => {
+              // prevent double submission: disable UI while syncing
+              setSyncing(true);
+              try {
+                // trigger form save to ensure IndexedDB backup is up-to-date
+                try { saveTriggerRef.current && saveTriggerRef.current(); } catch (e) { console.error('form save trigger err', e); }
+                await new Promise(r => setTimeout(r, 250));
+
+                // set end date and mark as 'under_review' locally
+                const nowIso = new Date().toISOString();
+                setOrderData((prev: any) => ({ ...(prev || {}), dates: { ...(prev && prev.dates ? prev.dates : {}), end: nowIso }, state: WORK_ORDER_STATES.UNDER_REVIEW }));
+                try { emitWorkOrderUpdated({ id: params.id, workOrder: { dates: { end: nowIso }, state: WORK_ORDER_STATES.UNDER_REVIEW } }); } catch (e) { /* ignore */ }
+
+                // only call update API if the order isn't already in that state
+                const currentStatus = (orderData && (orderData.state || (orderData as any).status || (orderData as any).state)) || null;
+                if (!currentStatus || String(currentStatus).toLowerCase() !== String(WORK_ORDER_STATES.UNDER_REVIEW).toLowerCase()) {
+                  try {
+                    await updateWorkOrder(params.id, { dates: { end: nowIso }, state: WORK_ORDER_STATES.UNDER_REVIEW });
+                  } catch (uErr) {
+                    console.warn('Failed to update work order dates/state', uErr);
+                    // fallthrough to sync which may retry
+                  }
+                }
+
+                // Footer action: this is the final submit flow — sync and submit for review
+                await syncBackupToServer(true);
+              } catch (e) {
+                console.error('save+sync failed', e);
+              } finally {
+                setSyncing(false);
+              }
+            }}>
+              Enviar a revisión
+            </IonButton>
+          </div>
+        </IonFooter>
+      )}
     </IonPage>
   );
 };

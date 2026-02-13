@@ -7,6 +7,7 @@ router.use(authMiddleware);
 
 router.get('/', suppliesController.list);
 router.get('/:id', suppliesController.getById);
+router.post('/availability', suppliesController.availability);
 router.post('/', suppliesController.create);
 
 export default router;

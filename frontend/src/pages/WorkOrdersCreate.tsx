@@ -82,6 +82,10 @@ const WorkOrdersCreate: React.FC = () => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
+  // respect user's week-start preference (stored in localStorage)
+  const [weekStart, setWeekStart] = useState<string>(() => {
+    try { return localStorage.getItem('weekStart') || 'monday'; } catch { return 'monday'; }
+  });
   const history = useHistory();
   const { id } = useParams<{ id?: string }>();
   const { t } = useTranslation();
@@ -209,6 +213,16 @@ const WorkOrdersCreate: React.FC = () => {
     return days;
   }, [currentMonth]);
 
+  // Build displayed days including leading blanks so the 1st falls on the correct weekday
+  const displayedDays = useMemo(() => {
+    const start = monthStart(currentMonth);
+    const firstWeekday = start.getDay(); // 0 = Sunday .. 6 = Saturday
+    // weekdayIndex depends on weekStart preference
+    const weekdayIndex = weekStart === 'sunday' ? firstWeekday : (firstWeekday + 6) % 7;
+    const blanks = Array.from({ length: weekdayIndex }, () => null);
+    return [...blanks, ...daysInMonth];
+  }, [currentMonth, daysInMonth, weekStart]);
+
   function pickDate(day: Date) {
     // prevent past dates
     const today = new Date();
@@ -224,6 +238,33 @@ const WorkOrdersCreate: React.FC = () => {
     const d = String(day.getDate()).padStart(2, '0');
     setScheduledStart(`${y}-${m}-${d}`);
   }
+
+  // When scheduledStart changes, update estimatedEnd based on template.expectedDurationDays
+  useEffect(() => {
+    if (!scheduledStart || !templateId) return;
+    const sel = templates.find(t => t._id === templateId);
+    if (!sel) return;
+    const dur = (sel as any).expectedDurationDays;
+    if (typeof dur !== 'number' || Number.isNaN(dur)) return;
+    try {
+      // parse YYYY-MM-DD safely and use UTC arithmetic to avoid timezone shifts
+      const m = scheduledStart.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!m) return;
+      const y = Number(m[1]);
+      const mm = Number(m[2]);
+      const d = Number(m[3]);
+      const startUtc = new Date(Date.UTC(y, mm - 1, d));
+      const endUtc = new Date(Date.UTC(y, mm - 1, d));
+      endUtc.setUTCDate(endUtc.getUTCDate() + dur);
+      // format using UTC components to keep date-only representation
+      const ey = endUtc.getUTCFullYear();
+      const emm = String(endUtc.getUTCMonth() + 1).padStart(2, '0');
+      const ed = String(endUtc.getUTCDate()).padStart(2, '0');
+      setEstimatedEnd(`${ey}-${emm}-${ed}`);
+    } catch (err) {
+      // noop
+    }
+  }, [scheduledStart, templateId, templates]);
 
   async function handleSubmit() {
     if (!templateId) {
@@ -245,8 +286,15 @@ const WorkOrdersCreate: React.FC = () => {
     };
 
     const payload: any = { templateId, data: parsedData };
-    // scheduledStart expected as ISO string
-    if (scheduledStart) payload.scheduledStart = scheduledStart;
+    // scheduledStart expected as ISO string. If user picked a date-only string (YYYY-MM-DD)
+    // convert to a timezone-safe ISO by anchoring at midday UTC to avoid day shifts.
+    if (scheduledStart) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(scheduledStart)) {
+        payload.scheduledStart = `${scheduledStart}T12:00:00.000Z`;
+      } else {
+        payload.scheduledStart = scheduledStart;
+      }
+    }
     if (assigneeId) payload.assigneeId = assigneeId;
     if (assigneeRole) payload.assigneeRole = assigneeRole;
     if (branchId) payload.branchId = branchId;
@@ -257,6 +305,15 @@ const WorkOrdersCreate: React.FC = () => {
       return;
     }
     payload.assetId = assetId;
+
+    // if estimatedEnd present, also convert date-only to timezone-safe ISO
+    if (estimatedEnd) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(estimatedEnd)) {
+        payload.estimatedEnd = `${estimatedEnd}T12:00:00.000Z`;
+      } else {
+        payload.estimatedEnd = estimatedEnd;
+      }
+    }
 
     setLoading(true);
     try {
@@ -279,7 +336,7 @@ const WorkOrdersCreate: React.FC = () => {
               }
             }
           }
-          history.push(`/work-orders`);
+          history.push(`/work-orders`, { reload: true, new: wo._id });
           return;
         }
     } catch (err: any) {
@@ -427,13 +484,20 @@ const WorkOrdersCreate: React.FC = () => {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6, marginBottom: 8 }}>
-                  {(t('workOrdersCreate.calendar.weekdays', { returnObjects: true }) as string[]).map((d: string) => (
-                    <div key={d} style={{ fontSize: 12, textAlign: 'center', color: '#607D8B' }}>{d}</div>
-                  ))}
+                  {(() => {
+                    const labels = (t('workOrdersCreate.calendar.weekdays', { returnObjects: true }) as string[]) || ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+                    // default labels are Monday-first; if user prefers Sunday-first rotate
+                    const hdr = weekStart === 'sunday' ? [labels[6], ...labels.slice(0,6)] : labels;
+                    return hdr.map((d: string) => (<div key={d} style={{ fontSize: 12, textAlign: 'center', color: '#607D8B' }}>{d}</div>));
+                  })()}
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
-                  {daysInMonth.map(day => {
+                  {displayedDays.map((day, idx) => {
+                    if (!day) {
+                      // leading blank cell
+                      return <div key={`blank-${idx}`} style={{ minHeight: 72, padding: 8 }} />;
+                    }
                     const key = formatDateOnly(day);
                     const isStart = scheduledStart ? formatDateOnly(scheduledStart) === key : false;
                     const isEnd = estimatedEnd ? formatDateOnly(estimatedEnd) === key : false;

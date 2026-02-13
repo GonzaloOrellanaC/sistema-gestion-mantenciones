@@ -7,6 +7,7 @@
       "name": "Name",
       "serial": "Serial",
       "lot": "Lot",
+      "lotCount": "Lots",
       "quantity": "Quantity",
       "min": "Min threshold",
       "branch": "Branch",
@@ -29,7 +30,9 @@
     },
     "popover": {
       "assets": "Assets",
-      "noAssets": "No assets"
+      "noAssets": "No assets",
+      "lots": "Lots",
+      "noLots": "No lots"
     }
   }
 }

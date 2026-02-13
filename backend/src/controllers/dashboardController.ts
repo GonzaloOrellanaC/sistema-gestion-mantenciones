@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import WorkOrder from '../models/WorkOrder';
+import { WORK_ORDER_STATES } from '../utils/workOrderStates';
 import User from '../models/User';
 import Part from '../models/Part';
 import Supply from '../models/Supply';
@@ -16,7 +17,7 @@ export async function counts(req: Request, res: Response) {
     const orgObjId = Types.ObjectId.isValid(orgId) ? new Types.ObjectId(orgId) : orgId;
 
     const createdTotal = await WorkOrder.countDocuments({ orgId: orgObjId, deleted: { $ne: true } });
-    const pendingTotal = await WorkOrder.countDocuments({ orgId: orgObjId, deleted: { $ne: true }, state: { $in: ['Asignado', 'Iniciado'] } });
+    const pendingTotal = await WorkOrder.countDocuments({ orgId: orgObjId, deleted: { $ne: true }, state: { $in: [WORK_ORDER_STATES.ASSIGNED, WORK_ORDER_STATES.STARTED] } });
     const activeUsers = await User.countDocuments({ orgId: orgObjId });
 
     // weekly counts (last 7 days, including today) - use aggregation for performance
@@ -85,9 +86,9 @@ export async function counts(req: Request, res: Response) {
         } },
         { $group: {
           _id: '$monthStr',
-          completed: { $sum: { $cond: [ { $eq: [ '$state', 'Terminado' ] }, 1, 0 ] } },
-          in_progress: { $sum: { $cond: [ { $in: [ '$state', ['Asignado', 'Iniciado', 'En revisión'] ] }, 1, 0 ] } },
-          delayed: { $sum: { $cond: [ { $and: [ { $ne: [ '$state', 'Terminado' ] }, { $lt: [ { $ifNull: [ '$estimatedEnd', new Date(0) ] }, new Date() ] } ] }, 1, 0 ] } }
+            completed: { $sum: { $cond: [ { $eq: [ '$state', WORK_ORDER_STATES.APPROVED ] }, 1, 0 ] } },
+              in_progress: { $sum: { $cond: [ { $in: [ '$state', [WORK_ORDER_STATES.ASSIGNED, WORK_ORDER_STATES.STARTED, WORK_ORDER_STATES.UNDER_REVIEW] ] }, 1, 0 ] } },
+              delayed: { $sum: { $cond: [ { $and: [ { $ne: [ '$state', WORK_ORDER_STATES.APPROVED ] }, { $lt: [ { $ifNull: [ '$estimatedEnd', new Date(0) ] }, new Date() ] } ] }, 1, 0 ] } }
         } },
         { $sort: { _id: 1 } }
       ]).exec();
@@ -129,7 +130,7 @@ export async function counts(req: Request, res: Response) {
     for (const br of branches) {
       const brId = br._id;
       const created = await WorkOrder.countDocuments({ orgId: orgObjId, branchId: brId, deleted: { $ne: true } });
-      const pending = await WorkOrder.countDocuments({ orgId: orgObjId, branchId: brId, deleted: { $ne: true }, state: { $in: ['Asignado', 'Iniciado'] } });
+      const pending = await WorkOrder.countDocuments({ orgId: orgObjId, branchId: brId, deleted: { $ne: true }, state: { $in: [WORK_ORDER_STATES.ASSIGNED, WORK_ORDER_STATES.STARTED] } });
 
       const aggBr: any[] = await WorkOrder.aggregate([
         { $match: { orgId: orgObjId, branchId: brId, deleted: { $ne: true }, $or: [ { 'dates.created': { $gte: startRange, $lt: endRange } }, { createdAt: { $gte: startRange, $lt: endRange } } ] } },
@@ -191,9 +192,9 @@ export async function counts(req: Request, res: Response) {
       } },
       { $group: {
         _id: '$monthStr',
-        completed: { $sum: { $cond: [ { $eq: [ '$state', 'Terminado' ] }, 1, 0 ] } },
-        in_progress: { $sum: { $cond: [ { $in: [ '$state', ['Asignado', 'Iniciado', 'En revisión'] ] }, 1, 0 ] } },
-        delayed: { $sum: { $cond: [ { $and: [ { $ne: [ '$state', 'Terminado' ] }, { $lt: [ { $ifNull: [ '$estimatedEnd', new Date(0) ] }, new Date() ] } ] }, 1, 0 ] } }
+        completed: { $sum: { $cond: [ { $eq: [ '$state', WORK_ORDER_STATES.APPROVED ] }, 1, 0 ] } },
+        in_progress: { $sum: { $cond: [ { $in: [ '$state', [WORK_ORDER_STATES.ASSIGNED, WORK_ORDER_STATES.STARTED, WORK_ORDER_STATES.UNDER_REVIEW] ] }, 1, 0 ] } },
+        delayed: { $sum: { $cond: [ { $and: [ { $ne: [ '$state', WORK_ORDER_STATES.APPROVED ] }, { $lt: [ { $ifNull: [ '$estimatedEnd', new Date(0) ] }, new Date() ] } ] }, 1, 0 ] } }
       } },
       { $sort: { _id: 1 } }
     ]).exec();

@@ -11,6 +11,9 @@
     "cancel": "Cancel",
     "save": "Save",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "all": "All",
+    "confirm": "Confirm",
+    "delete": "Delete"
   }
 }

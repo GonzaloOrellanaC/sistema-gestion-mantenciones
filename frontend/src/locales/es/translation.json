@@ -1,0 +1,90 @@
+{
+  "hello_technician": "Hola, Técnico",
+  "pending_orders": "Órdenes Pendientes: {{count}}",
+  "no_orders": "No hay órdenes.",
+  "ot_prefix": "OT #{{id}}",
+  "notifications_title": "Notificaciones",
+  "pending": "pendientes",
+  "no_notifications": "No hay notificaciones.",
+  "settings_button": "Configuraciones",
+  "settings_title": "Configuraciones",
+  "settings_enable_push": "Habilitar notificaciones push",
+  "settings_use_browser_language": "Usar idioma predeterminado del navegador",
+  "settings_disable_browser_translate": "No permitir que el navegador ofrezca traducir",
+  "settings_language_label": "Idioma de la app",
+  "settings_save": "Guardar",
+  "settings_subtitle": "Configura las preferencias de la app",
+  "settings_autosave_note": "Los cambios se guardan automáticamente.",
+  "settings_email_notifications": "Notificaciones por email",
+  "settings_currency": "Moneda",
+  "settings_weekStart": "Inicio de la semana",
+  "settings_weekStartMonday": "Lunes",
+  "settings_weekStartSunday": "Domingo",
+  "settings_savedToast": "Preferencias guardadas",
+  "no_location": "Sin ubicación",
+  "workorder": {
+    "state": {
+      "created": "Creado",
+      "assigned": "Asignado",
+      "in_progress": "En progreso",
+      "under_review": "En revisión",
+      "approved": "Aprobado",
+      "rejected": "Rechazado"
+    },
+    "assigned": "Se te asignó la orden de trabajo #{{orgSeq}}",
+    "approved": "Tu orden de trabajo #{{orgSeq}} fue aprobada",
+    "rejected": "Tu orden de trabajo #{{orgSeq}} fue rechazada"
+  },
+  "time": {
+    "ago": "hace {{count}} {{unit}}",
+    "units": {
+      "second": "segundo",
+      "second_plural": "segundos",
+      "minute": "minuto",
+      "minute_plural": "minutos",
+      "hour": "hora",
+      "hour_plural": "horas",
+      "day": "día",
+      "day_plural": "días",
+      "month": "mes",
+      "month_plural": "meses",
+      "year": "año",
+      "year_plural": "años"
+    },
+    "short": {
+      "s": "s",
+      "m": "m",
+      "h": "h",
+      "d": "d",
+      "mo": "mo",
+      "a": "a"
+    }
+  },
+  "nav": {
+    "orders": "Órdenes",
+    "notifications": "Notificaciones",
+    "profile": "Perfil"
+  },
+  "profile": {
+    "updated": "Perfil actualizado",
+    "update_error": "Error al actualizar",
+    "edit_label": "Editar Perfil",
+    "settings_label": "Configuraciones",
+    "logout": "Cerrar Sesión",
+    "online": "Online",
+    "role_user": "Usuario",
+    "done_label": "Finalizadas",
+    "pending_label": "Pendientes"
+  },
+  "filters": {
+    "filter_by_urgency": "Filtrar por urgencia",
+    "clear": "Limpiar",
+    "apply": "Aplicar",
+    "close": "Cerrar"
+  },
+  "urgency": {
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Baja"
+  }
+}

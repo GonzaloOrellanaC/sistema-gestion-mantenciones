@@ -94,7 +94,7 @@ export async function me(req: Request, res: Response) {
       // ignore org lookup errors
     }
 
-    return res.json({ id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, orgId: user.orgId, org: orgData, isAdmin: user.isAdmin, role: roleData });
+    return res.json({ id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, orgId: user.orgId, org: orgData, isAdmin: user.isAdmin, role: roleData, photoUrl: (user as any).photoUrl || null });
   } catch (err: any) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });

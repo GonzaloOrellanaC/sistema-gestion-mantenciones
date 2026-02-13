@@ -15,16 +15,16 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t, i18n } = useTranslation();
 
   const menuInitial = useMemo(() => [
-    { key: 'nav.dashboard', path: '/dashboard', iconOutline: barChartOutline, iconFilled: barChart, active: false, permissionKey: 'verTablero' },
-    { key: 'nav.users', path: '/users', iconOutline: peopleOutline, iconFilled: people, active: false, permissionKey: 'verUsuarios' },
-    { key: 'nav.roles', path: '/roles', iconOutline: documentLockOutline, iconFilled: documentLock, active: false, permissionKey: 'verRoles' },
-    { key: 'nav.workOrders', path: '/work-orders', iconOutline: documentsOutline, iconFilled: documents, active: false, permissionKey: 'verOT' },
-    { key: 'nav.calendar', path: '/calendar', iconOutline: calendarOutline, iconFilled: calendar, active: false },
-    { key: 'nav.templates', path: '/templates', iconOutline: fileTrayFullOutline, iconFilled: fileTrayFull, active: false, permissionKey: 'verPautas' },
-    { key: 'nav.logistics', path: '/logistics', iconOutline: cubeOutline, iconFilled: cube, active: false, permissionKey: '_logistics_any' },
-    { key: 'nav.assets', path: '/assets', iconOutline: desktopOutline, iconFilled: desktop, active: false, permissionKey: 'verActivos' },
-    { key: 'nav.organization', path: '/organization', iconOutline: businessOutline, iconFilled: business, active: false, permissionKey: 'verOrganization' },
-    { key: 'nav.branches', path: '/branches', iconOutline: storefrontOutline, iconFilled: storefront, active: false, permissionKey: 'verSucursales' },
+    { key: 'main.dashboard', path: '/dashboard', iconOutline: barChartOutline, iconFilled: barChart, active: false, permissionKey: 'verTablero' },
+    { key: 'main.users', path: '/users', iconOutline: peopleOutline, iconFilled: people, active: false, permissionKey: 'verUsuarios' },
+    { key: 'main.roles', path: '/roles', iconOutline: documentLockOutline, iconFilled: documentLock, active: false, permissionKey: 'verRoles' },
+    { key: 'main.workOrders', path: '/work-orders', iconOutline: documentsOutline, iconFilled: documents, active: false, permissionKey: 'verOT' },
+    { key: 'main.calendar', path: '/calendar', iconOutline: calendarOutline, iconFilled: calendar, active: false },
+    { key: 'main.templates', path: '/templates', iconOutline: fileTrayFullOutline, iconFilled: fileTrayFull, active: false, permissionKey: 'verPautas' },
+    { key: 'main.logistics', path: '/logistics', iconOutline: cubeOutline, iconFilled: cube, active: false, permissionKey: '_logistics_any' },
+    { key: 'main.assets', path: '/assets', iconOutline: desktopOutline, iconFilled: desktop, active: false, permissionKey: 'verActivos' },
+    { key: 'main.organization', path: '/organization', iconOutline: businessOutline, iconFilled: business, active: false, permissionKey: 'verOrganization' },
+    { key: 'main.branches', path: '/branches', iconOutline: storefrontOutline, iconFilled: storefront, active: false, permissionKey: 'verSucursales' },
   ], [i18n.language, t]) as Array<{ key: string; path: string; iconOutline: any; iconFilled: any; active: boolean }>;
 
   const [menuItems, setMenuItems] = useState<any[]>([]);
@@ -133,6 +133,13 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   const iconToUse = it.active ? it.iconFilled : it.iconOutline;
                   const isDisabled = !!it.disabled || !hasPermission(it.permissionKey);
                   const itemStyle = it.active ? { background: 'rgba(0,0,0,0.03)', borderRadius: 6 } : undefined;
+                  const label = t(it.key);
+                  if (label === it.key) {
+                    // log missing translations to help debugging (will appear in browser console)
+                    // eslint-disable-next-line no-console
+                    console.warn('Missing translation for', it.key);
+                  }
+                  const displayLabel = (label && label !== it.key) ? label : (it.key.split('.')?.pop() || it.key);
                   return (
                     <IonItem
                       style={{...itemStyle, '--background': it.active ? '#E3F2FD' : undefined, opacity: isDisabled ? 0.5 : undefined}}
@@ -151,7 +158,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         }))
                       }}>
                       <IonIcon style={{ marginRight: 10 }} color={it.active ? 'primary' : undefined} icon={iconToUse} slot="start" />
-                      <IonLabel color={it.active ? 'primary' : undefined}>{t(it.key)}</IonLabel>
+                      <IonLabel color={it.active ? 'primary' : undefined}>{displayLabel}</IonLabel>
                     </IonItem>
                   );
                 })}
