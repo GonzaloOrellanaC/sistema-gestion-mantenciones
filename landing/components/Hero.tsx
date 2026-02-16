@@ -27,11 +27,11 @@ const Hero: React.FC = () => {
                         </p>
                         
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                            <button className="px-8 py-4 bg-[#89C2D9] hover:bg-[#61A5C2] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center">
+                            <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 bg-[#89C2D9] hover:bg-[#61A5C2] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center">
                                 {t.hero.ctaDemo}
                                 <ArrowRight className="ml-2 h-5 w-5" />
                             </button>
-                            <button className="px-8 py-4 bg-white text-[#4A5568] border-2 border-gray-100 hover:border-[#89C2D9] rounded-xl font-bold text-lg transition-all flex items-center justify-center">
+                            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 bg-white text-[#4A5568] border-2 border-gray-100 hover:border-[#89C2D9] rounded-xl font-bold text-lg transition-all flex items-center justify-center">
                                 {t.hero.ctaFeatures}
                             </button>
                         </div>

@@ -6,6 +6,7 @@ const Navbar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const { t, language, setLanguage } = useLanguage();
+    const [showDemoPopup, setShowDemoPopup] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -20,23 +21,7 @@ const Navbar: React.FC = () => {
     };
 
     const openClientAccess = () => {
-        const devUrl = 'http://localhost:5100';
-        try {
-            if (process.env.NODE_ENV === 'development') {
-                window.open(devUrl, '_blank', 'noopener');
-                return;
-            }
-        } catch (e) {
-            // fallback if process is not available in this env
-            try {
-                if ((window && window.location && window.location.hostname === 'localhost')) {
-                    window.open(devUrl, '_blank', 'noopener');
-                    return;
-                }
-            } catch (er) {}
-        }
-        // production fallback: open main site or app root
-        window.open('/', '_blank', 'noopener');
+        setShowDemoPopup(true);
     };
 
     const navLinks = [
@@ -132,6 +117,15 @@ const Navbar: React.FC = () => {
                                 {t.nav.clientAccess}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+            {showDemoPopup && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center">
+                        <h3 className="text-xl font-bold mb-2">Pronto Demo</h3>
+                        <p className="mb-4">Próximamente disponible.</p>
+                        <button onClick={() => setShowDemoPopup(false)} className="bg-[#89C2D9] hover:bg-[#61A5C2] text-white px-4 py-2 rounded">Cerrar</button>
                     </div>
                 </div>
             )}

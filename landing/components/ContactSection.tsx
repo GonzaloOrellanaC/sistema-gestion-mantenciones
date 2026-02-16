@@ -32,24 +32,13 @@ const ContactSection: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white p-10 md:p-16">
-                            <form className="space-y-6">
-                                <div>
-                                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">{t.contact.nameLabel}</label>
-                                    <input type="text" id="name" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#89C2D9] focus:ring focus:ring-[#89C2D9] focus:ring-opacity-50 bg-gray-50 px-4 py-3" placeholder={t.contact.namePlaceholder} />
-                                </div>
-                                <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">{t.contact.emailLabel}</label>
-                                    <input type="email" id="email" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#89C2D9] focus:ring focus:ring-[#89C2D9] focus:ring-opacity-50 bg-gray-50 px-4 py-3" placeholder={t.contact.emailPlaceholder} />
-                                </div>
-                                <div>
-                                    <label htmlFor="company" className="block text-sm font-medium text-gray-700">{t.contact.companyLabel}</label>
-                                    <input type="text" id="company" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#89C2D9] focus:ring focus:ring-[#89C2D9] focus:ring-opacity-50 bg-gray-50 px-4 py-3" placeholder={t.contact.companyPlaceholder} />
-                                </div>
-                                <button type="submit" className="w-full bg-[#89C2D9] hover:bg-[#61A5C2] text-white font-bold py-4 rounded-lg transition-colors shadow-lg">
-                                    {t.contact.cta}
-                                </button>
-                            </form>
+                        <div className="bg-white p-10 md:p-16 flex items-center justify-center">
+                            <div className="text-center">
+                                <h3 className="text-xl font-bold text-[#4A5568] mb-2">{t.nav.contact}</h3>
+                                <p className="text-gray-600 mb-4">{t.contact.metaBase}</p>
+                                <a href={t.contact.emailHref} className="inline-block bg-[#89C2D9] hover:bg-[#61A5C2] text-white font-bold py-3 px-6 rounded-lg shadow-md">{t.contact.email}</a>
+                                <p className="text-sm text-gray-500 mt-3">{t.contact.note}</p>
+                            </div>
                         </div>
                     </div>
                 </div>

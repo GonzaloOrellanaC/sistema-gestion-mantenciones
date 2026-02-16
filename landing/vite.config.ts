@@ -8,8 +8,17 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 5103,
         host: '0.0.0.0',
+        allowedHosts: ['sgm.omtecnologia.cl']
       },
       plugins: [react()],
+      optimizeDeps: {
+        include: [
+          'recharts'
+        ]
+      },
+      ssr: {
+        noExternal: ['recharts']
+      },
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)

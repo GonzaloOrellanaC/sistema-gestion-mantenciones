@@ -24,6 +24,47 @@ export const LanguageProvider: React.FC<{children: React.ReactNode}> = ({ childr
     }
   }, []);
 
+  useEffect(() => {
+    const t = translations[language];
+    const desc = `${t.contact.metaBase} ${t.contact.email}`;
+
+    const setMeta = (selector: string) => {
+      const el = document.querySelector(selector) as HTMLMetaElement | null;
+      if (el) el.setAttribute('content', desc);
+    };
+
+    setMeta('meta[name="description"]');
+    setMeta('meta[property="og:description"]');
+    setMeta('meta[name="twitter:description"]');
+
+    const ld = document.querySelector('script[type="application/ld+json"]');
+    if (ld) {
+      const data = {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "name": "SGM - OM Tecnología",
+            "url": "https://sgm.omtecnologia.cl/",
+            "description": t.contact.metaBase
+          },
+          {
+            "@type": "Organization",
+            "name": "OM Tecnología",
+            "url": "https://omtecnologia.cl/",
+            "logo": "https://sgm.omtecnologia.cl/sgm-logo.svg",
+            "contactPoint": [{
+              "@type": "ContactPoint",
+              "contactType": "customer support",
+              "email": t.contact.emailHref
+            }]
+          }
+        ]
+      };
+      ld.textContent = JSON.stringify(data, null, 2);
+    }
+  }, [language]);
+
   const value = {
     language,
     setLanguage,

@@ -88,6 +88,9 @@ export const translations = {
     contact: {
       title: '¿Listo para modernizar tu gestión?',
       description: 'Agenda una demostración personalizada y descubre cómo SGM puede reducir tus costos operativos hasta un 30%.',
+      metaBase: 'Plataforma cloud para gestión de mantenciones: órdenes de trabajo, control de stock, gestión de activos y dashboard en tiempo real. Solicita demo escribiendo a',
+      email: 'sgm@omtecnologia.cl',
+      emailHref: 'mailto:sgm@omtecnologia.cl',
       step1: 'Análisis de tus necesidades actuales',
       step2: 'Demo guiada de la plataforma web y app',
       step3: 'Propuesta de implementación a medida',
@@ -98,12 +101,14 @@ export const translations = {
       companyLabel: 'Empresa',
       companyPlaceholder: 'Nombre de tu empresa',
       cta: 'Solicitar Contacto'
+      ,
+      note: 'También puedes incluir nombre y empresa en el correo.'
     },
     footer: {
       description: 'Sistema integral para la gestión de mantenciones, activos y bodegas. Desarrollado por OM Tecnología.',
       colPlatform: 'Plataforma',
       colCompany: 'Empresa',
-      colContact: 'Contact',
+      colContact: 'Contacto',
       links: {
         features: 'Funcionalidades',
         mobile: 'Acceso Móvil',
@@ -208,6 +213,9 @@ export const translations = {
     contact: {
       title: 'Ready to modernize your management?',
       description: 'Schedule a personalized demo and discover how SGM can reduce your operating costs by up to 30%.',
+      metaBase: 'Cloud platform for maintenance management: work orders, stock control, asset management and real-time dashboards. Request a demo by writing to',
+      email: 'sgm@omtecnologia.cl',
+      emailHref: 'mailto:sgm@omtecnologia.cl',
       step1: 'Analysis of your current needs',
       step2: 'Guided demo of web platform and app',
       step3: 'Custom implementation proposal',
@@ -218,6 +226,8 @@ export const translations = {
       companyLabel: 'Company',
       companyPlaceholder: 'Company Name',
       cta: 'Request Contact'
+      ,
+      note: 'You can also include your name and company in the email.'
     },
     footer: {
       description: 'Comprehensive system for maintenance, asset, and warehouse management. Developed by OM Tecnología.',
