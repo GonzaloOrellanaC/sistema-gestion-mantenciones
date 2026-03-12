@@ -8,8 +8,11 @@ import sortByName from '../utils/sort';
 import type { User } from '../api/types';
 import './UsersList.css';
 import { createOutline } from 'ionicons/icons';
+import AuthContext, { useAuth } from '../context/AuthContext';
+import { hasPermission } from '../utils/permisions';
 
 const UsersList: React.FC = () => {
+  const { permissions } = useAuth()
   const [items, setItems] = useState<User[]>([]);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -77,9 +80,10 @@ const UsersList: React.FC = () => {
             <IonToolbar style={{padding: '0px 10px'}}>
               <IonTitle>{t('usersList.title')}</IonTitle>
               <div className="toolbar-sub">{t('usersList.subtitle')}</div>
-              <IonButton slot='end' color="primary" onClick={() => { history.push('/users/new'); }}>
+              {hasPermission(permissions, 'crearUsuarios') && (
+                <IonButton slot='end' color="primary" onClick={() => { history.push('/users/new'); }}>
                   {t('usersList.newUser')}
-              </IonButton>
+              </IonButton>)}
             </IonToolbar>
           </IonHeader>
       <IonContent className="users-page ion-padding">
@@ -117,7 +121,7 @@ const UsersList: React.FC = () => {
                   <td>{(u as any).branchId ? ((u as any).branchId.name || (u as any).branchId) : '-'}</td>
                   <td>{u.createdAt ? new Date(u.createdAt).toLocaleString() : ''}</td>
                       <td>
-                          <IonButton fill="clear" onClick={() => history.push(`/users/${u._id}/edit`)} >
+                          <IonButton disabled={!hasPermission(permissions, 'editarUsuarios')} fill="clear" onClick={() => history.push(`/users/${u._id}/edit`)} >
                             <IonIcon slot="icon-only" icon={createOutline} />
                           </IonButton>
                       </td>

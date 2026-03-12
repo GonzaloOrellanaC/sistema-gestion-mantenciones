@@ -23,7 +23,8 @@ import {
   IonRow,
   IonCol,
   IonFooter,
-  IonInfiniteScroll
+  IonInfiniteScroll,
+  IonAlert
 } from '@ionic/react';
 
 import templatesApi from '../api/templates';
@@ -49,6 +50,7 @@ const workOrderCache: Record<string, any> = {};
 const workOrderPromises: Record<string, Promise<any>> = {};
 
 const WorkOrdersCreate: React.FC = () => {
+    const [showNoTemplateAlert, setShowNoTemplateAlert] = useState(false);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -97,6 +99,9 @@ const WorkOrdersCreate: React.FC = () => {
     const load = async () => {
       const responseTemplate = await templatesApi.listTemplates()
       setTemplates(sortByName(responseTemplate.items || []))
+      if (!responseTemplate.items || responseTemplate.items.length === 0) {
+        setShowNoTemplateAlert(true);
+      }
       const responseUsers = await usersApi.listUsers({ limit: 500 });
       setUsers(sortByName(responseUsers.items || []));
       const responseBranches = await branchesApi.listBranches({ limit: 200 });
@@ -349,6 +354,15 @@ const WorkOrdersCreate: React.FC = () => {
 
   return (
     <IonPage>
+      <IonAlert
+        isOpen={showNoTemplateAlert}
+        header={t('workOrdersCreate.noTemplateHeader') || 'No existen pautas'}
+        message={t('workOrdersCreate.noTemplateMessage') || 'Debe crear una pauta antes de crear una orden de trabajo.'}
+        buttons={[{
+          text: t('workOrdersCreate.noTemplateConfirm') || 'Crear pauta',
+          handler: () => { history.push('/templates'); }
+        }]}
+      />
       <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonButton color={'dark'} slot="start" fill="clear" onClick={() => { if (history && typeof (history as any).goBack === 'function') (history as any).goBack(); else window.history.back(); }}>

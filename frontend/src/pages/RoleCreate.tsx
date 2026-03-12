@@ -69,6 +69,12 @@ const GROUPED_PERMISSIONS = [
     ],
   },
   {
+    titleKey: 'roles.groups.logistics',
+    permissions: [
+      { key: 'verLogistica', labelKey: 'roles.permissions.verLogistica' }
+    ],
+  },
+  {
     titleKey: 'roles.groups.supplies',
     permissions: [
       { key: 'verInsumos', labelKey: 'roles.permissions.verInsumos' },
@@ -198,10 +204,10 @@ const RoleCreate: React.FC = () => {
                       <div key={group.titleKey} style={{ padding: 8, border: '1px solid #e6e6e6', borderRadius: 6, background: 'var(--ion-background-color, #fff)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                           <div style={{ fontWeight: 600 }}>{t(group.titleKey)}</div>
-                          <IonCheckbox
+                          {(group.permissions.length > 1) && <IonCheckbox
                             checked={allSelected}
                             onIonChange={() => toggleGroup(group.permissions)}
-                          />
+                          />}
                         </div>
                         <IonList>
                           {group.permissions.map(p => (

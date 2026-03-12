@@ -1,0 +1,41 @@
+<!-- DEFAULT_LOGO_PATH: /assets/sgm-logo.svg (frontend/public/assets/sgm-logo.svg) -->
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Notificación</title>
+  </head>
+  <body style="margin:0;background-color:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#4A5568;">
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td align="center" style="padding:28px 12px;">
+          <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(137,194,217,0.12);">
+            <tr>
+              <td style="padding:20px 24px;border-bottom:1px solid #F1F7FA;text-align:left;">
+                <img src="{{logoUrl}}" alt="SGM" width="100" style="display:block;margin:0 0 8px 0;object-fit:contain;" />
+                <h3 style="margin:4px 0;font-size:16px;color:#0b5cff;">Notificación</h3>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 24px;text-align:left;color:#475569;">
+                <!-- Reemplaza {{message}} por HTML seguro o texto escapado -->
+                {{message}}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:16px 24px;text-align:center;">
+                <a href="{{actionUrl}}" style="display:inline-block;padding:10px 18px;border-radius:12px;background:#89C2D9;color:#ffffff;font-weight:700;text-decoration:none;">Ver notificación</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#F8FAFC;padding:16px 24px;text-align:center;font-size:12px;color:#94A3B8;">
+                Si no deseas recibir estas notificaciones, ajusta tus preferencias en la aplicación.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

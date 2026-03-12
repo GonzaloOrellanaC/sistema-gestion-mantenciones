@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { IonCard, IonCardContent, IonLabel, IonInput, IonTextarea, IonSelect, IonSelectOption, IonButton, IonModal, IonToolbar, IonTitle, IonHeader, IonIcon, IonRadio, IonItem, IonCheckbox } from '@ionic/react';
+import { useTranslation } from 'react-i18next';
+import { IonCard, IonCardContent, IonLabel, IonInput, IonTextarea, IonSelect, IonSelectOption, IonButton, IonModal, IonToolbar, IonTitle, IonHeader, IonIcon, IonRadio, IonItem, IonCheckbox, IonContent } from '@ionic/react';
 import { close } from 'ionicons/icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SignatureModal from '../modals/SignatureModal';
@@ -91,6 +92,38 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
   const streamRef = useRef<MediaStream | null>(null);
   // map from internal uid (uid used in UI/state keys) to the canonical field id from the schema
   const uidFieldMapRef = useRef<Record<string, string>>({});
+
+  const { t } = useTranslation();
+
+  const [difficultyModalOpen, setDifficultyModalOpen] = useState(false);
+  const [difficultyModalLevel, setDifficultyModalLevel] = useState<number | null>(null);
+
+  const difficultyColor = (val: number) => {
+    const clamp = Math.max(1, Math.min(10, Math.round(val || 1)));
+    const g1 = { r: 46, g: 204, b: 113 };
+    const y = { r: 241, g: 196, b: 15 };
+    const r1 = { r: 231, g: 76, b: 60 };
+    const lerp = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
+    let rgb;
+    if (clamp <= 5) {
+      const t = (clamp - 1) / 4;
+      rgb = { r: lerp(g1.r, y.r, t), g: lerp(g1.g, y.g, t), b: lerp(g1.b, y.b, t) };
+    } else {
+      const t = (clamp - 6) / 4;
+      rgb = { r: lerp(y.r, r1.r, t), g: lerp(y.g, r1.g, t), b: lerp(y.b, r1.b, t) };
+    }
+    const toHex = (n: number) => n.toString(16).padStart(2, '0');
+    return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
+  };
+
+  const textColorForBg = (hex: string) => {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+    return lum > 160 ? '#000' : '#fff';
+  };
 
   useEffect(() => {
     // when modal opens and stream is available, bind to video
@@ -639,7 +672,26 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
                         <IonCard key={uid} style={{ cursor: 'default', marginBottom: 16 }}>
                             <IonCardContent>
                             {field.type !== 'radio' && (
-                              <IonLabel style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#37474F', marginBottom: 6 }}>{field.label} {field.required && <span style={{ color: '#E53935' }}>*</span>}</IonLabel>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                                <IonLabel style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#37474F' }}>{field.label} {field.required && <span style={{ color: '#E53935' }}>*</span>}</IonLabel>
+                                {typeof (field as any).difficulty === 'number' && (
+                                  <button
+                                    onClick={() => { setDifficultyModalLevel((field as any).difficulty); setDifficultyModalOpen(true); }}
+                                    style={{
+                                      minWidth: 28,
+                                      height: 22,
+                                      padding: '0 8px',
+                                      background: difficultyColor((field as any).difficulty),
+                                      color: textColorForBg(difficultyColor((field as any).difficulty)),
+                                      borderRadius: 6,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center'
+                                    }}
+                                    aria-label={`difficulty-${(field as any).difficulty}`}
+                                  />
+                                )}
+                              </div>
                             )}
                             {field.type === 'text' && (
                               <TextField field={field as any} uid={uid} values={values} setValues={setValues} onFieldBlur={onFieldBlur} />
@@ -830,6 +882,44 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
             </SwiperSlide>
           ))}
         </Swiper>
+        {/* Difficulty modal */}
+        <IonModal isOpen={difficultyModalOpen} onDidDismiss={() => setDifficultyModalOpen(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>{t('difficulty.title', 'Dificultad')}</IonTitle>
+                <IonButton fill={'clear'} color={'dark'} slot={'end'} onClick={() => setDifficultyModalOpen(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}>
+                  <IonIcon icon={close} />
+                </IonButton>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <div style={{ padding: 16 }}>
+              <div style={{ position: 'relative', height: 20 }}>
+                <div style={{ height: 20, borderRadius: 8, background: 'linear-gradient(90deg, #2ecc71 0%, #f1c40f 50%, #e74c3c 100%)' }} />
+                {typeof difficultyModalLevel === 'number' && (() => {
+                  const pos = ((Math.max(1, Math.min(10, Math.round(difficultyModalLevel))) - 1) / 9) * 100;
+                  const color = difficultyColor(difficultyModalLevel);
+                  const textCol = textColorForBg(color);
+                  return (
+                    <>
+                      <div aria-hidden style={{ position: 'absolute', left: `${pos}%`, transform: 'translateX(-50%)', top: -10 }}>
+                        <div style={{ width: 0, height: 0, borderLeft: '7px solid transparent', borderRight: '7px solid transparent', borderBottom: `10px solid ${color}` }} />
+                      </div>
+                      <div aria-hidden style={{ position: 'absolute', left: `${pos}%`, transform: 'translateX(-50%)', top: 1, width: 18, height: 18, borderRadius: 9, background: color, color: textCol, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>{difficultyModalLevel}</div>
+                    </>
+                  );
+                })()}
+              </div>
+              {typeof difficultyModalLevel === 'number' && (
+                <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  {/* <div style={{ width: 36, height: 36, borderRadius: 6, background: difficultyColor(difficultyModalLevel), color: textColorForBg(difficultyColor(difficultyModalLevel)), display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{difficultyModalLevel}</div> */}
+                  <div style={{ fontSize: 15 }}>{t('difficulty.assignedLevel', { level: difficultyModalLevel })}</div>
+                </div>
+              )}
+            </div>
+          </IonContent>
+        </IonModal>
+
         {/* Camera modal (fullscreen) */}
         <IonModal isOpen={!!cameraOpenFor} className="camera-modal">
           <IonHeader>

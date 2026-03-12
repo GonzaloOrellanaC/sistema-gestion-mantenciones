@@ -11,6 +11,8 @@ export type Field = {
   placeholder?: string;
   options?: string[];
   children?: Field[][];
+  /** difficulty factor for the item (used in evaluation) */
+  difficulty?: number;
   [k: string]: any;
 };
 
@@ -40,65 +42,81 @@ export function createFieldFromType(type: FieldType, t?: (key: string, opts?: Re
       base.label = t ? t('templates.builder.palette.text') : 'Texto corto';
       base.input = true;
       base.placeholder = '';
+      base.difficulty = 1;
       break;
     case 'textarea':
       base.label = t ? t('templates.builder.palette.textarea') : 'Texto largo';
       base.input = true;
       base.placeholder = '';
+      base.difficulty = 1;
       break;
     case 'number':
       base.label = t ? t('templates.builder.palette.number') : 'Número';
       base.input = true;
       base.placeholder = '';
+      base.difficulty = 1;
       break;
     case 'select':
       base.label = t ? t('templates.builder.palette.select') : 'Selector';
       base.options = ['Opción 1', 'Opción 2'];
+      base.difficulty = 1;
       break;
     case 'radio':
       base.label = t ? t('templates.builder.palette.radio') : 'Opción única';
       base.options = ['Opción 1', 'Opción 2'];
+      base.difficulty = 1;
       break;
     case 'checkbox':
       base.label = t ? t('templates.builder.palette.checkbox') : 'Checkbox';
+      base.difficulty = 1;
       break;
     case 'signature':
       base.label = t ? t('templates.builder.palette.signature') : 'Firma';
+      base.difficulty = 2;
       break;
     case 'geo':
       base.label = t ? t('templates.builder.palette.geo') : 'Geolocalización';
+      base.difficulty = 2;
       break;
     case 'date':
       base.label = t ? t('templates.builder.palette.date') : 'Fecha / Hora';
+      base.difficulty = 1;
       break;
     case 'image':
       base.label = t ? t('templates.builder.palette.image') : 'Imagen';
+      base.difficulty = 2;
       break;
     case 'file':
       base.label = t ? t('templates.builder.palette.file') : 'Archivo';
+      base.difficulty = 2;
       break;
     case 'columns':
       base.label = '';
       base.isDesign = true;
       base.children = [[], []];
+      base.difficulty = 0;
       break;
     case 'dynamic_list':
       base.label = t ? t('templates.builder.palette.dynamic_list') : 'Listado editable';
       base.items = [];
       base.allowedItemTypes = ['text', 'image'];
+      base.difficulty = 2;
       break;
     case 'parts':
       base.label = t ? t('templates.builder.palette.parts') : 'Repuesto';
       base.parts = [];
+      base.difficulty = 2;
       break;
     case 'supplies':
       base.label = t ? t('templates.builder.palette.supplies') : 'Insumo';
       base.supplies = [];
+      base.difficulty = 1;
       break;
     case 'division':
       base.label = t ? t('templates.builder.palette.division') : 'Fin de página (División)';
       base.input = false;
       base.pageTitle = '';
+      base.difficulty = 0;
       break;
     default:
       base.label = t ? t('templates.builder.palette.text') : 'Campo';

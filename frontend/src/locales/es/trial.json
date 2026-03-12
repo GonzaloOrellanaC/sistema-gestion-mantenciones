@@ -1,0 +1,10 @@
+{
+  "trial": {
+    "title": "Estado de Prueba",
+    "status": "Estado",
+    "paid": "Pagado",
+    "inTrial": "En Prueba",
+    "renewalDate": "Fecha de Renovación",
+    "daysLeft": "Días Restantes"
+  }
+}

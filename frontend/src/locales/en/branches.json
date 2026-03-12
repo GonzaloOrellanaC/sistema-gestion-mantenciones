@@ -12,6 +12,7 @@
     "form": {
       "newTitle": "New Branch",
       "editTitle": "Edit Branch",
+      "viewTitle": "View Branch",
       "labels": {
         "name": "Name",
         "address": "Address",
@@ -24,10 +25,15 @@
       },
       "toasts": {
         "nameRequired": "Name required",
+        "typeRequired": "Type required",
         "createError": "Error creating branch",
-        "loadError": "Error loading branch"
+        "editError": "Error editing branch",
+        "loadError": "Error loading branch",
+        "loadTypesError": "Error loading branch types"
       },
       "buttons": {
+        "edit": "Edit",
+        "editing": "Editing...",
         "create": "Create",
         "creating": "Creating..."
       },

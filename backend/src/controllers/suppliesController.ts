@@ -1,3 +1,4 @@
+import Brand from '../models/Brand';
 import { Request, Response } from 'express';
 import Supply from '../models/Supply';
 import MaintenanceEvent from '../models/MaintenanceEvent';
@@ -5,6 +6,90 @@ import SupplyInventory from '../models/SupplyInventory';
 import Branch from '../models/Branch';
 import Asset from '../models/Asset';
 import mongoose from 'mongoose';
+import Lot from '../models/Lot';
+
+export async function bulkCreate(req: Request, res: Response) {
+  try {
+    const orgId = (req as any).user.orgId;
+    const payload = req.body;
+    if (!Array.isArray(payload)) return res.status(400).json({ message: 'Payload must be an array' });
+
+    // Buscar branches existentes
+    const branches: any[] = await Branch.find({ orgId }).lean();
+    const branchMap = branches.reduce((acc, b) => {
+      acc[b.name] = b;
+      return acc;
+    }, {});
+
+    // Helper para buscar o crear brand
+    async function findOrCreateBrand(name: string) {
+      let doc = await Brand.findOne({ name, orgId }).lean();
+      if (!doc) {
+        doc = await Brand.create({ name, orgId });
+        doc = doc.toObject ? doc.toObject() : doc;
+      }
+      return doc;
+    }
+
+    const docsToInsert = [];
+    for (const it of payload) {
+      const doc = { orgId };
+      // name
+      if (it.name) doc.name = it.name;
+      // branchIds
+      if (it.branch && branchMap[it.branch]) {
+        doc.branchIds = branchMap[it.branch]._id;
+      }
+      // brandIds
+      if (it.brand) {
+        const brand = await findOrCreateBrand(it.brand);
+        doc.brandIds = brand._id;
+      }
+      // sku
+      if (it.sku) doc.serial = it.sku;
+      // Otros campos
+      for (const k of Object.keys(it)) {
+        if (!["name","branch","brand"].includes(k)) {
+          doc[k] = it[k];
+        }
+      }
+      docsToInsert.push(doc);
+    }
+
+    const created = await Supply.insertMany(docsToInsert, { ordered: false });
+      // Crear lote asociado para cada nuevo insumo
+      for (let i = 0; i < created.length; i++) {
+        const supply = created[i];
+        const it = payload[i];
+        // Generar código aleatorio de máximo 10 caracteres
+        const randomCode = Math.random().toString(36).substring(2, 12);
+        const branchId = supply.branchIds || null;
+        const lot = await Lot.create({
+          orgId,
+          branchId,
+          code: randomCode,
+          items: [{ itemId: supply._id, quantity: 0 }],
+          meta: { createdByBulk: true },
+          createdAt: new Date()
+        });
+        // Crear SupplyInventory
+        const qty = typeof it.quantity === 'number' ? it.quantity : Number(it.quantity) || 0;
+        await SupplyInventory.create({
+          orgId,
+          itemId: supply._id,
+          lotId: lot._id,
+          initialQuantity: qty,
+          remainingQuantity: qty,
+          createdAt: new Date()
+        });
+      }
+    return res.status(201).json({ created });
+  } catch (err) {
+    console.error(err);
+    if (err && err.insertedDocs) return res.status(201).json({ created: err.insertedDocs, error: err.message });
+    return res.status(err.status || 500).json({ message: err.message || 'Server error' });
+  }
+}
 
 export async function list(req: Request, res: Response) {
   try {
@@ -180,4 +265,4 @@ export async function availability(req: Request, res: Response) {
   }
 }
 
-export default { list, create, getById, availability };
+export default { list, create, getById, availability, bulkCreate };

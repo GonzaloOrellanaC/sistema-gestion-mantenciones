@@ -15,6 +15,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { personOutline, eyeOutline, chevronBackOutline, pencilOutline, checkmarkOutline, shareSocialOutline } from 'ionicons/icons';
 import type { User } from '../api/types';
 import './WorkOrdersList.css';
+import { hasPermission } from '../utils/permisions';
 
 function formatDateOnly(d?: string | Date | null) {
   if (!d) return '';
@@ -68,14 +69,7 @@ const WorkOrdersList: React.FC = () => {
   const [popoverEvent, setPopoverEvent] = useState<any>(null);
   const history = useHistory();
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const perms = (user as any)?.role?.permissions || (user as any)?.roleId?.permissions || {};
-  const hasPermission = (key?: string) => {
-    if (!key) return true;
-    if ((user as any)?.isSuperAdmin) return true;
-    if (Object.prototype.hasOwnProperty.call(perms, key)) return !!perms[key];
-    return false;
-  };
+  const { permissions } = useAuth();
   const [noPermMsg, setNoPermMsg] = useState<string | null>(null);
 
   const showNoPerm = (msg: string) => {
@@ -386,7 +380,7 @@ const WorkOrdersList: React.FC = () => {
           <IonTitle>{t('workOrdersList.title')}</IonTitle>
           <div className="toolbar-sub">{t('workOrdersList.subtitle')}</div>
           <IonButton slot={'end'} onClick={() => {
-            if (!hasPermission('crearOT')) { showNoPerm(t('workOrdersList.noPermission.create')); return; }
+            if (!hasPermission(permissions, 'crearOT')) { showNoPerm(t('workOrdersList.noPermission.create')); return; }
             history.push('/work-orders/create');
           }}>{t('workOrdersList.createButton')}</IonButton>
         </IonToolbar>
@@ -428,7 +422,7 @@ const WorkOrdersList: React.FC = () => {
                                 background: highlight ? '#FFF9C4' : (isHover ? '#f0f8ff' : '#fff'),
                                 boxShadow: highlight ? '0 4px 10px rgba(0,0,0,0.08)' : (isHover ? '0 6px 14px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.04)')
                               }}
-                              onClick={(e) => { e.stopPropagation(); if (!hasPermission('supervisar')) { showNoPerm(t('workOrdersList.noPermission.supervise')); return; } history.push(`/work-orders/view/${w._id}`); }}
+                              onClick={(e) => { e.stopPropagation(); if (!hasPermission(permissions, 'supervisar')) { showNoPerm(t('workOrdersList.noPermission.supervise')); return; } history.push(`/work-orders/view/${w._id}`); }}
                             >
                               <td style={{ padding: '6px 8px' }}>{w.orgSeq ?? '-'}</td>
                               <td style={{ padding: '6px 8px' }}>{(() => {
@@ -534,18 +528,18 @@ const WorkOrdersList: React.FC = () => {
                                 })()}
                               </td>
                               <td style={{ padding: '6px 8px', display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'flex-start' }}>
-                                <IonButton size="small" fill="clear" onClick={(e) => { stopEvents(e); if (!hasPermission('editarOT')) { showNoPerm(t('workOrdersList.noPermission.edit')); return; } history.push(`/work-orders/edit/${w._id}`); }} aria-label="Ver">
+                                <IonButton size="small" fill="clear" onClick={(e) => { stopEvents(e); if (!hasPermission(permissions, 'editarOT')) { showNoPerm(t('workOrdersList.noPermission.edit')); return; } history.push(`/work-orders/edit/${w._id}`); }} aria-label="Ver">
                                   <IonIcon icon={pencilOutline} />
                                 </IonButton>
-                                <IonButton size="small" fill="clear" onClick={(e) => { stopEvents(e); if (!hasPermission('asignarOT')) { showNoPerm(t('workOrdersList.noPermission.assign')); return; } setPopoverOrderId(w._id || null); setPopoverEvent((e as any).nativeEvent); }} aria-label="Asignar">
+                                <IonButton size="small" fill="clear" onClick={(e) => { stopEvents(e); if (!hasPermission(permissions, 'asignarOT')) { showNoPerm(t('workOrdersList.noPermission.assign')); return; } setPopoverOrderId(w._id || null); setPopoverEvent((e as any).nativeEvent); }} aria-label="Asignar">
                                   <IonIcon icon={personOutline} />
                                 </IonButton>
-                                <IonButton size="small" fill="clear" onClick={(e) => { stopEvents(e); if (!hasPermission('verOT')) { showNoPerm(t('workOrdersList.noPermission.share') || 'No tiene permiso'); return; } handleShare(w._id); }} aria-label="Compartir">
+                                <IonButton size="small" fill="clear" onClick={(e) => { stopEvents(e); if (!hasPermission(permissions, 'verOT')) { showNoPerm(t('workOrdersList.noPermission.share') || 'No tiene permiso'); return; } handleShare(w._id); }} aria-label="Compartir">
                                   <IonIcon icon={shareSocialOutline} />
                                 </IonButton>
                                 {/* Review button: only show when status/state is 'En revisión' - placed at the end (right) */}
                                 {(((w.status || (w as any).state) as string) === WORK_ORDER_STATES.UNDER_REVIEW) && (
-                                  <IonButton size="small" fill="clear" onClick={(e) => { stopEvents(e); if (!hasPermission('supervisar')) { showNoPerm(t('workOrdersList.noPermission.review')); return; } history.push(`/work-orders/review/${w._id}`); }} aria-label="Revisar">
+                                  <IonButton size="small" fill="clear" onClick={(e) => { stopEvents(e); if (!hasPermission(permissions, 'supervisar')) { showNoPerm(t('workOrdersList.noPermission.review')); return; } history.push(`/work-orders/review/${w._id}`); }} aria-label="Revisar">
                                     <IonIcon icon={eyeOutline} />
                                   </IonButton>
                                 )}

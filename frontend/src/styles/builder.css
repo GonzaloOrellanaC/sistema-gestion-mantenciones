@@ -56,7 +56,7 @@ input:checked + .slider:before { transform: translateX(14px); }
 /* Panel Izquierdo: Toolbox */
 .toolbox { width: 260px; background: var(--white); padding: 1.2rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.8rem; overflow-y: auto; border: 1px solid #E1F5FE; box-shadow: var(--shadow-card); }
 .toolbox-category { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-top: 0.8rem; margin-bottom: 0.4rem; letter-spacing: 0.5px; }
-.toolbox-item { background: var(--bg-body); padding: 0.9rem; border-radius: 10px; cursor: grab; font-size: 0.9rem; display: flex; align-items: center; gap: 12px; color: var(--text-main); transition: 0.2s; border: 1px solid transparent; user-select: none; }
+.toolbox-item { background: var(--bg-body); padding: 0.9rem; border-radius: 10px; cursor: grab; font-size: 0.9rem; display: flex; align-items: center; gap: 12px; color: var(--text-main); transition: 0.2s; border: 1px solid transparent; user-select: none; margin-bottom: 10px; }
 .toolbox-item:hover { background: var(--primary-light); transform: translateY(-2px); border-color: var(--primary-accent); box-shadow: 0 4px 8px rgba(129, 212, 250, 0.2); }
 .toolbox-item i { color: var(--primary-dark); font-size: 1.1rem; width: 20px; text-align: center; }
 

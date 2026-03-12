@@ -7,9 +7,10 @@ import TrialModal from './Modals/TrialModal';
 import '../i18n';
 import { useTranslation } from 'react-i18next';
 import { checkmark } from 'ionicons/icons';
+import { hasPermission } from '../utils/permisions';
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, logout, token } = useAuth();
+  const { user, logout, token, permissions } = useAuth();
   const history = useHistory();
   const location = useLocation();
   const { t, i18n } = useTranslation();
@@ -21,29 +22,28 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { key: 'main.workOrders', path: '/work-orders', iconOutline: documentsOutline, iconFilled: documents, active: false, permissionKey: 'verOT' },
     { key: 'main.calendar', path: '/calendar', iconOutline: calendarOutline, iconFilled: calendar, active: false },
     { key: 'main.templates', path: '/templates', iconOutline: fileTrayFullOutline, iconFilled: fileTrayFull, active: false, permissionKey: 'verPautas' },
-    { key: 'main.logistics', path: '/logistics', iconOutline: cubeOutline, iconFilled: cube, active: false, permissionKey: '_logistics_any' },
+    { key: 'main.logistics', path: '/logistics', iconOutline: cubeOutline, iconFilled: cube, active: false, permissionKey: 'verLogistica' },
     { key: 'main.assets', path: '/assets', iconOutline: desktopOutline, iconFilled: desktop, active: false, permissionKey: 'verActivos' },
     { key: 'main.organization', path: '/organization', iconOutline: businessOutline, iconFilled: business, active: false, permissionKey: 'verOrganization' },
     { key: 'main.branches', path: '/branches', iconOutline: storefrontOutline, iconFilled: storefront, active: false, permissionKey: 'verSucursales' },
-  ], [i18n.language, t]) as Array<{ key: string; path: string; iconOutline: any; iconFilled: any; active: boolean }>;
+  ], [i18n.language]) as Array<{ key: string; path: string; iconOutline: any; iconFilled: any; active: boolean }>;
 
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [showTrialModal, setShowTrialModal] = useState(false);
   const [showLangPopover, setShowLangPopover] = useState(false);
   const [langPopoverEvent, setLangPopoverEvent] = useState<any | undefined>(undefined);
 
+  const twemojiSrc = (emoji: string) => {
+    const codePoints = Array.from(emoji).map(c => c.codePointAt(0)!.toString(16)).join('-');
+    return `https://twemoji.maxcdn.com/v/latest/72x72/${codePoints}.png`;
+  };
+
   useEffect(() => {
     if (location.pathname) {
       console.log('Location changed:', location.pathname);
-      setMenuItems(menuInitial.map(item => {
-        if (location.pathname === item.path || location.pathname.includes(item.path)) {
-          return { ...item, active: true };
-        }
-        return { ...item, active: false };
-      }));
-      /* setMenuItems(prev => prev.map(it => ({ ...it, active: location.pathname.includes(it.path) }))); */
+      setMenuItems(menuInitial.map(item => ({ ...item, active: location.pathname === item.path || location.pathname.includes(item.path) })));
     }
-  }, [location.pathname, i18n.language]);
+  }, [location.pathname, menuInitial]);
 
   useEffect(() => {
     console.log({menuItems})
@@ -59,27 +59,22 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const now = new Date();
   const daysLeft = trialEnds ? Math.max(0, Math.ceil((trialEnds.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : null;
 
-  const perms = (user as any)?.role?.permissions || (user as any)?.roleId?.permissions || {};
-  const hasPermission = (key?: string) => {
-    if (!key) return true;
-    if ((user as any)?.isSuperAdmin) return true;
-    // special composite keys
-    if (key === '_logistics_any') {
-      const keys = ['verRepuestos', 'verLotes', 'verInsumos'];
-      return keys.some(k => Object.prototype.hasOwnProperty.call(perms, k) && !!perms[k]);
-    }
-    if (Object.prototype.hasOwnProperty.call(perms, key)) return !!perms[key];
-    // If permission key not present in the role, deny access by default
-    return false;
-  };
-
   return (
     <IonSplitPane when="(min-width: 768px)" contentId="main">
       <IonMenu contentId="main" type="reveal" style={{ width: 260 }}>
         <IonContent style={{position: 'relative'}}>
           <IonButtons style={{ position: 'absolute', top: 8, right: 8 }}>
-            <IonButton fill={'clear'} onClick={(e) => { setLangPopoverEvent(e.nativeEvent); setShowLangPopover(true); }}>
-              <IonIcon icon={ellipsisVerticalOutline} slot='icon-only' />
+            <IonButton fill={'clear'} onClick={() => {
+              const newLang = (i18n.language && i18n.language.startsWith('es')) ? 'en' : 'es';
+              i18n.changeLanguage(newLang);
+              try { localStorage.setItem('appLanguage', newLang); } catch {}
+            }}>
+              <img
+                src={twemojiSrc(i18n.language && i18n.language.startsWith('es') ? '🇨🇱' : '🇺🇸')}
+                alt={i18n.language && i18n.language.startsWith('es') ? 'ES' : 'EN'}
+                style={{ width: 20, height: 20, marginRight: 8, verticalAlign: 'middle' }}
+              />
+              <span style={{ fontWeight: 600 }}>{i18n.language && i18n.language.startsWith('es') ? 'ES' : 'EN'}</span>
             </IonButton>
             <IonButton fill={'clear'} onClick={() => { history.push('/settings'); }}>
               <IonIcon icon={settingsOutline} slot='icon-only' />
@@ -91,15 +86,15 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <IonList>
                 <IonItem button onClick={() => { i18n.changeLanguage('es'); try { localStorage.setItem('appLanguage', 'es'); } catch{} setShowLangPopover(false); }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span aria-hidden style={{ fontSize: 18 }}>🇪🇸</span>
-                    <IonLabel>{t('common.languages.spanish')}</IonLabel>
+                    <span aria-hidden style={{ fontSize: 18 }}>🇨🇱</span>
+                    <IonLabel>{t('common.languages.spanish') || 'Español'}</IonLabel>
                   </div>
                   {i18n.language && i18n.language.startsWith('es') && <IonIcon icon={checkmark} slot="end" />}
                 </IonItem>
                 <IonItem button onClick={() => { i18n.changeLanguage('en'); try { localStorage.setItem('appLanguage', 'en'); } catch{} setShowLangPopover(false); }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span aria-hidden style={{ fontSize: 18 }}>🇺🇸</span>
-                    <IonLabel>{t('common.languages.english')}</IonLabel>
+                    <IonLabel>{t('common.languages.english') || 'English'}</IonLabel>
                   </div>
                   {i18n.language && i18n.language.startsWith('en') && <IonIcon icon={checkmark} slot="end" />}
                 </IonItem>
@@ -107,7 +102,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
           </IonPopover>
           <div style={{ padding: 16 }}>
-            <div className="logo-area" style={{ gap: 10, textAlign: 'center', marginBottom: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="logo-area" style={{ /* gap: 10, */ textAlign: 'left', marginBottom: 24, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
               <img src="/assets/sgm-logo.svg" alt="SGM" style={{ height: 36 }} />
               <div>
                 {/* <div style={{ fontWeight: 700, fontSize: 14 }}>SGM</div> */}
@@ -129,9 +124,9 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
             <div style={{ height: user?.isAdmin && !isPaid && trialEnds ? '60vh' : '100%', overflowY: 'auto', marginBottom: 12 }}>
               <IonList>
-                {menuItems.filter(it => hasPermission(it.permissionKey)).map((it) => {
+                {menuItems.filter(it => hasPermission(permissions, it.permissionKey)).map((it) => {
                   const iconToUse = it.active ? it.iconFilled : it.iconOutline;
-                  const isDisabled = !!it.disabled || !hasPermission(it.permissionKey);
+                  const isDisabled = !!it.disabled || !hasPermission(permissions, it.permissionKey);
                   const itemStyle = it.active ? { background: 'rgba(0,0,0,0.03)', borderRadius: 6 } : undefined;
                   const label = t(it.key);
                   if (label === it.key) {

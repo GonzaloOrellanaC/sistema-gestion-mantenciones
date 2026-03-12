@@ -69,4 +69,9 @@ export async function resetPassword(token: string, password: string): Promise<un
   return data;
 }
 
-export default { register, login, me };
+export async function confirmEmail(token: string): Promise<unknown> {
+  const { data } = await api.get('/api/auth/confirm-email', { params: { token } });
+  return data;
+}
+
+export default { register, login, me, confirmEmail };

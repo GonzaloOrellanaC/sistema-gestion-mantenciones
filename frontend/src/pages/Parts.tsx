@@ -3,14 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonButton, IonIcon, IonInput, IonToast, IonCheckbox, IonPopover, IonFooter, IonGrid, IonRow, IonCol, IonSelect, IonSelectOption } from '@ionic/react';
 import { add as addIcon, chevronBackOutline, create as editIcon, trash as trashIcon, barChart as chartIcon } from 'ionicons/icons';
+import ImportExcelModal from '../components/ImportExcelModal';
 import { listParts } from '../api/parts';
 import api from '../api/axios';
 import PartUsageModal from '../components/PartUsageModal';
 import * as branchesApi from '../api/branches';
+import { useAuth } from '../context/AuthContext';
+import { hasPermission } from '../utils/permisions';
 
 type Part = any;
 
 const Parts: React.FC = () => {
+  const { permissions } = useAuth();
   const [items, setItems] = useState<Part[]>([]);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
@@ -33,6 +37,7 @@ const Parts: React.FC = () => {
   const [chartOpen, setChartOpen] = useState(false);
   const [chartPartId, setChartPartId] = useState<string | null>(null);
   const [filterName, setFilterName] = useState<string>('');
+  const [showImport, setShowImport] = useState<boolean>(false);
   const [filterBranch, setFilterBranch] = useState<string>('');
   const [branchesList, setBranchesList] = useState<any[]>([]);
 
@@ -126,10 +131,12 @@ const Parts: React.FC = () => {
             <div slot='end' style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <label style={{ fontSize: 13, color: '#444' }}>{t('partsList.lowOnly')}</label>
               <IonCheckbox checked={lowOnly} onIonChange={(e) => { setPage(1); setLowOnly(!!e.detail.checked); }} />
-              <IonButton onClick={openCreate} slot={'end'}><IonIcon slot="start" icon={addIcon} /> {t('partsList.new')}</IonButton>
+              {hasPermission(permissions, 'crearRepuestos') && <IonButton onClick={openCreate} slot={'end'}><IonIcon slot="start" icon={addIcon} /> {t('partsList.new')}</IonButton>}
+              {hasPermission(permissions, 'crearRepuestos') && <IonButton onClick={() => setShowImport(true)} slot={'end'}>{t('importModal.open', { defaultValue: 'Importar' })}</IonButton>}
             </div>
         </IonToolbar>
       </IonHeader>
+      <ImportExcelModal isOpen={showImport} onDidDismiss={() => setShowImport(false)} />
       <IonContent>
         <IonGrid>
           <IonRow>
@@ -220,8 +227,8 @@ const Parts: React.FC = () => {
                           <IonButton fill="clear" onClick={() => openChart(p)}>
                             <IonIcon icon={chartIcon} />
                           </IonButton>
-                          <IonButton fill="clear" onClick={() => openEdit(p)}><IonIcon icon={editIcon} /></IonButton>
-                          <IonButton fill="clear" onClick={() => remove(p)}><IonIcon icon={trashIcon} /></IonButton>
+                          {hasPermission(permissions, 'editarRepuestos') && <IonButton fill="clear" onClick={() => openEdit(p)}><IonIcon icon={editIcon} /></IonButton>}
+                          {hasPermission(permissions, 'editarRepuestos') && <IonButton fill="clear" onClick={() => remove(p)}><IonIcon icon={trashIcon} /></IonButton>}
                         </div>
                       </div>
                     </IonItem>

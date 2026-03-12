@@ -39,6 +39,7 @@
       "assets": "Assets",
       "organization": "Organization",
       "branches": "Branches",
+      "logistics": "Logistics",
       "supplies": "Supplies",
       "parts": "Parts",
       "lots": "Lots"
@@ -66,6 +67,9 @@
       "verSucursales": "View Branches",
       "crearSucursales": "Create Branches",
       "editarSucursales": "Edit Branches",
+      "verLogistica": "View Logistics",
+      "crearLogistica": "Create Logistics",
+      "editarLogistica": "Edit Logistics",
       "verInsumos": "View Supplies",
       "crearInsumos": "Create Supplies",
       "editarInsumos": "Edit Supplies",

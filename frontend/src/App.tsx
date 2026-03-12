@@ -79,6 +79,8 @@ import 'swiper/css/pagination';
 /* Theme variables */
 import './theme/variables.css';
 import './styles/template.css';
+import { ConfirmEmail } from './pages/ConfirmEmail';
+import { hasPermission, Permission } from './utils/permisions';
 
 setupIonicReact();
 
@@ -99,30 +101,23 @@ const Init = () => {
 }
 
 const App: React.FC = () => {
-  const { user, token, loading } = useAuth();
+  const location = useLocation
+  const { permissions, token, loading } = useAuth();
 
-  const perms = (user as any)?.role?.permissions || (user as any)?.roleId?.permissions || {};
-  const hasPermission = (key?: string) => {
-    if (!key) return true;
-    if ((user as any)?.isSuperAdmin) return true;
-    if (Object.prototype.hasOwnProperty.call(perms, key)) return !!perms[key];
-    return false;
-  };
-
-  const priorityRoutes: Array<{ path: string; key?: string }> = [
+  const priorityRoutes: Array<{ path: string; key: Permission }> = [
     { path: '/dashboard', key: 'verTablero' },
     { path: '/work-orders', key: 'verOT' },
     { path: '/assets', key: 'verActivos' },
     { path: '/templates', key: 'verPautas' },
     { path: '/users', key: 'verUsuarios' },
     { path: '/roles', key: 'verRoles' },
-    { path: '/organization', key: 'verOrganizacion' },
+    { path: '/organization', key: 'verOrganization' },
     { path: '/branches', key: 'verSucursales' },
   ];
 
   const firstAccessible = () => {
     for (const r of priorityRoutes) {
-      if (hasPermission(r.key)) return r.path;
+      if (hasPermission( permissions, r.key)) return r.path;
     }
     return '/auth/login';
   };
@@ -133,12 +128,14 @@ const App: React.FC = () => {
       <Route exact path="/auth/register" component={Register}/>
       <Route exact path="/auth/forgot" component={ForgotPassword}/>
       <Route exact path="/auth/reset/:token" component={ChangePassword}/>
-      <Route exact path="/dashboard" render={() => {
+      <Route exact path="/auth/confirm-email/:token" component={ConfirmEmail}/>
+      {/* <Route exact path="/dashboard" render={() => {
         if (loading) return null;
         if (!token) return <Redirect to="/auth/login" />;
-        if (hasPermission('verTablero')) return <Dashboard />;
+        if (hasPermission( permissions, 'verTablero')) return <Dashboard />;
         return <Redirect to={firstAccessible()} />;
-      }} />
+      }} /> */}
+      <Route exact path="/dashboard" component={Dashboard}/>
       <Route exact path="/files/upload" component={FilesUpload}/>
       <ProtectedRoute exact path="/roles" component={RolesList} permissionKey="verRoles" />
       <ProtectedRoute exact path="/roles/new" component={RoleCreate} permissionKey="verRoles" />
@@ -153,7 +150,7 @@ const App: React.FC = () => {
       <ProtectedRoute exact path="/branches" component={BranchesList} permissionKey="verSucursales" />
       <ProtectedRoute exact path="/branches/new" component={BranchCreate} permissionKey="verSucursales" />
       <ProtectedRoute exact path="/branches/:id/edit" component={BranchCreate} permissionKey="verSucursales" />
-      <ProtectedRoute exact path="/organization" component={Organization} permissionKey="verOrganizacion" />
+      <ProtectedRoute exact path="/organization" component={Organization} permissionKey="verOrganization" />
       {/* /reporting route intentionally removed */}
       <ProtectedRoute exact path="/work-orders" component={WorkOrdersList} permissionKey="verOT" />
       <ProtectedRoute exact path="/work-orders/create" component={WorkOrdersCreate} permissionKey="verOT" />
@@ -180,8 +177,12 @@ const App: React.FC = () => {
       <Route exact path="/logistics/lots/edit/:id" component={LotEdit} />
       <Route exact path="/logistics/lots" component={Lots} />
       <Route exact path="/logistics" component={Logistics} />
-      <Route exact path="/warehouses" component={WarehouseAdmin} />
-      <Route exact path="/" render={() => <Redirect to="/auth/login" />} />
+      <ProtectedRoute exact path="/warehouses" component={WarehouseAdmin} permissionKey="verSucursales" />
+      <Route exact path="/" render={() => {
+        if (loading) return null;
+        if (token) return <Redirect to={firstAccessible()} />;
+        return <Redirect to="/auth/login" />;
+      }} />
     </IonRouterOutlet>
   );
 };

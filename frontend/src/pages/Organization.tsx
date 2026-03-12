@@ -5,17 +5,14 @@ import FileUploader from '../components/Widgets/FileUploader.widget';
 import { useAuth } from '../context/AuthContext';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-
-const MAX_BYTES = 1 * 1024 * 1024;
-const LOGO_MAX = { w: 1080, h: 400 };
-const ISOTYPE_MAX = { w: 600, h: 600 };
+import { hasPermission } from '../utils/permisions';
 
 const OrganizationPage: React.FC = () => {
   const [org, setOrg] = useState<any>(null);
   const [pendingFiles, setPendingFiles] = useState<{ logo?: File | null; isotype?: File | null }>({});
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
-  const { refreshUser } = useAuth();
+  const { refreshUser, permissions } = useAuth();
   const history = useHistory();
   const { t } = useTranslation();
 
@@ -74,27 +71,27 @@ const OrganizationPage: React.FC = () => {
           <h3>{t('organization.heading')}</h3>
           <IonItem>
             <IonLabel position="stacked">{t('organization.labels.name')}</IonLabel>
-            <IonInput value={org?.name || ''} onIonChange={(e:any) => setOrg({ ...org, name: e.detail.value })} />
+            <IonInput readonly={!hasPermission(permissions, 'editarOrganization')} value={org?.name || ''} onIonChange={(e:any) => setOrg({ ...org, name: e.detail.value })} />
           </IonItem>
 
           
 
           <IonItem>
             <IonLabel position="stacked">{t('organization.labels.address')}</IonLabel>
-            <IonInput value={org?.meta?.address || ''} onIonChange={(e:any) => setOrg({ ...org, meta: { ...(org?.meta || {}), address: e.detail.value } })} />
+            <IonInput readonly={!hasPermission(permissions, 'editarOrganization')} value={org?.meta?.address || ''} onIonChange={(e:any) => setOrg({ ...org, meta: { ...(org?.meta || {}), address: e.detail.value } })} />
           </IonItem>
 
           <IonItem>
             <IonLabel position="stacked">{t('organization.labels.contactEmail')}</IonLabel>
-            <IonInput value={org?.meta?.contact?.email || ''} onIonChange={(e:any) => setOrg({ ...org, meta: { ...(org?.meta || {}), contact: { ...(org?.meta?.contact || {}), email: e.detail.value } } })} />
+            <IonInput readonly={!hasPermission(permissions, 'editarOrganization')} value={org?.meta?.contact?.email || ''} onIonChange={(e:any) => setOrg({ ...org, meta: { ...(org?.meta || {}), contact: { ...(org?.meta?.contact || {}), email: e.detail.value } } })} />
           </IonItem>
 
           <IonItem>
             <IonLabel position="stacked">{t('organization.labels.contactPhone')}</IonLabel>
-            <IonInput value={org?.meta?.contact?.phone || ''} onIonChange={(e:any) => setOrg({ ...org, meta: { ...(org?.meta || {}), contact: { ...(org?.meta?.contact || {}), phone: e.detail.value } } })} />
+            <IonInput readonly={!hasPermission(permissions, 'editarOrganization')} value={org?.meta?.contact?.phone || ''} onIonChange={(e:any) => setOrg({ ...org, meta: { ...(org?.meta || {}), contact: { ...(org?.meta?.contact || {}), phone: e.detail.value } } })} />
           </IonItem>
 
-          <div style={{ marginTop: 16 }}>
+          {hasPermission(permissions, 'editarOrganization') && <div style={{ marginTop: 16 }}>
             <h4>{t('organization.logo')}</h4>
                 <FileUploader
                   currentUrl={org?.meta?.logoUrl}
@@ -114,9 +111,9 @@ const OrganizationPage: React.FC = () => {
                     }
                   }}
                 />
-          </div>
+          </div>}
 
-          <div style={{ marginTop: 16 }}>
+          {hasPermission(permissions, 'editarOrganization') && <div style={{ marginTop: 16 }}>
             <h4>{t('organization.isotype')}</h4>
               <FileUploader
                 currentUrl={org?.meta?.isotypeUrl}
@@ -136,11 +133,11 @@ const OrganizationPage: React.FC = () => {
                   }
                 }}
               />
-          </div>
+          </div>}
 
-          <div style={{ marginTop: 16 }}>
+          {hasPermission(permissions, 'editarOrganization') && <div style={{ marginTop: 16 }}>
             <IonButton onClick={save} disabled={loading}>{t('organization.buttons.save')}</IonButton>
-          </div>
+          </div>}
         </div>
 
         <IonToast isOpen={toast.show} message={toast.message} duration={2000} onDidDismiss={() => setToast({ show: false, message: '' })} />

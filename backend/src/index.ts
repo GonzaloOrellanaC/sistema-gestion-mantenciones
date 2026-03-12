@@ -1,3 +1,4 @@
+import branchTypesRoutes from './routes/branchTypes';
 import 'dotenv/config';
 import express from 'express';
 import http from 'http';
@@ -25,6 +26,7 @@ import assetTypesRoutes from './routes/assetTypes';
 import assetsRoutes from './routes/assets';
 import partsRoutes from './routes/parts';
 import suppliesRoutes from './routes/supplies';
+import importsRoutes from './routes/imports';
 import lotsRoutes from './routes/lots';
 import typePurchasesRoutes from './routes/typePurchases';
 import inventoryRoutes from './routes/inventory';
@@ -36,6 +38,7 @@ import costsRoutes from './routes/costs';
 import metricsRoutes from './routes/metrics';
 import reportingRoutes from './routes/reporting';
 import publicRoutes from './routes/public';
+import BranchType from './models/BranchType';
 
 const PORT = process.env.PORT || 5102;
 const app = express();
@@ -85,6 +88,7 @@ app.use('/api/asset-types', assetTypesRoutes);
 app.use('/api/assets', assetsRoutes);
 app.use('/api/parts', partsRoutes);
 app.use('/api/supplies', suppliesRoutes);
+app.use('/api/imports', importsRoutes);
 app.use('/api/lots', lotsRoutes);
 app.use('/api/type-purchases', typePurchasesRoutes);
 app.use('/api/files', filesRoutes);
@@ -95,6 +99,8 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/costs', costsRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/reporting', reportingRoutes);
+app.use('/api/branch-types', branchTypesRoutes);
+
 // Public endpoints (token-based access)
 app.use('/public', publicRoutes);
 
@@ -145,6 +151,38 @@ app.set('io', io);
 connectDB()
   .then(() => {
     server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    // Tipos de sucursales comunes en negocios de servicios
+    const branchTypesSeed = [
+      { name: 'Taller', description: 'Sucursal dedicada a reparaciones o mantenimiento.' },
+      { name: 'Bodega', description: 'Almacenamiento de insumos, repuestos o productos.' },
+      { name: 'Mercado', description: 'Punto de venta de productos frescos o abarrotes.' },
+      { name: 'Punto de Venta', description: 'Lugar donde se realiza la venta directa al cliente.' },
+      { name: 'Sala de Ventas', description: 'Espacio para exhibición y venta de productos.' },
+      { name: 'Administración', description: 'Oficinas administrativas de la empresa.' },
+      { name: 'Centro de Distribución', description: 'Lugar de recepción y despacho de productos.' },
+      { name: 'Centro de Servicio', description: 'Atención y soporte a clientes.' },
+      { name: 'Oficina Comercial', description: 'Gestión comercial y ventas corporativas.' },
+      { name: 'Otros', description: 'Otro tipo de sucursal no especificado.' }
+    ];
+    // Seed para BranchType
+    async function seedBranchTypes() {
+      for (const bt of branchTypesSeed) {
+        const findBt = await BranchType.findOne({ name: bt.name }).lean();
+        if (findBt) {
+          // Si ya existe, actualizar descripción si es diferente
+          if (findBt.description !== bt.description) {
+            await BranchType.updateOne({ name: bt.name }, { $set: { description: bt.description } });
+          }
+        } else {
+          await BranchType.create(bt);
+        }
+      }
+      console.log('BranchTypes seeded');
+    }
+    // Llamar a la función de seed de BranchType en el flujo principal
+    // ...existing code...
+    // Al final del script o en el flujo principal:
+    seedBranchTypes().catch(console.error);
     
   })
   .catch((err) => {

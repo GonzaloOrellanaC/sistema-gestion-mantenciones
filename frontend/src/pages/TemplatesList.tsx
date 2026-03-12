@@ -8,6 +8,7 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import './UsersList.css';
+import { hasPermission } from '../utils/permisions';
 
 const TemplatesList: React.FC = () => {
   const getInitial = (name?: string, fallback = 'P') => {
@@ -27,15 +28,7 @@ const TemplatesList: React.FC = () => {
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const history = useHistory();
   const { t } = useTranslation();
-  const { user } = useAuth();
-
-  const perms = (user as any)?.role?.permissions || (user as any)?.roleId?.permissions || {};
-  const hasPermission = (key?: string) => {
-    if (!key) return true;
-    if ((user as any)?.isSuperAdmin) return true;
-    if (Object.prototype.hasOwnProperty.call(perms, key)) return !!perms[key];
-    return false;
-  };
+  const { permissions } = useAuth();
 
   const load = async (p = page) => {
     setLoading(true);
@@ -103,8 +96,6 @@ const TemplatesList: React.FC = () => {
     return () => { mounted = false; };
   }, []);
 
-  const onSearch = () => { setPage(1); load(1); };
-
   const next = () => {
     if (page * limit >= total) return;
     const np = page + 1;
@@ -121,7 +112,7 @@ const TemplatesList: React.FC = () => {
 
   const remove = async (id?: string) => {
     if (!id) return;
-    if (!hasPermission('editarPautas')) {
+    if (!hasPermission( permissions, 'editarPautas')) {
       setToast({ show: true, message: t('templates.toasts.noPermissionDelete', { defaultValue: 'No tienes permiso para eliminar pautas' }) });
       return;
     }
@@ -146,7 +137,7 @@ const TemplatesList: React.FC = () => {
             slot='end'
             color="primary"
             onClick={() => {
-              if (!hasPermission('crearPautas')) {
+              if (!hasPermission( permissions, 'crearPautas')) {
                 setToast({ show: true, message: t('templates.toasts.noPermissionCreate', { defaultValue: 'No tienes permiso para crear pautas' }) });
                 return;
               }
@@ -217,7 +208,7 @@ const TemplatesList: React.FC = () => {
                         size="small"
                         color="secondary"
                         onClick={() => {
-                          if (!hasPermission('editarPautas')) {
+                          if (!hasPermission( permissions, 'editarPautas')) {
                             setToast({ show: true, message: t('templates.toasts.noPermissionEdit', { defaultValue: 'No tienes permiso para editar pautas' }) });
                             return;
                           }
@@ -231,7 +222,7 @@ const TemplatesList: React.FC = () => {
                         color="danger"
                         size="small"
                         onClick={() => {
-                          if (!hasPermission('editarPautas')) {
+                          if (!hasPermission( permissions, 'editarPautas')) {
                             setToast({ show: true, message: t('templates.toasts.noPermissionDelete', { defaultValue: 'No tienes permiso para eliminar pautas' }) });
                             return;
                           }

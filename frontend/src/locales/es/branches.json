@@ -12,6 +12,7 @@
     "form": {
       "newTitle": "Nueva Sucursal",
       "editTitle": "Editar Sucursal",
+      "viewTitle": "Ver Sucursal",
       "labels": {
         "name": "Nombre",
         "address": "Dirección",
@@ -24,12 +25,17 @@
       },
       "toasts": {
         "nameRequired": "Nombre requerido",
+        "typeRequired": "Tipo requerido",
         "createError": "Error creando sucursal",
-        "loadError": "Error cargando sucursal"
+        "editError": "Error editando sucursal",
+        "loadError": "Error cargando sucursal",
+        "loadTypesError": "Error cargando tipos de sucursales"
       },
       "buttons": {
         "create": "Crear",
-        "creating": "Creando..."
+        "creating": "Creando...",
+        "edit": "Editar",
+        "editing": "Editando..."
       },
       "options": {
         "bodega": "Bodega",

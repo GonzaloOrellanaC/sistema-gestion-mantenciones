@@ -9,5 +9,6 @@ router.get('/', suppliesController.list);
 router.get('/:id', suppliesController.getById);
 router.post('/availability', suppliesController.availability);
 router.post('/', suppliesController.create);
+router.post('/bulk-create', suppliesController.bulkCreate);
 
 export default router;

@@ -1,0 +1,23 @@
+{
+  "importModal": {
+    "title": "Importar Excel / CSV",
+    "open": "Importar",
+    "dragDrop": "Arrastra el archivo aquí o",
+    "allowedFormats": "Formatos permitidos: .xlsx .xls .csv .json",
+    "language": "Idioma",
+    "close": "Cerrar",
+    "invalidFile": "Archivo no permitido",
+    "download_all": "Descargar JSON completo",
+    "download_section": "Descargar",
+    "import_section": "Importar",
+    "import_all": "Importar todo",
+    "importing": "Importando...",
+    "import_results": "Resultados de importación",
+    "import_success": "Importación completada",
+    "import_error": "Error durante la importación",
+    "no_section": "Sección no encontrada en la vista previa",
+    "no_rows": "No hay filas para importar",
+    "no_preview": "No hay datos previsualizados para importar",
+    "note": "Nota: Los encabezados se mapearán automáticamente (Español/Inglés)."
+  }
+}

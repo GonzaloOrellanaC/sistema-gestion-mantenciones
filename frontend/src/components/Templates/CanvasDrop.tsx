@@ -36,7 +36,7 @@ const CanvasDrop: React.FC<{ components: Field[]; setComponents: (c: Field[]) =>
   return (
     <div className={`canvas-area`}>
       <div className={`preview-device ${deviceView} ${isPreview ? 'app-like' : ''}`} id="preview-device">
-        <div className="device-header">Vista Previa</div>
+        <div className="device-header">Contenedor de componentes para ejecución de pauta</div>
         <div className="device-body">
           {components.length === 0 ? (
             <div id="empty-msg" style={{ padding: 24, textAlign: 'center', color: '#90A4AE' }}>Arrastra componentes aquí</div>

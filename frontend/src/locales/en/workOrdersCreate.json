@@ -63,6 +63,9 @@
       "editing": "Editing...",
       "createOrder": "Create order",
       "editOrder": "Edit order"
-    }
+    },
+    "noTemplateHeader": "No templates exist",
+    "noTemplateMessage": "You must create a template before creating a work order.",
+    "noTemplateConfirm": "Create template"
   }
 }

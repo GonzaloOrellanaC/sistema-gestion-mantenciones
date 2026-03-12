@@ -3,8 +3,11 @@ import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem,
 import * as branchesApi from '../api/branches';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../context/AuthContext';
+import { hasPermission } from '../utils/permisions';
 
 const BranchesList: React.FC = () => {
+  const { permissions } = useAuth();
   const [items, setItems] = useState<any[]>([]);
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const history = useHistory();
@@ -43,7 +46,9 @@ const BranchesList: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <h3>{t('branches.list.heading')}</h3>
             <div>
-              <IonButton onClick={() => history.push('/branches/new')}>{t('branches.list.newButton')}</IonButton>
+              {hasPermission(permissions, 'crearSucursales') && (
+                <IonButton onClick={() => history.push('/branches/new')}>{t('branches.list.newButton')}</IonButton>
+              )}
             </div>
           </div>
 

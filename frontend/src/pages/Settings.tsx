@@ -47,8 +47,8 @@ const Settings: React.FC = () => {
           <IonItem>
             <IonLabel>{t('settings.language')}</IonLabel>
             <IonSelect value={language} placeholder={t('settings.language')} onIonChange={e => setLanguage(e.detail.value!)}>
-              <IonSelectOption value="es">🇪🇸 {t('common.languages.spanish')}</IonSelectOption>
-              <IonSelectOption value="en">🇺🇸 {t('common.languages.english')}</IonSelectOption>
+              <IonSelectOption value="es">{t('common.languages.spanish')}</IonSelectOption>
+              <IonSelectOption value="en">{t('common.languages.english')}</IonSelectOption>
             </IonSelect>
           </IonItem>
           <IonItem>

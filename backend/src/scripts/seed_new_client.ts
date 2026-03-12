@@ -1,3 +1,4 @@
+import BranchType from '../models/BranchType';
 import path from 'path';
 import fs from 'fs';
 import bcrypt from 'bcrypt';
@@ -57,13 +58,14 @@ async function main() {
     console.log('Organization already exists:', org._id.toString());
   }
 
-  // Create two branches
+  // Obtener ObjectId de BranchType correspondiente
+  const tallerType = await BranchType.findOne({ name: 'Taller' });
   const branchAName = 'Sucursal Norte';
   const branchBName = 'Sucursal Sur';
   let branchA = await Branch.findOne({ orgId: org._id, name: branchAName });
-  if (!branchA) branchA = await Branch.create({ orgId: org._id, name: branchAName, address: 'Av. Principal 123', branchType: 'taller' });
+  if (!branchA) branchA = await Branch.create({ orgId: org._id, name: branchAName, address: 'Av. Principal 123', branchType: tallerType?._id });
   let branchB = await Branch.findOne({ orgId: org._id, name: branchBName });
-  if (!branchB) branchB = await Branch.create({ orgId: org._id, name: branchBName, address: 'Calle Secundaria 45', branchType: 'taller' });
+  if (!branchB) branchB = await Branch.create({ orgId: org._id, name: branchBName, address: 'Calle Secundaria 45', branchType: tallerType?._id });
   // accumulator for created users and credentials
   let createdUsers: any[] = [];
   // Create a role with permiso para ejecutar OT
@@ -164,7 +166,7 @@ async function main() {
   let adminUser = await User.findOne({ orgId: org._id, email: adminEmail });
   if (!adminUser) {
     const passwordHash = await bcrypt.hash(adminPassword, 10);
-    adminUser = await User.create({ orgId: org._id, firstName: 'Admin', lastName: 'Cliente', email: adminEmail, passwordHash, roleId: adminRole._id, isAdmin: true });
+    adminUser = await User.create({ orgId: org._id, firstName: 'Admin', lastName: 'Cliente', email: adminEmail, passwordHash, roleId: adminRole._id, isAdmin: true, confirmed: true });
     console.log('Admin user created:', adminUser.email);
     createdUsers.push({ doc: adminUser, password: adminPassword, existing: false });
   } else {
@@ -217,7 +219,7 @@ async function main() {
     }
     const passwordHash = await bcrypt.hash(u.password, 10);
     const roleIdToAssign = u.roleId ? u.roleId : role._id;
-    const user = await User.create({ orgId: org._id, firstName: u.firstName, lastName: u.lastName, email: u.email, passwordHash, roleId: roleIdToAssign, branchId: u.branch._id });
+    const user = await User.create({ orgId: org._id, firstName: u.firstName, lastName: u.lastName, email: u.email, passwordHash, roleId: roleIdToAssign, branchId: u.branch._id, confirmed: true });
     createdUsers.push({ doc: user, password: u.password, existing: false });
   }
 

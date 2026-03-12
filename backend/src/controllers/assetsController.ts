@@ -46,7 +46,58 @@ export async function bulkCreate(req: Request, res: Response) {
     const payload = req.body;
     if (!Array.isArray(payload)) return res.status(400).json({ message: 'Payload must be an array' });
 
-    const docsToInsert = payload.map((it: any) => ({ orgId, ...it }));
+    // Helper para buscar o crear
+    async function findOrCreate(model: any, query: any, createFields: any) {
+      let doc = await model.findOne(query).lean();
+      if (!doc) {
+        doc = await model.create({ ...createFields, ...query, orgId });
+        doc = doc.toObject ? doc.toObject() : doc;
+      }
+      return doc;
+    }
+
+    // Buscar branches existentes
+    const branches = await Branch.find({ orgId }).lean();
+    const branchMap = branches.reduce((acc: any, b: any) => {
+      acc[b.name] = b;
+      return acc;
+    }, {});
+
+    const docsToInsert = [];
+    for (const it of payload) {
+      const doc: any = { orgId };
+      // code -> serial
+      if (it.code) doc.serial = it.code;
+      // name
+      if (it.name) doc.name = it.name;
+      // branchId
+      if (it.branch && branchMap[it.branch]) {
+        doc.branchId = branchMap[it.branch]._id;
+      }
+      // brandId
+      if (it.brand) {
+        const brand = await findOrCreate(Brand, { name: it.brand, orgId }, { name: it.brand });
+        doc.brandId = brand._id;
+      }
+      // typeId
+      if (it.type) {
+        const type = await findOrCreate(AssetType, { name: it.type, orgId }, { name: it.type });
+        doc.typeId = type._id;
+      }
+      // modelId
+      if (it.model) {
+        const model = await findOrCreate(DeviceModel, { name: it.model, orgId, brandId: doc.brandId, typeId: doc.typeId }, { name: it.model });
+        doc.modelId = model._id;
+      }
+      // Otros campos
+      for (const k of Object.keys(it)) {
+        if (!["code","name","branch","brand","model","type"].includes(k)) {
+          doc[k] = it[k];
+        }
+      }
+      docsToInsert.push(doc);
+    }
+
     const created = await Asset.insertMany(docsToInsert, { ordered: false });
     return res.status(201).json({ created });
   } catch (err: any) {
@@ -55,6 +106,7 @@ export async function bulkCreate(req: Request, res: Response) {
     return res.status(err.status || 500).json({ message: err.message || 'Server error' });
   }
 }
+
 
 export async function list(req: Request, res: Response) {
   try {

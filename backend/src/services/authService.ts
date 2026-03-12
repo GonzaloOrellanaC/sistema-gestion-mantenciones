@@ -5,7 +5,8 @@ import Organization from '../models/Organization';
 import User from '../models/User';
 import Role from '../models/Role';
 import PasswordResetToken from '../models/PasswordResetToken';
-import { sendPasswordResetEmail } from '../utils/mailer';
+import EmailConfirmationToken from '../models/EmailConfirmationToken';
+import { sendPasswordResetEmail, sendWelcomeEmail } from '../utils/mailer';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -24,15 +25,123 @@ export async function registerUser(payload: any) {
     org = await Organization.create({ name: companyName, trialStartsAt: now, trialEndsAt: trialEnds, isPaid: false });
   }
 
-  let adminRole = await Role.findOne({ orgId: org._id, name: 'Admin' });
+  let adminRole = await Role.findOne({ orgId: org._id, name: 'Administrador' });
   if (!adminRole) {
-    adminRole = await Role.create({ orgId: org._id, name: 'Admin', permissions: {}, hierarchyLevel: 0 });
+    adminRole = await Role.create({
+      orgId: org._id,
+      name: 'Administrador',
+      permissions: {
+        verTablero: true,
+        verUsuarios: true,
+        crearUsuarios: true,
+        editarUsuarios: true,
+
+        verPautas: true,
+        crearPautas: true,
+        editarPautas: true,
+
+        verOT: true,
+        crearOT: true,
+        editarOT: true,
+        asignarOT: true,
+        ejecutarOT: true,
+        supervisar: true,
+        aprobarRechazar: true,
+
+        verRoles: true,
+        crearRoles: true,
+        editarRoles: true,
+
+        verOrganizacion: true,
+        editarOrganizacion: true,
+        verOrganization: true,
+        editarOrganization: true,
+
+        verActivos: true,
+        crearActivos: true,
+        editarActivos: true,
+
+        verSucursales: true,
+        crearSucursales: true,
+        editarSucursales: true,
+
+        verInsumos: true,
+        crearInsumos: true,
+        editarInsumos: true,
+
+        verRepuestos: true,
+        crearRepuestos: true,
+        editarRepuestos: true,
+
+        verLotes: true,
+        crearLotes: true,
+        editarLotes: true
+      },
+      hierarchyLevel: 0
+    });
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
 
-  const user = await User.create({ orgId: org._id, firstName, lastName, email, passwordHash, roleId: adminRole._id, isAdmin: true });
+  const user = await User.create({ orgId: org._id, firstName, lastName, email, passwordHash, roleId: adminRole._id, isAdmin: true, confirmed: false });
+
   const token = jwt.sign({ userId: user._id, orgId: org._id }, JWT_SECRET, { expiresIn: '7d' });
+
+  // create a confirmation token record (random token) for email verification
+  const confirmToken = crypto.randomBytes(24).toString('hex');
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  await EmailConfirmationToken.create({ userId: user._id, token: confirmToken, expiresAt });
+
+  // construct confirmation link using FRONTEND_URL and token
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5100';
+  const confirmLink = `${frontendUrl}/auth/confirm-email/${confirmToken}`;
+
+  // enviar correo de bienvenida y lanzar error si falla
+  async function getPublicIp() {
+    try {
+      const res = await fetch('https://api.ipify.org?format=json');
+      if (!res.ok) throw new Error('No se pudo obtener la IP pública');
+      const data = await res.json();
+      return data.ip;
+    } catch (err) {
+      return '';
+    }
+  }
+
+  let mailSent = false;
+  let mailError = null;
+  try {
+    await sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+    mailSent = true;
+  } catch (e: any) {
+    mailError = e;
+    // Intentar whitelistear la IP y reenviar
+    const ip = await getPublicIp();
+    if (ip) {
+      try {
+        const desc = `sgm-auto-whitelist-${Date.now()}-${Math.floor(Math.random()*10000)}`;
+        const resp = await fetch('https://add-ip-whitelist-mailgun.omtecnologia.cl/add-ip-to-whitelist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip, mailgunApiKey: process.env.MAILGUN_API_KEY, description: desc })
+        });
+        if (resp.ok) {
+          try {
+            await sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+            mailSent = true;
+          } catch (e2: any) {
+            mailError = e2;
+          }
+        }
+      } catch (werr) {
+        // No hacer nada, se mantiene mailError
+      }
+    }
+  }
+  if (!mailSent) {
+    console.log('Failed to send welcome email after retry attempts:', mailError);
+    throw { status: 500, message: mailError?.message || 'No se pudo enviar el correo de bienvenida.' };
+  }
 
   return { token, user: { id: user._id, email: user.email, firstName, lastName }, org: { id: org._id, name: org.name, trialStartsAt: (org as any).trialStartsAt, trialEndsAt: (org as any).trialEndsAt, isPaid: (org as any).isPaid } };
 }
@@ -45,6 +154,11 @@ export async function loginUser(payload: any) {
   // Find the user by email across organizations
   const user = await User.findOne({ email });
   if (!user) throw { status: 401, message: 'Invalid credentials' };
+
+  // Block login if the user has not confirmed their email
+  if (!(user as any).confirmed) {
+    throw { status: 403, message: 'Email not confirmed' };
+  }
 
   // Resolve organization from user's orgId
   const org = await Organization.findById(user.orgId);

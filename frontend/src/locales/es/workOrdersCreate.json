@@ -63,6 +63,9 @@
       "editing": "Editando...",
       "createOrder": "Crear orden",
       "editOrder": "Editar orden"
-    }
+    },
+    "noTemplateHeader": "No existen pautas",
+    "noTemplateMessage": "Debe crear una pauta antes de crear una orden de trabajo.",
+    "noTemplateConfirm": "Crear pauta"
   }
 }

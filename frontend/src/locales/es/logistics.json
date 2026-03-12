@@ -1,6 +1,12 @@
 {
   "logistics": {
     "menuTitle": "Logística",
-    "items": { "lots": "Lotes", "parts": "Repuestos", "supplies": "Insumos" }
+    "items": { "lots": "Lotes", "parts": "Repuestos", "supplies": "Insumos" },
+    "help": {
+      "title": "¿Qué significan estos conceptos?",
+      "lots": "Los lotes representan los contenedores o envíos que llegan desde el proveedor, en los cuales se incluyen uno o varios repuestos o insumos en cantidades variables. Permiten rastrear el origen, la fecha de ingreso y la composición de cada recepción.",
+      "parts": "Los repuestos son piezas o componentes que se reemplazan en los activos para restaurar su funcionamiento o prolongar su vida útil. Su gestión permite asegurar la disponibilidad y trazabilidad de las partes críticas.",
+      "supplies": "Los insumos son artículos auxiliares utilizados para ejecutar las órdenes de trabajo. En su mayoría son desechables y permiten realizar tareas de mantenimiento, limpieza o reparación de manera eficiente."
+    }
   }
 }

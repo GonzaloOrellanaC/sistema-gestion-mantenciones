@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { IonPage, IonHeader, IonToolbar, IonContent, IonButton, IonToast, IonTitle, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonList } from '@ionic/react';
 import PurchaseCalendar from '../components/Calendar/PurchaseCalendar';
+import ImportExcelModal from '../components/ImportExcelModal';
 import brandsApi from '../api/brands';
 import deviceModelsApi from '../api/deviceModels';
 import assetTypesApi from '../api/assetTypes';
@@ -10,6 +11,8 @@ import branchesApi from '../api/branches';
 import assetsApi from '../api/assets';
 import type { } from '../api/types';
 import { sortByName } from '../utils/sort';
+import { hasPermission } from '../utils/permisions';
+import { useAuth } from '../context/AuthContext';
 
 const API_BASE = ((import.meta as any).env.VITE_API_URL || '').replace(/\/$/, '');
 
@@ -40,6 +43,7 @@ function getAssetAvatarUrl(asset: any) {
 }
 
 const AssetsList: React.FC = () => {
+  const { permissions } = useAuth()
   const [items, setItems] = useState<any[]>([]);
   const [page, setPage] = useState<number>(1);
   const [pages, setPages] = useState<number>(1);
@@ -55,6 +59,7 @@ const AssetsList: React.FC = () => {
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const history = useHistory();
   const { t } = useTranslation();
+  const [showImport, setShowImport] = useState<boolean>(false);
   const debounceTimer = useRef<any>(null);
 
   const scheduleLoad = (nextFilters: any, delay = 500) => {
@@ -142,12 +147,14 @@ const AssetsList: React.FC = () => {
         <IonToolbar style={{padding: '0px 10px'}}>
             <IonTitle>{t('assets.title', { defaultValue: 'Activos' })}</IonTitle>
             <div style={{ color: 'var(--text-secondary)' }}>{t('assets.subtitle', { defaultValue: 'Lista de equipos y activos' })}</div>
-            <div slot={'end'} style={{ display: 'flex', gap: 8 }}>
+           { hasPermission(permissions, 'editarActivos') && <div slot={'end'} style={{ display: 'flex', gap: 8 }}>
               <IonButton slot='end' onClick={() => history.push('/assets/new')}>{t('assets.buttons.create', { defaultValue: 'Crear Activo' })}</IonButton>
               <IonButton slot='end' onClick={() => history.push('/assets/upload/bulk')}>{t('assets.buttons.bulkCreate', { defaultValue: 'Carga Masiva' })}</IonButton>
-            </div>
+              <IonButton slot='end' onClick={() => setShowImport(true)}>{t('assets.buttons.import', { defaultValue: 'Importar' })}</IonButton>
+            </div>}
         </IonToolbar>
       </IonHeader>
+      <ImportExcelModal isOpen={showImport} onDidDismiss={() => setShowImport(false)} />
       <IonContent className="ion-padding">
         <IonGrid>
           <IonRow>
@@ -169,7 +176,7 @@ const AssetsList: React.FC = () => {
                   </thead>
                   <tbody>
                     {items.map(a => (
-                      <tr key={a._id} style={{ cursor: 'pointer' }} onClick={() => history.push(`/assets/${a._id}/edit`)}>
+                      <tr key={a._id} style={!hasPermission(permissions, 'editarActivos') ? {} : { cursor: 'pointer' }} onClick={ !hasPermission(permissions, 'editarActivos') ? undefined : () => history.push(`/assets/${a._id}/edit`)}>
                         <td style={{ width: 60 }}>
                           {(() => {
                             const url = getAssetAvatarUrl(a);
@@ -184,7 +191,9 @@ const AssetsList: React.FC = () => {
                         <td>{a.typeId ? (a.typeId.name || a.typeId) : '-'}</td>
                         <td>{a.branchId ? (a.branchId.name || a.branchId) : '-'}</td>
                         <td>{a.createdAt ? new Date(a.createdAt).toLocaleDateString() : '-'}</td>
-                        <td><IonButton size="small" fill="clear" onClick={(e:any) => { e.stopPropagation(); history.push(`/assets/${a._id}/edit`); }}>{t('assets.edit', { defaultValue: 'Editar' })}</IonButton></td>
+                        <td>
+                          {hasPermission(permissions, 'editarActivos') && <IonButton size='small' onClick={(e) => { e.stopPropagation(); history.push(`/assets/${a._id}/edit`); }}>{t('assets.buttons.edit', { defaultValue: 'Editar' })}</IonButton>}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

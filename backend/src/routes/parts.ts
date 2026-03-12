@@ -6,6 +6,7 @@ const router = Router();
 router.use(authMiddleware);
 
 router.post('/', partsController.create);
+router.post('/bulk-create', partsController.bulkCreate);
 router.post('/availability', partsController.availability);
 router.get('/', partsController.list);
 router.get('/:id', partsController.getOne);

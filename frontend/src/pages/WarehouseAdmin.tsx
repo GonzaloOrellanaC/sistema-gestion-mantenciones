@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton, IonList, IonToast } from '@ionic/react';
 import inventoryApi from '../api/inventory';
 import { useAuth } from '../context/AuthContext';
+import { hasPermission } from '../utils/permisions';
 
 const WarehouseAdmin: React.FC = () => {
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, permissions } = useAuth();
 
   useEffect(() => {
     let mounted = true;

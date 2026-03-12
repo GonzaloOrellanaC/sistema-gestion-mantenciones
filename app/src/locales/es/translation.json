@@ -61,6 +61,10 @@
     "notifications": "Notificaciones",
     "profile": "Perfil"
   },
+  "difficulty": {
+    "title": "Dificultad",
+    "assignedLevel": "El nivel de dificultad asignado es: {{level}}"
+  },
   "profile": {
     "updated": "Perfil actualizado",
     "update_error": "Error al actualizar",

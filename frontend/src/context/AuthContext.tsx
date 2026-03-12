@@ -11,6 +11,7 @@ type AuthContextType = {
   register: (payload: authApi.RegisterPayload) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  permissions: { [key: string]: boolean };
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
   const [loading, setLoading] = useState<boolean>(!!token);
+  const [permissions, setPermissions] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     if (token) {
@@ -47,6 +49,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (user && user.role && user.role.permissions) {
+      setPermissions(user.role.permissions);
+    } else {
+      setPermissions({});
+    }
+  }, [user]);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -114,7 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, refreshUser, permissions }}>
       {children}
     </AuthContext.Provider>
   );

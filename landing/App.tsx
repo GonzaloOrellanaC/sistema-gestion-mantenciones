@@ -5,6 +5,7 @@ import Features from './components/Features';
 import UseCases from './components/UseCases';
 import DashboardPreview from './components/DashboardPreview';
 import MobileIntegration from './components/MobileIntegration';
+import Plans from './components/Plans';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import { LanguageProvider } from './LanguageContext';
@@ -20,6 +21,7 @@ function App() {
           <UseCases />
           <MobileIntegration />
           <DashboardPreview />
+          <Plans />
           <ContactSection />
         </main>
         <Footer />

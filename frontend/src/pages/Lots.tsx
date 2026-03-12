@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import './calendar.css';
 import PurchaseCalendar from '../components/Calendar/PurchaseCalendar';
 import { chevronBackOutline } from 'ionicons/icons';
+import { useAuth } from '../context/AuthContext';
+import { hasPermission } from '../utils/permisions';
 
 const Lots: React.FC = () => {
   const [lots, setLots] = useState<any[]>([]);
@@ -22,6 +24,7 @@ const Lots: React.FC = () => {
   const [monthShown, setMonthShown] = useState<Date>(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [purchaseDays, setPurchaseDays] = useState<Record<string, boolean>>({});
   const { t, i18n } = useTranslation();
+  const { permissions } = useAuth();
   const history = useHistory();
   // allow navigating to earlier months so purchase dates (in the past) are visible
   const minMonth = new Date(1970, 0, 1);
@@ -160,7 +163,10 @@ const Lots: React.FC = () => {
                       </thead>
                       <tbody>
                         {lots.map(l => (
-                          <tr key={l._id} style={{ borderTop: '1px solid #eee', cursor: 'pointer' }} onClick={() => history.push(`/logistics/lots/edit/${l._id}`)}>
+                          <tr 
+                            key={l._id}
+                            style={{ borderTop: '1px solid #eee', cursor: hasPermission(permissions, 'editarLotes') ? 'pointer' : 'default' }}
+                            onClick={() => hasPermission(permissions, 'editarLotes') && history.push(`/logistics/lots/edit/${l._id}`)}>
                             <td style={{ padding: '10px 12px' }}>{l.code || l._id}</td>
                             <td style={{ padding: '10px 12px' }}>
                               {(() => {
@@ -198,7 +204,8 @@ const Lots: React.FC = () => {
                             })()}</td>
                             <td style={{ padding: '10px 12px', textAlign: 'right' }}>{typeof l.price === 'number' ? currencyFormatter.format(l.price) : '-'}</td>
                             <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                              <IonButton fill="clear" size="small" onClick={(e) => { e.stopPropagation(); history.push(`/logistics/lots/edit/${l._id}`); }}>{t('lists.edit') || 'Edit'}</IonButton>
+                              {hasPermission(permissions, 'editarLotes') && <IonButton 
+                              fill="clear" size="small" onClick={(e) => { e.stopPropagation(); history.push(`/logistics/lots/edit/${l._id}`); }}>{t('lists.edit') || 'Edit'}</IonButton>}
                             </td>
                           </tr>
                         ))}

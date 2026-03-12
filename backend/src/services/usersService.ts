@@ -12,7 +12,7 @@ export async function createUser(orgId: any, payload: any) {
   if (assignedRole && assignedRole.orgId.toString() !== orgId.toString()) throw { status: 400, message: 'Invalid roleId' };
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const userPayload: any = { orgId, firstName, lastName, email, passwordHash, roleId: assignedRole?._id, isAdmin: false };
+  const userPayload: any = { orgId, firstName, lastName, email, passwordHash, roleId: assignedRole?._id, isAdmin: false, confirmed: true };
   if (photoUrl) userPayload.photoUrl = photoUrl;
   if (payload.branchId) {
     const br = await Branch.findById(payload.branchId);

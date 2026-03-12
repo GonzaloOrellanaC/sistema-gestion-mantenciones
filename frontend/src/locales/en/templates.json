@@ -110,6 +110,7 @@
         "designNote": "This is a design component and does not require an editable label.",
         "label": "Label",
         "required": "Required",
+        "difficulty": "Difficulty",
         "partsIncluded": "Included parts",
         "totalQty": "Total quantity",
         "suppliesIncluded": "Included supplies",

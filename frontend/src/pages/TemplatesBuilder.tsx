@@ -63,6 +63,8 @@ const TemplatesBuilder: React.FC = () => {
   const [typesPopoverOpen, setTypesPopoverOpen] = useState(false);
   const [typeModalOpen, setTypeModalOpen] = useState(false);
   const [newTypeName, setNewTypeName] = useState('');
+  const [difficultyPopoverEvent, setDifficultyPopoverEvent] = useState<MouseEvent | undefined>(undefined);
+  const [difficultyPopoverOpen, setDifficultyPopoverOpen] = useState(false);
   // favorites popover state (moved to parent so children can call setFavEvent via callbacks)
   const [favEvent, setFavEvent] = useState<MouseEvent | undefined>(undefined);
   const [favOpen, setFavOpen] = useState(false);
@@ -265,6 +267,43 @@ const TemplatesBuilder: React.FC = () => {
 
   const updateFieldProperty = (key: string, prop: string, value: unknown) => {
     setComponents((prev) => updateFieldDeep(prev, key, prop, value));
+  };
+
+  const difficultyColor = (val: number) => {
+    const clamp = Math.max(1, Math.min(10, Math.round(val || 1)));
+    // green (#2ecc71) -> yellow (#f1c40f) at 5 -> red (#e74c3c)
+    const g1 = { r: 46, g: 204, b: 113 };
+    const y = { r: 241, g: 196, b: 15 };
+    const r1 = { r: 231, g: 76, b: 60 };
+    const lerp = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
+    let rgb;
+    if (clamp <= 5) {
+      const t = (clamp - 1) / 4; // 0..1
+      rgb = {
+        r: lerp(g1.r, y.r, t),
+        g: lerp(g1.g, y.g, t),
+        b: lerp(g1.b, y.b, t),
+      };
+    } else {
+      const t = (clamp - 6) / 4; // 0..1
+      rgb = {
+        r: lerp(y.r, r1.r, t),
+        g: lerp(y.g, r1.g, t),
+        b: lerp(y.b, r1.b, t),
+      };
+    }
+    const toHex = (n: number) => n.toString(16).padStart(2, '0');
+    return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
+  };
+
+  const textColorForBg = (hex: string) => {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    // luminance
+    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+    return lum > 160 ? '#000' : '#fff';
   };
 
   const selectedField = useMemo(() => findFieldByKey(components, selectedKey), [components, selectedKey]);
@@ -506,6 +545,63 @@ const TemplatesBuilder: React.FC = () => {
                                 <div className="prop-group">
                                   <label>{t('templates.builder.properties.required')}</label>
                                   <input type="checkbox" checked={!!selectedField.required} onChange={(e) => updateFieldProperty(selectedField.key, 'required', e.target.checked)} />
+                                </div>
+                                <div className="prop-group">
+                                  <label>{t('templates.builder.properties.difficulty')}</label>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <button
+                                      onClick={(e: any) => {
+                                        setDifficultyPopoverEvent(e?.nativeEvent || e);
+                                        setDifficultyPopoverOpen(true);
+                                      }}
+                                      style={{
+                                        background: difficultyColor((selectedField.difficulty ?? 1) as number),
+                                        color: textColorForBg(difficultyColor((selectedField.difficulty ?? 1) as number)),
+                                        border: '1px solid rgba(0,0,0,0.08)',
+                                        width: 40,
+                                        height: 40,
+                                        padding: 0,
+                                        fontSize: 14,
+                                      }}
+                                    >
+                                      {(selectedField.difficulty ?? 1) as any}
+                                    </button>
+                                    <span style={{ color: '#607D8B', fontSize: 13 }}>{t('templates.builder.properties.difficulty')}</span>
+                                    <IonPopover isOpen={difficultyPopoverOpen} event={difficultyPopoverEvent} onDidDismiss={() => setDifficultyPopoverOpen(false)}>
+                                      <div style={{ padding: 12, width: 220 }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                                          {[1,2,3,4,5,6,7,8,9].map((n) => (
+                                            <button
+                                              key={n}
+                                              onClick={() => { updateFieldProperty(selectedField.key, 'difficulty', n); setDifficultyPopoverOpen(false); }}
+                                              style={{
+                                                background: difficultyColor(n),
+                                                color: textColorForBg(difficultyColor(n)),
+                                                paddingTop: 8,
+                                                paddingBottom: 8,
+                                                height: 40
+                                              }}
+                                            >
+                                              {n}
+                                            </button>
+                                          ))}
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+                                          <button
+                                            onClick={() => { updateFieldProperty(selectedField.key, 'difficulty', 10); setDifficultyPopoverOpen(false); }}
+                                            style={{
+                                              width: 56,
+                                              background: difficultyColor(10),
+                                              color: textColorForBg(difficultyColor(10)),
+                                              height: 40
+                                            }}
+                                          >
+                                            10
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </IonPopover>
+                                  </div>
                                 </div>
                                 {selectedField.type === 'parts' && (
                                   <div className="prop-group">

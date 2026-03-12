@@ -1,6 +1,7 @@
 import React from 'react';
-import { IonModal, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton } from '@ionic/react';
+import { IonModal, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonToolbar } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
+import './Modal.css'
 
 type Props = {
   isOpen: boolean;
@@ -13,10 +14,12 @@ type Props = {
 const TrialModal: React.FC<Props> = ({ isOpen, onClose, isPaid, trialEnds = null, daysLeft = null }) => {
   const { t } = useTranslation();
   return (
-    <IonModal isOpen={isOpen} onWillPresent={() => (document.activeElement as HTMLElement | null)?.blur()} onDidDismiss={onClose}>
+    <IonModal className='modal-info height-200' isOpen={isOpen} onWillPresent={() => (document.activeElement as HTMLElement | null)?.blur()} onDidDismiss={onClose}>
       <IonCard>
         <IonCardHeader>
-          <IonCardTitle>{t('trial.title')}</IonCardTitle>
+          <IonToolbar style={{marginLeft: 10}}>
+            <IonCardTitle>{t('trial.title')}</IonCardTitle>
+          </IonToolbar>
         </IonCardHeader>
         <IonCardContent>
           <div style={{ marginBottom: 8 }}>

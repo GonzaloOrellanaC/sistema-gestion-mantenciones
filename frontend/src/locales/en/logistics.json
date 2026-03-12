@@ -1,6 +1,12 @@
 {
   "logistics": {
     "menuTitle": "Logistics",
-    "items": { "lots": "Lots", "parts": "Parts", "supplies": "Supplies" }
+    "items": { "lots": "Lots", "parts": "Parts", "supplies": "Supplies" },
+    "help": {
+      "title": "What do these concepts mean?",
+      "lots": "Lots represent the containers or shipments received from the supplier, which include one or more parts or supplies in variable quantities. They allow tracking the origin, entry date, and composition of each reception.",
+      "parts": "Parts are components that are replaced in assets to restore their operation or extend their useful life. Their management ensures the availability and traceability of critical components.",
+      "supplies": "Supplies are auxiliary items used to carry out work orders. Most are disposable and allow maintenance, cleaning, or repair tasks to be performed efficiently."
+    }
   }
 }

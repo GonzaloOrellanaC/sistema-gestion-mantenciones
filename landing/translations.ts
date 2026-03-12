@@ -85,6 +85,62 @@ export const translations = {
         types: ['Mecánica', 'Eléctrica', 'Instalaciones', 'Preventiva']
       }
     },
+    pricing: {
+      sectionTitle: 'Planes',
+      mainTitle: 'Elige el plan que se adapta a tu operación',
+      plans: [
+        {
+          id: 'starter',
+          name: 'Starter',
+          price: '40 USD / mes',
+          priceUsd: 40,
+          recurringUsd: 0,
+          subtitle: 'Prueba gratis 1 mes (sin tarjeta de pago)',
+          features: [
+            '5 usuarios + 1 administrador',
+            '3 roles',
+            '2 sucursales',
+            '5 pautas',
+            '100 repuestos',
+            '100 insumos',
+            '10 activos',
+            'Soporte 24/7 por tickets (respuesta máxima 12 hrs)',
+            'Precio por usuario adicional: 5 USD',
+            'Sucursal adicional: 2 USD',
+            '100 repuestos + 100 insumos adicionales: 2 USD',
+            '5 pautas adicionales: 2 USD'
+          ]
+        },
+        {
+          id: 'development',
+          name: 'Development',
+          price: '350 USD + 150 USD mensual',
+          priceUsd: 350,
+          recurringUsd: 150,
+          subtitle: 'Plan enterprise para desarrollo y despliegues a gran escala',
+          features: [
+            'Hasta 100 usuarios',
+            '1000 activos',
+            '5000 insumos',
+            '5000 repuestos',
+            '100 sucursales',
+            'Personalización de documentos (PDF personalizados para mostrar resultados de las órdenes de trabajo)',
+            'Personalización corporativa (la plataforma adopta la imagen corporativa del cliente) ',
+            'Soporte 24/7 por tickets (respuesta hasta 8 hrs)',
+            'Atención online: llamadas y videollamadas',
+            'Atención presencial sujeta a evaluación técnica y económica'
+          ]
+          ,
+          note: 'El monto más alto corresponde al desarrollo e implementación y se paga solo una vez; tiempo estimado: 20 días hábiles.'
+        }
+      ]
+      ,
+      currencyToggle: {
+        toCLP: 'Mostrar en CLP',
+        toUSD: 'Mostrar en USD'
+      },
+      disclaimer: 'Los precios no consideran impuestos ni gastos de cobranza por transferencia nacional o internacional.'
+    },
     contact: {
       title: '¿Listo para modernizar tu gestión?',
       description: 'Agenda una demostración personalizada y descubre cómo SGM puede reducir tus costos operativos hasta un 30%.',
@@ -209,6 +265,62 @@ export const translations = {
         months: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
         types: ['Mechanical', 'Electrical', 'Facilities', 'Preventive']
       }
+    },
+    pricing: {
+      sectionTitle: 'Pricing',
+      mainTitle: 'Choose the plan that fits your operation',
+      plans: [
+        {
+          id: 'starter',
+          name: 'Starter',
+          price: '40 USD / month',
+          priceUsd: 40,
+          recurringUsd: 0,
+          subtitle: '1 month free trial (no payment details required)',
+          features: [
+            '5 users + 1 admin',
+            '3 roles',
+            '2 branches',
+            '5 checklists',
+            '100 spare parts',
+            '100 supplies',
+            '10 assets',
+            '24/7 ticket support (max 12 hr response)',
+            'Additional user: 5 USD',
+            'Additional branch: 2 USD',
+            'Extra 100 spare parts + 100 supplies: 2 USD',
+            'Extra 5 checklists: 2 USD'
+          ]
+        },
+        {
+          id: 'development',
+          name: 'Development',
+          price: '350 USD + 150 USD monthly',
+          priceUsd: 350,
+          recurringUsd: 150,
+          subtitle: 'Enterprise development plan for large deployments',
+          features: [
+            'Up to 100 users',
+            '1000 assets',
+            '5000 supplies',
+            '5000 spare parts',
+            '100 branches',
+            'Document customization (custom PDFs to present work order results)',
+            'Corporate customization for client (platform adopts the client\'s corporate branding)',
+            '24/7 ticket support (up to 8 hr response)',
+            'Online support: calls and video calls',
+            'On-site support subject to technical and commercial evaluation'
+          ]
+          ,
+          note: 'The higher amount corresponds to development and deployment and is paid only once; estimated time: 20 business days.'
+        }
+      ]
+      ,
+      currencyToggle: {
+        toCLP: 'Show in CLP',
+        toUSD: 'Show in USD'
+      },
+      disclaimer: 'Prices do not include taxes or collection fees for national or international transfers.'
     },
     contact: {
       title: 'Ready to modernize your management?',

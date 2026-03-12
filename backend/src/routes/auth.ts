@@ -9,6 +9,7 @@ const router = Router();
 const forgotLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: 'Too many password reset requests, try later.' });
 
 router.post('/register', authController.register);
+router.get('/confirm-email', authController.confirmEmail);
 router.post('/login', authController.login);
 router.post('/forgot-password', forgotLimiter, async (req, res, next) => {
   // basic validation before controller: email format

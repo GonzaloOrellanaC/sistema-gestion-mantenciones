@@ -10,6 +10,93 @@ import PartInventory from '../models/PartInventory';
 import mongoose from 'mongoose';
 import { analyzeWorkOrdersParts } from '../utils/partsUtils';
 
+
+
+export async function bulkCreate(req: Request, res: Response) {
+  try {
+    const orgId = (req as any).user.orgId;
+    const payload = req.body;
+    if (!Array.isArray(payload)) return res.status(400).json({ message: 'Payload must be an array' });
+
+    // Buscar branches existentes
+    const branches: any[] = await Branch.find({ orgId }).lean();
+    const branchMap = branches.reduce((acc, b) => {
+      acc[b.name] = b;
+      return acc;
+    }, {});
+
+    console.log('branchMap', branchMap);
+
+    // Buscar assets existentes
+    const assets: any[] = await Asset.find({ orgId }).lean();
+    const assetMap = assets.reduce((acc, a) => {
+      acc[a.name] = a;
+      return acc;
+    }, {});
+
+    console.log('assetMap', assetMap);
+
+    const createdParts = [];
+    let index = 0;
+    for (const it of payload) {
+      const doc: any = { orgId };
+      // name
+      if (it.name) doc.name = it.name;
+      // branchIds
+      let branchId = null;
+      if (it.branch && branchMap[it.branch]) {
+        branchId = branchMap[it.branch]._id;
+        doc.branchIds = branchId;
+      }
+      // assetIds (array)
+      if (it.assets) {
+        const assetNames = String(it.assets).split(',').map(s => s.trim()).filter(Boolean);
+        doc.assetIds = assetNames.map(n => assetMap[n]?._id).filter(Boolean);
+        if (index === 0) console.log('mapping assets', it.assets, 'to ids', doc.assetIds);
+      }
+      // sku -> serial
+      if (it.sku) doc.serial = it.sku;
+      // Otros campos
+      for (const k of Object.keys(it)) {
+        if (!["name","branch","assets"].includes(k)) {
+          doc[k] = it[k];
+        }
+      }
+      // Crear lote
+      const randomCode = Math.random().toString(36).substring(2, 12);
+      const lot = await Lot.create({
+        orgId,
+        branchId,
+        code: randomCode,
+        items: [{ itemId: null, quantity: 0 }],
+        meta: { createdByBulk: true },
+        createdAt: new Date()
+      });
+      // Insertar parte
+      const part = await Part.create(doc);
+      // Actualizar lote con el itemId
+      await Lot.findByIdAndUpdate(lot._id, { $set: { 'items.0.itemId': part._id } });
+      // Crear PartInventory
+      const qty = typeof it.quantity === 'number' ? it.quantity : Number(it.quantity) || 0;
+      await PartInventory.create({
+        orgId,
+        itemId: part._id,
+        lotId: lot._id,
+        initialQuantity: qty,
+        remainingQuantity: qty,
+        createdAt: new Date()
+      });
+      createdParts.push(part);
+      index++;
+    }
+    return res.status(201).json({ created: createdParts });
+  } catch (err) {
+    console.error(err);
+    if (err && err.insertedDocs) return res.status(201).json({ created: err.insertedDocs, error: err.message });
+    return res.status(err.status || 500).json({ message: err.message || 'Server error' });
+  }
+}
+
 export async function create(req: Request, res: Response) {
   try {
     const orgId = (req as any).user.orgId;
@@ -331,4 +418,4 @@ export async function usageHistory(req: Request, res: Response) {
   }
 }
 
-export default { create, list, availability, getOne, update, remove, usageHistory };
+export default { bulkCreate, create, list, availability, getOne, update, remove, usageHistory };

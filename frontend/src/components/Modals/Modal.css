@@ -5,6 +5,10 @@ ion-modal.modal-info {
     --border-color: #474747;
 }
 
+.height-200 {
+    --height: 200px;
+}
+
 ion-modal.image-modal {
     --height: 100vh  !important;
     --width: 100vw  !important;

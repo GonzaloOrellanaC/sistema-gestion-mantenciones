@@ -1,0 +1,10 @@
+{
+  "trial": {
+    "title": "Trial Status",
+    "status": "Status",
+    "paid": "Paid",
+    "inTrial": "In Trial",
+    "renewalDate": "Renewal Date",
+    "daysLeft": "Days Left"
+  }
+}

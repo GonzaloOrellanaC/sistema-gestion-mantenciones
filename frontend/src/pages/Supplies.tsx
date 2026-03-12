@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonToast, IonBadge, IonCheckbox, IonIcon } from '@ionic/react';
+import ImportExcelModal from '../components/ImportExcelModal';
 import * as suppliesApi from '../api/supplies';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { chevronBackOutline } from 'ionicons/icons';
+import { hasPermission } from '../utils/permisions';
 
 const Supplies: React.FC = () => {
+  const { permissions } = useAuth();
   const [list, setList] = useState<any[]>([]);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
@@ -18,6 +21,7 @@ const Supplies: React.FC = () => {
   const location = useLocation();
   const params = useParams<Record<string, string | undefined>>();
   const { t } = useTranslation();
+  const [showImport, setShowImport] = useState<boolean>(false);
 
   useEffect(() => {console.log({list})}, [list]);
 
@@ -63,9 +67,11 @@ const Supplies: React.FC = () => {
               <IonIcon icon={chevronBackOutline} />
             </IonButton>
             <IonTitle>{t('supplies.title')}</IonTitle>
-            <IonButton slot='end' onClick={() => history.push('/supplies/new')}>{t('supplies.createButton')}</IonButton>
+            {hasPermission(permissions, 'crearInsumos') && <IonButton slot='end' onClick={() => history.push('/supplies/new')}>{t('supplies.createButton')}</IonButton>}
+            {hasPermission(permissions, 'crearInsumos') && <IonButton slot='end' onClick={() => setShowImport(true)}>{t('importModal.open', { defaultValue: 'Importar' })}</IonButton>}
         </IonToolbar>
       </IonHeader>
+          <ImportExcelModal isOpen={showImport} onDidDismiss={() => setShowImport(false)} />
       <IonContent className="ion-padding">
         <div style={{ marginTop: 8 }}>
           <div className="table-container">
@@ -116,7 +122,10 @@ const Supplies: React.FC = () => {
                   }
                   const effectiveBranch = branchName || '-';
                   return (
-                    <tr key={s._id || s.id} style={{ borderTop: '1px solid #eee', cursor: 'pointer', borderLeft: isLow ? '4px solid #e34' : undefined }} onClick={() => history.push(`/logistics/supplies/${s._id || s.id}/edit`)}>
+                    <tr 
+                      key={s._id || s.id}
+                      style={{ borderTop: '1px solid #eee', cursor: hasPermission(permissions,'editarInsumos') ? 'pointer' : 'default', borderLeft: isLow ? '4px solid #e34' : undefined }}
+                      onClick={() => hasPermission(permissions,'editarInsumos') && history.push(`/logistics/supplies/${s._id || s.id}/edit`)}>
                       <td style={{ padding: '10px 12px' }}>{s.name}</td>
                       <td style={{ padding: '10px 12px' }}>{s.unit || t('supplies.unit')}</td>
                       <td style={{ padding: '10px 12px' }}>
@@ -131,9 +140,9 @@ const Supplies: React.FC = () => {
                       <td style={{ padding: '10px 12px' }}>{s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '-'}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                         {isLow && <IonBadge color="danger" style={{ padding: 5 }}>{t('supplies.lowStock')}</IonBadge>}
-                        <div style={{ marginTop: 6 }}>
+                        {hasPermission(permissions, 'editarInsumos') && <div style={{ marginTop: 6 }}>
                           <IonButton fill="clear" size="small" onClick={(e) => { e.stopPropagation(); history.push(`/logistics/supplies/${s._id || s.id}/edit`); }}>{t('lists.edit') || 'Edit'}</IonButton>
-                        </div>
+                        </div>}
                       </td>
                     </tr>
                   );
