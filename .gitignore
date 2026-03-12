@@ -1,1 +1,23 @@
 node_modules
+
+# Secrets & Credentials
+*.env
+*.env.local
+*.env.*.local
+seed_credentials.json
+mailgun_white_list_io.js
+
+# Build artifacts
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
