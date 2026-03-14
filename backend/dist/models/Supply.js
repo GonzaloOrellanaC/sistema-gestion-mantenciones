@@ -36,9 +36,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const SupplySchema = new mongoose_1.Schema({
     orgId: { type: mongoose_1.Schema.Types.ObjectId, required: true, index: true },
+    branchIds: { type: [mongoose_1.Schema.Types.ObjectId], ref: 'Branch', default: [] },
+    assetIds: { type: [mongoose_1.Schema.Types.ObjectId], ref: 'Asset', default: [] },
     name: { type: String, required: true },
-    sku: { type: String },
-    unit: { type: String },
-    meta: { type: mongoose_1.Schema.Types.Mixed }
+    serial: { type: String },
+    minStock: { type: Number, default: 0 },
+    docs: { type: [mongoose_1.Schema.Types.ObjectId], ref: 'FileMeta', default: [] },
+    createdAt: { type: Date, default: Date.now }
 });
 exports.default = mongoose_1.default.model('Supply', SupplySchema);

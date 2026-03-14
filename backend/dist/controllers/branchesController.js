@@ -12,10 +12,10 @@ const Branch_1 = __importDefault(require("../models/Branch"));
 async function create(req, res) {
     try {
         const orgId = req.user.orgId;
-        const { name, address, meta } = req.body;
+        const { name, address, branchType, meta } = req.body;
         if (!name)
             return res.status(400).json({ message: 'Name required' });
-        const b = await Branch_1.default.create({ orgId, name, address, meta });
+        const b = await Branch_1.default.create({ orgId, name, address, branchType, meta });
         return res.status(201).json(b);
     }
     catch (err) {

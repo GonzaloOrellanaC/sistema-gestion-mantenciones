@@ -42,6 +42,7 @@ const FileMetaSchema = new mongoose_1.Schema({
     mimeType: { type: String },
     size: { type: Number },
     storage: { type: String, default: 'gridfs' },
+    url: { type: String },
     path: { type: String },
     createdAt: { type: Date, default: Date.now },
     meta: { type: mongoose_1.Schema.Types.Mixed }

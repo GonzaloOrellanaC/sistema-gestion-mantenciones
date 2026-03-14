@@ -34,6 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
+const workOrderStates_1 = require("../utils/workOrderStates");
 const WorkOrderSchema = new mongoose_1.Schema({
     orgId: { type: mongoose_1.Schema.Types.ObjectId, required: true, index: true },
     branchId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Branch' },
@@ -41,12 +42,15 @@ const WorkOrderSchema = new mongoose_1.Schema({
     orgSeq: { type: Number, required: true },
     templateId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Template' },
     data: { type: mongoose_1.Schema.Types.Mixed },
-    state: { type: String, enum: ['Creado', 'Asignado', 'Iniciado', 'En revisión', 'Terminado'], default: 'Creado' },
+    state: { type: String, enum: workOrderStates_1.WORK_ORDER_STATES_ARRAY, default: workOrderStates_1.WORK_ORDER_STATES.CREATED },
+    urgency: { type: String, enum: ['Baja', 'Media', 'Alta'], default: 'Media' },
     assigneeId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User' },
     client: { type: mongoose_1.Schema.Types.Mixed },
     dates: { type: mongoose_1.Schema.Types.Mixed },
     history: { type: [mongoose_1.Schema.Types.Mixed], default: [] },
     attachments: { type: [mongoose_1.Schema.Types.ObjectId], default: [] },
+    // progress percentage (0-100) representing how much of the work order has been completed
+    progress: { type: Number, default: 0 },
     deleted: { type: Boolean, default: false }
 });
 // Ensure orgSeq is unique per organization

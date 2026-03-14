@@ -6,13 +6,46 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Template_1 = __importDefault(require("../models/Template"));
 const mongoose_1 = require("mongoose");
 async function createTemplate(orgId, payload, createdBy) {
+    const ensureComponentIds = (structure) => {
+        if (!structure)
+            return structure;
+        const genId = () => `${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+        const visit = (node) => {
+            try {
+                if (node && typeof node === 'object') {
+                    if (Array.isArray(node.components)) {
+                        node.components.forEach((c) => {
+                            if (!c.id && !c._id)
+                                c.id = genId();
+                            visit(c);
+                        });
+                    }
+                    if (Array.isArray(node.items))
+                        node.items.forEach((it) => visit(it));
+                    if (Array.isArray(node.columns))
+                        node.columns.forEach((col) => { if (col && col.components)
+                            col.components.forEach((c) => visit(c)); });
+                }
+            }
+            catch (e) { /* ignore */ }
+        };
+        visit(structure);
+        return structure;
+    };
+    // ensure structure components have stable ids before saving
+    if (payload && payload.structure)
+        payload.structure = ensureComponentIds(payload.structure);
     const doc = new Template_1.default({
         orgId,
         name: payload.name,
         description: payload.description,
         structure: payload.structure,
         previewConfigs: payload.previewConfigs || {},
+        templateTypeId: payload.templateTypeId ? new mongoose_1.Types.ObjectId(payload.templateTypeId) : undefined,
+        assignedAssets: Array.isArray(payload.assignedAssets) ? payload.assignedAssets.map(a => new mongoose_1.Types.ObjectId(a)) : [],
         isActive: payload.isActive !== false,
+        execWindowMaxDays: typeof payload.execWindowMaxDays === 'number' ? payload.execWindowMaxDays : undefined,
+        expectedDurationDays: typeof payload.expectedDurationDays === 'number' ? payload.expectedDurationDays : undefined,
         createdBy: createdBy ? new mongoose_1.Types.ObjectId(createdBy) : undefined,
     });
     return doc.save();
@@ -32,23 +65,63 @@ async function listTemplates(orgId, opts) {
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
+        .populate('assignedAssets')
+        .populate('templateTypeId')
         .lean();
     return { items, total, page, limit };
 }
 async function getTemplate(orgId, id) {
     if (!mongoose_1.Types.ObjectId.isValid(id))
         return null;
-    return Template_1.default.findOne({ _id: id, orgId }).lean();
+    return Template_1.default.findOne({ _id: id, orgId }).populate('assignedAssets').populate('templateTypeId').lean();
 }
 async function updateTemplate(orgId, id, payload, updatedBy) {
     if (!mongoose_1.Types.ObjectId.isValid(id))
         return null;
+    const ensureComponentIds = (structure) => {
+        if (!structure)
+            return structure;
+        const genId = () => `${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+        const visit = (node) => {
+            try {
+                if (node && typeof node === 'object') {
+                    if (Array.isArray(node.components)) {
+                        node.components.forEach((c) => {
+                            if (!c.id && !c._id)
+                                c.id = genId();
+                            visit(c);
+                        });
+                    }
+                    if (Array.isArray(node.items))
+                        node.items.forEach((it) => visit(it));
+                    if (Array.isArray(node.columns))
+                        node.columns.forEach((col) => { if (col && col.components)
+                            col.components.forEach((c) => visit(c)); });
+                }
+            }
+            catch (e) { /* ignore */ }
+        };
+        visit(structure);
+        return structure;
+    };
+    // ensure structure components have stable ids before updating
+    if (payload && payload.structure)
+        payload.structure = ensureComponentIds(payload.structure);
     const update = {
         ...payload,
         updatedAt: new Date(),
     };
+    if (payload.assignedAssets && Array.isArray(payload.assignedAssets)) {
+        update.assignedAssets = payload.assignedAssets.map(a => new mongoose_1.Types.ObjectId(a));
+    }
     if (updatedBy)
         update.updatedBy = new mongoose_1.Types.ObjectId(updatedBy);
+    if (payload.templateTypeId)
+        update.templateTypeId = new mongoose_1.Types.ObjectId(payload.templateTypeId);
+    if (typeof payload.execWindowMaxDays === 'number')
+        update.execWindowMaxDays = payload.execWindowMaxDays;
+    if (typeof payload.expectedDurationDays === 'number')
+        update.expectedDurationDays = payload.expectedDurationDays;
     // no assignment fields on templates (assignment belongs to work orders)
     return Template_1.default.findOneAndUpdate({ _id: id, orgId }, { $set: update }, { new: true }).lean();
 }

@@ -23,12 +23,13 @@ export async function getWorkOrderByToken(req: Request, res: Response) {
       attachments = await FileMeta.find({ _id: { $in: wo.attachments } }).lean();
     }
 
+    const woAny = wo as any;
     const result = {
       id: wo._id,
       orgSeq: wo.orgSeq,
-      createdAt: wo.dates?.created || wo.createdAt,
-      state: wo.state || wo.status,
-      progress: wo.progress ?? wo.progressPercent ?? (wo.data && (wo.data.progress || wo.data.progressPercent)),
+      createdAt: wo.dates?.created || woAny.createdAt,
+      state: wo.state || woAny.status,
+      progress: wo.progress ?? woAny.progressPercent ?? (wo.data && (wo.data.progress || wo.data.progressPercent)),
       dates: wo.dates || {},
       history: Array.isArray(wo.history) ? wo.history : [],
       attachments: attachments.map(a => ({ url: a.url, filename: a.originalName || a.filename }))

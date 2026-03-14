@@ -12,4 +12,5 @@ router.use(auth_1.default);
 router.get('/', notificationsController_1.default.listNotifications);
 router.get('/unread-count', notificationsController_1.default.unreadCount);
 router.put('/:id/read', notificationsController_1.default.markAsRead);
+// POST notifications is planned but disabled for now
 exports.default = router;
