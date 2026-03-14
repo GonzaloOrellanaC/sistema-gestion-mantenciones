@@ -113,27 +113,17 @@ const filesPath = path.join(__dirname, '..', 'files');
 app.use('/files', express.static(filesPath));
 
 // Try to locate frontend/dist in likely locations and serve it as static
-const frontendCandidates = [
-  path.join(__dirname, '..', 'frontend', 'dist'),
-  path.join(__dirname, '..', '..', 'frontend', 'dist'),
-  path.join(process.cwd(), 'frontend', 'dist'),
-];
 
-const frontendDist = frontendCandidates.find((p) => fs.existsSync(p));
+app.use(express.static(path.join(__dirname, '..', '..', 'frontend', 'dist')));
 
-if (frontendDist) {
-  app.use(express.static(frontendDist));
+app.get('*', (req, res, next) => {
+  // Don't override API, images or socket routes
+  if (req.path.startsWith('/api') || req.path.startsWith('/images') || req.path.startsWith('/socket.io')) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, '..', '..', 'frontend', 'dist', 'index.html'));
+});
 
-  app.get('*', (req, res, next) => {
-    // Don't override API, images or socket routes
-    if (req.path.startsWith('/api') || req.path.startsWith('/images') || req.path.startsWith('/socket.io')) {
-      return next();
-    }
-    res.sendFile(path.join(frontendDist, 'index.html'));
-  });
-} else {
-  console.warn('frontend dist not found. Tried:', frontendCandidates);
-}
 
 io.on('connection', (socket) => {
   console.log('socket connected', socket.id);
