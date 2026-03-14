@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { IonSplitPane, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonLabel, IonRouterOutlet, useIonRouter, IonButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonPopover, IonButtons } from '@ionic/react';
+import { IonSplitPane, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonLabel, IonRouterOutlet, useIonRouter, IonButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonPopover, IonButtons, IonModal, IonFooter } from '@ionic/react';
 import { useAuth } from '../context/AuthContext';
 import { people, fileTrayFull, calendar, logOut, documentLock, documentLockOutline, barChartOutline, barChart, peopleOutline, fileTrayFullOutline, calendarOutline, desktopOutline, desktop, storefrontOutline, storefront, businessOutline, business, constructOutline, construct, beakerOutline, beaker, documentsOutline, documents, ellipsisVerticalOutline, settingsOutline, cubeOutline, cube } from 'ionicons/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 import TrialModal from './Modals/TrialModal';
+import { informationCircleOutline } from 'ionicons/icons';
+import LanguageToggle from './Widgets/LanguageToggle.widget';
 import '../i18n';
 import { useTranslation } from 'react-i18next';
 import { checkmark } from 'ionicons/icons';
+import PlanLimitsModal from './PlanLimitsModal';
+import planLimits from './planLimits.json';
 import { hasPermission } from '../utils/permisions';
+import AppButton from './Widgets/Button.widget';
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout, token, permissions } = useAuth();
@@ -30,6 +35,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [showTrialModal, setShowTrialModal] = useState(false);
+  const [showPlanModal, setShowPlanModal] = useState(false);
   const [showLangPopover, setShowLangPopover] = useState(false);
   const [langPopoverEvent, setLangPopoverEvent] = useState<any | undefined>(undefined);
 
@@ -64,18 +70,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <IonMenu contentId="main" type="reveal" style={{ width: 260 }}>
         <IonContent style={{position: 'relative'}}>
           <IonButtons style={{ position: 'absolute', top: 8, right: 8 }}>
-            <IonButton fill={'clear'} onClick={() => {
-              const newLang = (i18n.language && i18n.language.startsWith('es')) ? 'en' : 'es';
-              i18n.changeLanguage(newLang);
-              try { localStorage.setItem('appLanguage', newLang); } catch {}
-            }}>
-              <img
-                src={twemojiSrc(i18n.language && i18n.language.startsWith('es') ? '🇨🇱' : '🇺🇸')}
-                alt={i18n.language && i18n.language.startsWith('es') ? 'ES' : 'EN'}
-                style={{ width: 20, height: 20, marginRight: 8, verticalAlign: 'middle' }}
-              />
-              <span style={{ fontWeight: 600 }}>{i18n.language && i18n.language.startsWith('es') ? 'ES' : 'EN'}</span>
-            </IonButton>
+            <LanguageToggle />
             <IonButton fill={'clear'} onClick={() => { history.push('/settings'); }}>
               <IonIcon icon={settingsOutline} slot='icon-only' />
             </IonButton>
@@ -161,14 +156,19 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
 
             <div style={{ borderTop: '1px solid #E1F5FE', paddingTop: 12, marginTop: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 20, background: 'var(--primary-accent)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                  {user?.firstName?.[0] ?? 'U'}
+              <div style={{ position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 20, background: 'var(--primary-accent)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                    {user?.firstName?.[0] ?? 'U'}
+                  </div>
+                  <div>
+                      <div style={{ fontWeight: 600 }}>{user?.firstName} {user?.lastName}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{user ? t('common.userLabel') : ''}</div>
+                  </div>
                 </div>
-                <div>
-                    <div style={{ fontWeight: 600 }}>{user?.firstName} {user?.lastName}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{user ? t('common.userLabel') : ''}</div>
-                </div>
+                <IonButton fill="clear" size="small" style={{ position: 'absolute', top: 0, right: 0, padding: 6 }} onClick={() => setShowPlanModal(true)}>
+                  <IonIcon icon={informationCircleOutline} />
+                </IonButton>
               </div>
                 <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
                   <button className="btn btn-outline" style={{ width: '100%' }} onClick={() => { history.push('/profile/edit'); }}>
@@ -184,6 +184,12 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </IonMenu>
 
       <TrialModal isOpen={showTrialModal} onClose={() => setShowTrialModal(false)} isPaid={isPaid} trialEnds={trialEnds} daysLeft={daysLeft} />
+
+      <PlanLimitsModal
+        isOpen={showPlanModal}
+        onClose={() => setShowPlanModal(false)}
+        limits={(planLimits as any)[i18n.language] || planLimits['es']}
+      />
 
       <IonRouterOutlet id="main" style={{ minHeight: '100vh' }}>
         {children}

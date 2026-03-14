@@ -5,6 +5,7 @@ export type UserDTO = {
   firstName?: string;
   lastName?: string;
   email?: string;
+  photoUrl?: string;
   roleId?: string;
   orgId?: string;
   deleted?: boolean;

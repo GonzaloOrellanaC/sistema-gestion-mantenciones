@@ -6,6 +6,9 @@ import * as rolesApi from '../api/roles';
 import type { Role } from '../api/types';
 import { useHistory, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNotification } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
+import * as usersApi from '../api/users';
 import './UsersList.css';
 
 const GROUPED_PERMISSIONS = [
@@ -108,7 +111,24 @@ const RoleCreate: React.FC = () => {
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const history = useHistory();
   const { buttonCancel } = useStylingContext();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { confirm } = useNotification();
+  const { user, refreshUser } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  // On first entry, show onboarding modal and update user flag
+  useEffect(() => {
+    if (!params.id && user && !user.enteredToRoleCreation) {
+      setShowOnboarding(true);
+      // Update user flag in DB
+      console.log('Updating user enteredToRoleCreation flag');
+      console.log('User before update:', user);
+      if (user.id) {
+        usersApi.updateUser(user.id, { enteredToRoleCreation: true })
+          .then(() => {/* refreshUser() */})
+          .catch(() => {/* ignore error */});
+      }
+    }
+  }, [params.id, user]);
 
   useEffect(() => {
     if (!params.id) return;
@@ -166,15 +186,48 @@ const RoleCreate: React.FC = () => {
     }
   };
 
+  const handleCreateOperator = async () => {
+    const confirmed = await confirm({
+      title: t('roles.create_operator'),
+      message: t('roles.operator_confirm'),
+      okText: t('common.ok') || 'OK',
+      cancelText: t('common.cancel') || 'Cancelar',
+    });
+    if (confirmed) {
+      setName(i18n.language.startsWith('en') ? t('roles.operator_name', 'Operator') : t('roles.operator_name', 'Operador'));
+      setPermissions(prev => ({
+        ...prev,
+        verPautas: true,
+        verOT: true,
+        ejecutarOT: true,
+        verInsumos: true,
+        verRepuestos: true,
+      }));
+    }
+  };
+
   return (
     <IonPage>
       <IonContent className="users-page ion-padding">
+        {/* Onboarding Modal */}
+        {showOnboarding && (
+          <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.25)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: '#fff', borderRadius: 8, maxWidth: 400, padding: 24, boxShadow: '0 2px 16px rgba(0,0,0,0.15)' }}>
+              <h3 style={{ marginTop: 0 }}>{t('roles.onboarding.title')}</h3>
+              <p>{t('roles.onboarding.message')}</p>
+              <IonButton color="primary" onClick={() => setShowOnboarding(false)}>{t('common.ok', 'OK')}</IonButton>
+            </div>
+          </div>
+        )}
         <IonHeader className="users-header-toolbar ion-no-border">
           <IonToolbar>
-            <div className="users-toolbar-left">
+            <div className="users-toolbar-left" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
               <h2 className="toolbar-title">{t('roles.create.title')}</h2>
-              <div className="toolbar-sub">{t('roles.create.subtitle')}</div>
             </div>
+            <div className="toolbar-sub">{t('roles.create.subtitle')}</div>
+            {(!params.id) && (
+              <IonButton slot='end' size="small" color="secondary" onClick={handleCreateOperator}>{t('roles.create_operator')}</IonButton>
+            )}
           </IonToolbar>
         </IonHeader>
 

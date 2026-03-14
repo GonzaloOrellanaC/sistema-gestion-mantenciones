@@ -1,0 +1,30 @@
+{
+  "es": [
+    "5 usuarios + 1 administrador",
+    "3 roles",
+    "2 sucursales",
+    "5 pautas",
+    "100 repuestos",
+    "100 insumos",
+    "10 activos",
+    "Soporte 24/7 por tickets (respuesta máxima 12 hrs)",
+    "Precio por usuario adicional: 5 USD",
+    "Sucursal adicional: 2 USD",
+    "100 repuestos + 100 insumos adicionales: 2 USD",
+    "5 pautas adicionales: 2 USD"
+  ],
+  "en": [
+    "5 users + 1 admin",
+    "3 roles",
+    "2 branches",
+    "5 templates",
+    "100 parts",
+    "100 supplies",
+    "10 assets",
+    "24/7 support by ticket (max 12h response)",
+    "Extra user: 5 USD",
+    "Extra branch: 2 USD",
+    "100 extra parts + 100 supplies: 2 USD",
+    "5 extra templates: 2 USD"
+  ]
+}

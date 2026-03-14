@@ -9,6 +9,7 @@ import api from '../api/axios';
 import PartUsageModal from '../components/PartUsageModal';
 import * as branchesApi from '../api/branches';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import { hasPermission } from '../utils/permisions';
 
 type Part = any;
@@ -24,6 +25,7 @@ const Parts: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const history = useHistory();
   const { t } = useTranslation();
+  const { confirm } = useNotification();
   const location = useLocation();
   const params = useParams<Record<string, string | undefined>>();
   const [form, setForm] = useState<any>({ name: '', serial: '', quantity: 1, notes: '' });
@@ -109,7 +111,8 @@ const Parts: React.FC = () => {
   // Creation/edit handled on separate page (PartsEdit)
 
   const remove = async (p: Part) => {
-    if (!confirm(t('partsList.toasts.deleteConfirm'))) return;
+    const ok = await confirm({ message: t('partsList.toasts.deleteConfirm') });
+    if (!ok) return;
     try {
       await api.delete(`/api/parts/${p._id}`);
       setToast(t('partsList.toasts.deleted'));

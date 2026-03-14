@@ -1,3 +1,5 @@
+
+
 {
   "hello_technician": "Hello, Technician",
   "pending_orders": "Pending Orders: {{count}}",
@@ -77,6 +79,7 @@
     "pending_label": "Pending"
   },
   "filters": {
+    "plan_limits_title": "Starter Plan Limits",
     "filter_by_urgency": "Filter by urgency",
     "clear": "Clear",
     "apply": "Apply",
@@ -87,4 +90,49 @@
     "medium": "Medium",
     "low": "Low"
   }
+  ,
+  "auth": {
+    "login_title": "Sign in",
+    "email_label": "Email",
+    "password_label": "Password",
+    "login_button": "Sign in",
+    "forgot_link": "Forgot your password?",
+    "register_prompt": "Don't have an account?",
+    "register_link": "Register here",
+    "open_mobile": "Open mobile version",
+    "forgot_title": "Recover Password",
+    "forgot_instructions": "Enter your email and we'll send a link to reset your password.",
+    "send_instructions": "Send instructions",
+    "back_to_login": "Back to login",
+    "reset_title": "Change password",
+    "new_password_label": "New password",
+    "confirm_password_label": "Confirm password",
+    "reset_button": "Change password",
+    "reset_success": "Password reset. You can sign in now."
+    ,
+    "register_title": "Create your account",
+    "register_button": "Create account",
+    "register_back": "Back to login",
+    "register_success": "Registration successful. Check your email or sign in.",
+    "register_trial_info": "When you create an account you get a <strong>30-day free trial</strong>. After that period a subscription will be required to continue using the service."
+  }
+  ,
+  "form": {
+    "first_name": "First name",
+    "last_name": "Last name",
+    "company": "Company / Organization",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm password",
+    "already_account": "Already have an account?",
+    "sign_in": "Sign in"
+  }
+  ,
+  "errors": {
+    "passwords_mismatch": "Passwords do not match",
+    "password_too_short": "Password must be at least 6 characters",
+    "register_failed": "An error occurred while registering."
+  }
+  ,
+  "invalid_token": "Invalid token"
 }

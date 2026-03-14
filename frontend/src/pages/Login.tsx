@@ -9,12 +9,14 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonButton,
   IonText,
   IonIcon,
 } from '@ionic/react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { Input } from '../components/Widgets/Input.widget';
+import AppButton from '../components/Widgets/Button.widget';
+import LanguageToggle from '../components/Widgets/LanguageToggle.widget';
 import '../styles/login.css';
 import { phonePortraitOutline } from 'ionicons/icons';
 
@@ -25,6 +27,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const history = useHistory();
+  const { t } = useTranslation();
 
   const submit = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
@@ -72,9 +75,12 @@ const Login: React.FC = () => {
         <IonGrid>
           <IonRow className="ion-justify-content-center">
             <IonCol sizeXl="5" sizeLg="6" sizeMd="8" sizeSm="10" sizeXs="12">
-              <div className="auth-card">
-                <div className="auth-logo"><img src="/assets/sgm-logo.svg" alt="SGM" style={{ height: 100 }} /></div>
-                <h3>Bienvenido de nuevo</h3>
+              <div className="auth-card" style={{ position: 'relative' }}>
+                <div className="auth-logo"><img src="/assets/sgm-logo.svg" alt="SGM" style={{ height: 75 }} /></div>
+                <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                  <LanguageToggle size={18} />
+                </div>
+                <h3>{t('auth.login_title')}</h3>
                 <form onSubmit={submit} onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -84,27 +90,27 @@ const Login: React.FC = () => {
                 }
               }}>
                 <div className="form-field">
-                  <Input label="Correo electrónico" type="email" value={email} onInput={(e: any) => setEmail(e.detail?.value ?? '')} name="email" />
+                  <Input label={t('auth.email_label')} type="email" value={email} onInput={(e: any) => setEmail(e.detail?.value ?? '')} name="email" />
                 </div>
                 <div className="form-field">
-                  <Input label="Contraseña" type="password" value={password} onInput={(e: any) => setPassword(e.detail?.value ?? '')} name="password" />
+                  <Input label={t('auth.password_label')} type="password" value={password} onInput={(e: any) => setPassword(e.detail?.value ?? '')} name="password" />
                 </div>
                 <div style={{ margin: '16px 0' }}>
-                  <IonButton className="btn btn-primary" expand="block" type="submit" disabled={loading}>
-                    Iniciar sesión
-                  </IonButton>
-                  <IonButton className="btn btn-secondary" expand="block" fill="clear" onClick={() => history.push('/auth/forgot')}>
-                    ¿Olvidaste tu contraseña?
-                  </IonButton>
+                  <AppButton variant="primary" expand="block" type="submit" disabled={loading}>
+                    {t('auth.login_button')}
+                  </AppButton>
+                  <AppButton variant="secondary" expand="block" fill="clear" onClick={() => history.push('/auth/forgot')}>
+                    {t('auth.forgot_link')}
+                  </AppButton>
                   <br />
                   <br />
-                  <IonButton className="btn btn-secondary" expand="block" fill="clear" onClick={openMobileVersion}>
+                  <AppButton variant="secondary" expand="block" fill="clear" onClick={openMobileVersion}>
                     <IonIcon icon={phonePortraitOutline} />
-                    Abrir versión móvil
-                  </IonButton>
+                    {t('auth.open_mobile')}
+                  </AppButton>
                 </div>
                 <div className="auth-links">
-                  <span>¿No tienes cuenta? <a onClick={() => history.push('/auth/register')}>Regístrate aquí</a></span>
+                  <span>{t('auth.register_prompt')} <a onClick={() => history.push('/auth/register')}>{t('auth.register_link')}</a></span>
                 </div>
                 {error && (
                   <div style={{ padding: 8 }}>

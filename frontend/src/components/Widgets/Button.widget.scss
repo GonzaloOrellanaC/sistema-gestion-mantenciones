@@ -1,0 +1,83 @@
+.app-btn {
+  border-radius: 12px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  gap: 0.5rem;
+  /* Make buttons 75% of prior vertical padding/height used in login.css */
+}
+
+.app-btn-primary {
+  --background: var(--primary-dark) !important;
+  --color: var(--white) !important;
+  margin-bottom: 0.6rem;
+}
+
+.app-btn-secondary {
+  --background: var(--bg-sidebar) !important;
+  --color: var(--primary-dark) !important;
+  --padding: 0.45rem 1rem; /* 75% of 0.6rem */
+}
+
+/* Small buttons (when not expanded) should keep compact height */
+.app-btn.small {
+  padding: 0.35rem 0.6rem;
+}
+
+/* Ensure Ionic inner content aligns with our fixed paddings */
+.app-btn .button-inner {
+  line-height: 1;
+}
+
+/* Quitar borde/halo y sombras que Ionic añade en focus/active para evitar contraste fuerte */
+.app-btn,
+.app-btn:focus,
+.app-btn:active,
+.app-btn:focus-visible,
+.app-btn .button-native,
+.app-btn .button-inner {
+  box-shadow: none !important;
+  outline: none !important;
+  border: none !important;
+}
+
+/* También limpiar pseudo-elementos de efecto (ripple/hover) si existen */
+.app-btn .button-native::after,
+.app-btn::after,
+.app-btn .button-effect {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Evitar que el hover oscuro genere un borde aparente */
+.app-btn {
+  --background-hover: transparent !important;
+}
+
+/* Ionic CSS Custom Properties to control button states precisely */
+.app-btn {
+  /* base background kept via classes (primary/secondary) */
+  --background-activated: transparent !important;
+  --background-activated-opacity: 0 !important;
+  --background-focused: transparent !important;
+  --background-focused-opacity: 0 !important;
+  --background-hover: transparent !important;
+  --background-hover-opacity: 0 !important;
+  --border-color: transparent !important;
+  --border-width: 0 !important;
+  --border-style: none !important;
+  --border-radius: 8px !important;
+  --box-shadow: none !important;
+  --color-hover: inherit !important;
+  --color-focused: inherit !important;
+  --color-activated: inherit !important;
+  --opacity: 1 !important;
+  --padding-top: unset;
+  --padding-bottom: unset;
+  --padding-start: unset;
+  --padding-end: unset;
+  --ripple-color: transparent !important;
+  --transition: none !important;
+}

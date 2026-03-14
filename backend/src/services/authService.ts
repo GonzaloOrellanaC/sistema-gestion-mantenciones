@@ -176,7 +176,7 @@ export async function loginUser(payload: any) {
   }
 
   const token = jwt.sign({ userId: user._id, orgId: org._id }, JWT_SECRET, { expiresIn: '7d' });
-  return { token, user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName }, org: { id: org._id, name: org.name, trialStartsAt: (org as any).trialStartsAt, trialEndsAt: (org as any).trialEndsAt, isPaid: (org as any).isPaid } } as any;
+  return { token, user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, enteredToRoleCreation: user.enteredToRoleCreation }, org: { id: org._id, name: org.name, trialStartsAt: (org as any).trialStartsAt, trialEndsAt: (org as any).trialEndsAt, isPaid: (org as any).isPaid } } as any;
 }
 
 export async function forgotPassword(payload: any) {

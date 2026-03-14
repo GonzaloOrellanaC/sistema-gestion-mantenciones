@@ -7,6 +7,7 @@ import type { Role, PaginationResponse } from '../api/types';
 import './UsersList.css';
 import { useHistory } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useNotification } from '../context/NotificationContext';
 
 const RolesList: React.FC = () => {
   const [items, setItems] = useState<Role[]>([]);
@@ -18,6 +19,7 @@ const RolesList: React.FC = () => {
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const history = useHistory()
   const { t } = useTranslation();
+  const { confirm } = useNotification();
 
   const load = async (p = page) => {
     setLoading(true);
@@ -55,7 +57,8 @@ const RolesList: React.FC = () => {
 
   const onDelete = async (id?: string) => {
     if (!id) return;
-    if (!window.confirm(t('roles.confirmDelete'))) return;
+    const ok = await confirm({ message: t('roles.confirmDelete') });
+    if (!ok) return;
     try {
       await rolesApi.deleteRole(id);
       setToast({ show: true, message: t('roles.toasts.deleted') });

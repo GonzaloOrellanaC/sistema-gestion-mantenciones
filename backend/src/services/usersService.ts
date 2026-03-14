@@ -76,6 +76,9 @@ export async function updateUser(orgId: any, userId: string, payload: any) {
   if (payload.photoUrl !== undefined) {
     toUpdate.photoUrl = payload.photoUrl;
   }
+  if (payload.enteredToRoleCreation !== undefined) {
+    toUpdate.enteredToRoleCreation = payload.enteredToRoleCreation;
+  }
 
   const user = await User.findOneAndUpdate({ _id: userId, orgId }, { $set: toUpdate }, { new: true }).select('-passwordHash').populate('roleId').populate('branchId');
   if (!user) throw { status: 404, message: 'User not found' };

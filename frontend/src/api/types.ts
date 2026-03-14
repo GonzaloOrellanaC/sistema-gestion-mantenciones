@@ -7,6 +7,7 @@ export type PaginationResponse<T> = {
 };
 
 export type User = {
+  id?: string;
   _id?: string;
   firstName: string;
   lastName: string;
@@ -30,6 +31,7 @@ export type User = {
   isSuperAdmin?: boolean;
   isAdmin?: boolean;
   createdAt?: string;
+  enteredToRoleCreation?: boolean;
 };
 
 export type Role = {

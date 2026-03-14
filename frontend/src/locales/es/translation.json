@@ -1,3 +1,5 @@
+
+
 {
   "hello_technician": "Hola, Técnico",
   "pending_orders": "Órdenes Pendientes: {{count}}",
@@ -77,6 +79,7 @@
     "pending_label": "Pendientes"
   },
   "filters": {
+    "plan_limits_title": "Límites del plan Starter",
     "filter_by_urgency": "Filtrar por urgencia",
     "clear": "Limpiar",
     "apply": "Aplicar",
@@ -87,4 +90,49 @@
     "medium": "Media",
     "low": "Baja"
   }
+  ,
+  "auth": {
+    "login_title": "Inicio de sesión",
+    "email_label": "Correo electrónico",
+    "password_label": "Contraseña",
+    "login_button": "Iniciar sesión",
+    "forgot_link": "¿Olvidaste tu contraseña?",
+    "register_prompt": "¿No tienes cuenta?",
+    "register_link": "Regístrate aquí",
+    "open_mobile": "Abrir versión móvil",
+    "forgot_title": "Recuperar Contraseña",
+    "forgot_instructions": "Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.",
+    "send_instructions": "Enviar instrucciones",
+    "back_to_login": "Volver al login",
+    "reset_title": "Cambiar contraseña",
+    "new_password_label": "Nueva contraseña",
+    "confirm_password_label": "Confirmar contraseña",
+    "reset_button": "Cambiar contraseña",
+    "reset_success": "Contraseña restablecida. Puedes iniciar sesión ahora."
+    ,
+    "register_title": "Crea tu cuenta",
+    "register_button": "Crear cuenta",
+    "register_back": "Volver al login",
+    "register_success": "Registro exitoso. Revisa tu correo o inicia sesión.",
+    "register_trial_info": "Al crear una cuenta obtendrás <strong>30 días de prueba gratuita</strong>. Después de ese periodo se requerirá suscripción para continuar usando el servicio."
+  }
+  ,
+  "form": {
+    "first_name": "Nombre",
+    "last_name": "Apellido",
+    "company": "Empresa / Organización",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirm_password": "Confirmar contraseña",
+    "already_account": "¿Ya tienes cuenta?",
+    "sign_in": "Inicia sesión"
+  }
+  ,
+  "errors": {
+    "passwords_mismatch": "Las contraseñas no coinciden",
+    "password_too_short": "La contraseña debe tener al menos 6 caracteres",
+    "register_failed": "Ocurrió un error al registrar."
+  }
+  ,
+  "invalid_token": "Token inválido"
 }

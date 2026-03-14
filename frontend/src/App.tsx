@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Redirect, Route, useLocation } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -101,7 +101,7 @@ const Init = () => {
 }
 
 const App: React.FC = () => {
-  const location = useLocation
+  const location = useLocation()
   const { permissions, token, loading } = useAuth();
 
   const priorityRoutes: Array<{ path: string; key: Permission }> = [

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton, IonGrid, IonRow, IonCol, IonToast, IonSelect, IonSelectOption, IonFooter, IonButtons } from '@ionic/react';
 import api from '../api/axios';
 import { useStylingContext } from '../context/StylingContext';
+import { useNotification } from '../context/NotificationContext';
 
 type Params = { id: string };
 
@@ -12,6 +13,7 @@ const LotEdit: React.FC = () => {
   const history = useHistory();
   const { t } = useTranslation();
   const { buttonCancel } = useStylingContext();
+  const { confirm } = useNotification();
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [form, setForm] = useState<any>({ code: '', supplier: '', purchaseDate: '', price: undefined, notes: '', type: 'insumos' });
@@ -136,7 +138,8 @@ const LotEdit: React.FC = () => {
   };
 
   const remove = async () => {
-    if (!confirm(t('lotsEdit.deleteConfirm') || 'Delete this lot?')) return;
+    const ok = await confirm({ message: t('lotsEdit.deleteConfirm') || 'Delete this lot?' });
+    if (!ok) return;
     try {
       setLoading(true);
       await api.delete(`/api/lots/${id}`);

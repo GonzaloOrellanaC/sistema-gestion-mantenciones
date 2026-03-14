@@ -18,6 +18,13 @@
     "showing": "Mostrando {{count}} de {{total}}",
     "page": "Página {{page}}",
     "permissionsTitle": "Permisos",
+    "create_operator": "Crear Operador App",
+    "operator_confirm": "¿Confirma la creación de un usuario básico de ejecución de órdenes de trabajo desde la aplicación móvil?",
+    "operator_name": "Operador",
+    "onboarding": {
+      "title": "¿Por qué crear un rol?",
+      "message": "Aquí puedes crear roles personalizados para tu organización. Un rol define los permisos que tendrá un usuario. Usa el botón 'Crear Operador App' para agregar rápidamente un rol básico para la app móvil."
+    },
     "create": {
       "title": "Crear Rol",
       "subtitle": "Define nombre y permisos",

@@ -43,6 +43,7 @@ export async function update(req: Request, res: Response) {
   try {
     const orgId = (req as any).user.orgId;
     const { id } = req.params;
+    console.log({orgId, id, reqBody: req.body})
     const user = await usersService.updateUser(orgId, id, req.body);
     return res.json(user);
   } catch (err: any) {

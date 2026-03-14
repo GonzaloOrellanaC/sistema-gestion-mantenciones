@@ -11,6 +11,7 @@ export interface IUser {
   branchId?: Schema.Types.ObjectId;
   isAdmin?: boolean;
   isSuperAdmin?: boolean;
+  enteredToRoleCreation?: boolean;
   confirmed?: boolean;
   createdAt?: Date;
 }
@@ -26,6 +27,7 @@ const UserSchema = new Schema<IUser>({
   branchId: { type: Schema.Types.ObjectId, ref: 'Branch' },
   isAdmin: { type: Boolean, default: false },
   isSuperAdmin: { type: Boolean, default: false },
+  enteredToRoleCreation: { type: Boolean, default: false },
   confirmed: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });

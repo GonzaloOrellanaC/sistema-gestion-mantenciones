@@ -9,9 +9,11 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonButton,
   IonText,
 } from '@ionic/react';
+import AppButton from '../components/Widgets/Button.widget';
+import { useTranslation } from 'react-i18next';
+import LanguageToggle from '../components/Widgets/LanguageToggle.widget';
 import * as authApi from '../api/auth';
 import { Input } from '../components/Widgets/Input.widget';
 import '../styles/login.css';
@@ -21,6 +23,7 @@ const ForgotPassword: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const history = useHistory();
+  const { t } = useTranslation();
 
   const submit = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -45,21 +48,24 @@ const ForgotPassword: React.FC = () => {
         <IonGrid>
           <IonRow className="ion-justify-content-center">
             <IonCol sizeXl="5" sizeLg="6" sizeMd="8" sizeSm="10" sizeXs="12">
-              <div className="auth-card">
+              <div className="auth-card" style={{ position: 'relative' }}>
                 <div className="auth-logo"><img src="/assets/sgm-logo.svg" alt="SGM" style={{ height: 36 }} /></div>
-                <h3>Recuperar Contraseña</h3>
-                <p style={{ margin: '0 0 1rem', color: 'var(--text-secondary)' }}>Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
+                <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                  <LanguageToggle size={16} />
+                </div>
+                <h3>{t('auth.forgot_title')}</h3>
+                <p style={{ margin: '0 0 1rem', color: 'var(--text-secondary)' }}>{t('auth.forgot_instructions')}</p>
                 <form onSubmit={submit}>
                   <div className="form-field">
-                    <Input label="Correo electrónico" type="email" value={email} onInput={(e: any) => setEmail(e.detail?.value ?? '')} name="email" />
+                      <Input label={t('auth.email_label')} type="email" value={email} onInput={(e: any) => setEmail(e.detail?.value ?? '')} name="email" />
                   </div>
                   <div style={{ margin: 16 }}>
-                    <IonButton className="btn btn-primary" expand="block" type="submit" disabled={loading} onClick={submit}>
-                      Enviar instrucciones
-                    </IonButton>
-                    <IonButton className="btn btn-secondary" expand="block" fill="clear" onClick={() => history.push('/auth/login')}>
-                      Volver al login
-                    </IonButton>
+                    <AppButton variant="primary" expand="block" type="submit" disabled={loading} onClick={submit}>
+                      {t('auth.send_instructions')}
+                    </AppButton>
+                    <AppButton variant="secondary" expand="block" fill="clear" onClick={() => history.push('/auth/login')}>
+                      {t('auth.back_to_login')}
+                    </AppButton>
                   </div>
                   {message && (
                     <div style={{ padding: 8 }}>

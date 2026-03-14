@@ -18,6 +18,13 @@
     "showing": "Showing {{count}} of {{total}}",
     "page": "Page {{page}}",
     "permissionsTitle": "Permissions",
+    "create_operator": "Create App Operator",
+    "operator_confirm": "Do you confirm the creation of a basic user for executing work orders from the mobile app?",
+    "operator_name": "Operator",
+    "onboarding": {
+      "title": "Why create a role?",
+      "message": "Here you can create custom roles for your organization. A role defines the permissions a user will have. Use the 'Create App Operator' button to quickly add a basic role for the mobile app."
+    },
     "create": {
       "title": "Create Role",
       "subtitle": "Define name and permissions",

@@ -9,12 +9,15 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonButton,
   IonText,
 } from '@ionic/react';
 import { Input } from '../components/Widgets/Input.widget';
 import * as authApi from '../api/auth';
 import '../styles/login.css';
+import AppButton from '../components/Widgets/Button.widget';
+import LanguageToggle from '../components/Widgets/LanguageToggle.widget';
+import { useTranslation } from 'react-i18next';
+import { useNotification } from '../context/NotificationContext';
 
 const Register: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -24,26 +27,27 @@ const Register: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const { notify } = useNotification();
   const history = useHistory();
+  const { t } = useTranslation();
 
   const submit = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    setMessage(null);
+    // clear previous
     if (password !== confirmPassword) {
-      setMessage('Las contraseñas no coinciden.');
+      await notify(false, { title: t('errors.passwords_mismatch') });
       return;
     }
     setLoading(true);
     try {
       await authApi.register({ firstName, lastName, email, password, companyName });
-      setMessage('Registro exitoso. Revisa tu correo o inicia sesión.');
-      setTimeout(() => history.push('/auth/login'), 1200);
+      await notify(true, { title: t('auth.register_success') });
+      history.push('/auth/login');
     } catch (err: unknown) {
       console.error(err);
       type ErrWithResponse = { response?: { data?: { message?: string } } };
-      const msg = (err as ErrWithResponse)?.response?.data?.message ?? 'Ocurrió un error al registrar.';
-      setMessage(msg);
+      const msg = (err as ErrWithResponse)?.response?.data?.message ?? t('errors.register_failed');
+      await notify(false, { title: String(msg) });
     } finally {
       setLoading(false);
     }
@@ -55,12 +59,13 @@ const Register: React.FC = () => {
         <IonGrid>
           <IonRow className="ion-justify-content-center">
             <IonCol sizeXl="5" sizeLg="6" sizeMd="8" sizeSm="10" sizeXs="12">
-              <div className="auth-card">
+              <div className="auth-card" style={{ position: 'relative' }}>
                 <div className="auth-logo"><img src="/assets/sgm-logo.svg" alt="SGM" style={{ height: 84 }} /></div>
-                <h3>Crea tu cuenta</h3>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10 }}>
-                  Al crear una cuenta obtendrás <strong>30 días de prueba gratuita</strong>. Después de ese periodo se requerirá suscripción para continuar usando el servicio.
+                <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                  <LanguageToggle size={18} />
                 </div>
+                <h3>{t('auth.register_title')}</h3>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10 }} dangerouslySetInnerHTML={{ __html: t('auth.register_trial_info') }} />
                 <form onSubmit={submit} onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -69,47 +74,41 @@ const Register: React.FC = () => {
                   }
                 }}>
                   <div className="form-field">
-                    <Input label="Nombre" type="text" value={firstName} onInput={(e: any) => setFirstName(e.detail?.value ?? '')} name="firstName" />
+                    <Input label={t('form.first_name')} type="text" value={firstName} onInput={(e: any) => setFirstName(e.detail?.value ?? '')} name="firstName" />
                   </div>
 
                   <div className="form-field">
-                    <Input label="Apellido" type="text" value={lastName} onInput={(e: any) => setLastName(e.detail?.value ?? '')} name="lastName" />
+                    <Input label={t('form.last_name')} type="text" value={lastName} onInput={(e: any) => setLastName(e.detail?.value ?? '')} name="lastName" />
                   </div>
 
                   <div className="form-field">
-                    <Input label="Empresa / Organización" type="text" value={companyName} onInput={(e: any) => setCompanyName(e.detail?.value ?? '')} name="companyName" />
+                    <Input label={t('form.company')} type="text" value={companyName} onInput={(e: any) => setCompanyName(e.detail?.value ?? '')} name="companyName" />
                   </div>
 
                   <div className="form-field">
-                    <Input label="Correo electrónico" type="email" value={email} onInput={(e: any) => setEmail(e.detail?.value ?? '')} name="email" />
+                    <Input label={t('form.email')} type="email" value={email} onInput={(e: any) => setEmail(e.detail?.value ?? '')} name="email" />
                   </div>
 
                   <div className="form-field">
-                    <Input label="Contraseña" type="password" value={password} onInput={(e: any) => setPassword(e.detail?.value ?? '')} name="password" />
+                    <Input label={t('form.password')} type="password" value={password} onInput={(e: any) => setPassword(e.detail?.value ?? '')} name="password" />
                   </div>
 
                   <div className="form-field">
-                    <Input label="Confirmar contraseña" type="password" value={confirmPassword} onInput={(e: any) => setConfirmPassword(e.detail?.value ?? '')} name="confirmPassword" />
+                    <Input label={t('form.confirm_password')} type="password" value={confirmPassword} onInput={(e: any) => setConfirmPassword(e.detail?.value ?? '')} name="confirmPassword" />
                   </div>
 
                   <div style={{ margin: '16px 0' }}>
-                    <IonButton className="btn btn-primary" expand="block" type="submit" disabled={loading}>
-                      Crear cuenta
-                    </IonButton>
-                    <IonButton className="btn btn-secondary" expand="block" fill="clear" onClick={() => history.push('/auth/login')}>
-                      Volver al login
-                    </IonButton>
+                    <AppButton variant="primary" expand="block" type="submit" disabled={loading}>
+                      {t('auth.register_button')}
+                    </AppButton>
+                    <AppButton variant="secondary" expand="block" fill="clear" onClick={() => history.push('/auth/login')}>
+                      {t('auth.register_back')}
+                    </AppButton>
                   </div>
 
                   <div className="auth-links">
-                    <span>¿Ya tienes cuenta? <a onClick={() => history.push('/auth/login')}>Inicia sesión</a></span>
+                    <span>{t('form.already_account')} <a onClick={() => history.push('/auth/login')}>{t('form.sign_in')}</a></span>
                   </div>
-
-                  {message && (
-                    <div style={{ padding: 8 }}>
-                      <IonText color="primary">{message}</IonText>
-                    </div>
-                  )}
                 </form>
               </div>
             </IonCol>

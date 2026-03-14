@@ -112,8 +112,12 @@ export const Input = (props: InputInterface) => {
                                 shape={'round'}
                                 fill={'clear'}
                                 style={{
-                                    '--ripple-color': colorPrimaryDefault,
-                                    '--background-hover': colorPrimaryDefault + '20'
+                                        '--ripple-color': colorPrimaryDefault,
+                                        '--background-hover': colorPrimaryDefault + '20',
+                                        height: '1.6rem',
+                                        minWidth: '1.6rem',
+                                        padding: '0 0.35rem',
+                                        fontSize: '0.95rem'
                                 }}
                                 onClick={() => {
                                     setType(type === 'password' ? 'text' : 'password')
@@ -131,7 +135,10 @@ export const Input = (props: InputInterface) => {
                                     '--ripple-color': colorPrimaryDefault,
                                     '--background-hover': colorPrimaryDefault + '20',
                                     position: 'absolute', right: '-12rem',
-                                    fontSize: '0.7rem'
+                                    fontSize: '0.7rem',
+                                    height: '1.6rem',
+                                    padding: '0 0.5rem',
+                                    lineHeight: '1.6rem'
                                 }}
                                 onClick={() => {
                                     handleGeneratePassword();

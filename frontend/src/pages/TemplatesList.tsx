@@ -7,6 +7,7 @@ import type { Template } from '../api/types';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import './UsersList.css';
 import { hasPermission } from '../utils/permisions';
 
@@ -29,6 +30,7 @@ const TemplatesList: React.FC = () => {
   const history = useHistory();
   const { t } = useTranslation();
   const { permissions } = useAuth();
+  const { confirm } = useNotification();
 
   const load = async (p = page) => {
     setLoading(true);
@@ -116,7 +118,8 @@ const TemplatesList: React.FC = () => {
       setToast({ show: true, message: t('templates.toasts.noPermissionDelete', { defaultValue: 'No tienes permiso para eliminar pautas' }) });
       return;
     }
-    if (!confirm(t('templates.confirmDelete'))) return;
+    const ok = await confirm({ message: t('templates.confirmDelete') });
+    if (!ok) return;
     try {
       await templatesApi.deleteTemplate(id);
       setItems((s) => s.filter((item) => item._id !== id));

@@ -19,7 +19,6 @@ const Profile: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [stats, setStats] = useState<{ done: number; pending: number }>({ done: 0, pending: 0 });
   const initials = `${(user?.firstName || firstName || '').charAt(0)}${(user?.lastName || lastName || '').charAt(0)}`.toUpperCase();
-  const roleLabel = (user as any)?.role?.name || (user as any)?.role || t('profile.role_user');
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -27,6 +26,7 @@ const Profile: React.FC = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const history = useHistory()
   const { t } = useTranslation();
+  const roleLabel = (user as any)?.role?.name || (user as any)?.role || t('profile.role_user');
 
   useEffect(() => {
     console.log('User changed, updating profile state:', user);

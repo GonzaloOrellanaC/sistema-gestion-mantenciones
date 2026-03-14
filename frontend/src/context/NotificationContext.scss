@@ -1,0 +1,38 @@
+.notification-modal {
+  --min-height: 100px;
+  --max-height: 50vh;
+  --border-radius: 12px;
+  --padding: 1.5rem;
+}
+
+.notification-modal .modal-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.notification-body {
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+}
+.notification-icon img {
+  width: 56px;
+  height: 56px;
+}
+.notification-text h3 {
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+.notification-text p {
+  color: var(--text-secondary);
+}
+
+/* Success style */
+.notification-body.success .notification-icon img {
+  filter: none;
+}
+
+/* Error style */
+.notification-body.error .notification-icon img {
+  filter: none;
+}
