@@ -21,7 +21,7 @@ const Navbar: React.FC = () => {
     };
 
     const openClientAccess = () => {
-        setShowDemoPopup(true);
+        window.open('https://app-sgm.omtecnologia.cl', '_blank', 'noopener');
     };
 
     const navLinks = [
@@ -120,15 +120,7 @@ const Navbar: React.FC = () => {
                     </div>
                 </div>
             )}
-            {showDemoPopup && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center">
-                        <h3 className="text-xl font-bold mb-2">Pronto Demo</h3>
-                        <p className="mb-4">Próximamente disponible.</p>
-                        <button onClick={() => setShowDemoPopup(false)} className="bg-[#89C2D9] hover:bg-[#61A5C2] text-white px-4 py-2 rounded">Cerrar</button>
-                    </div>
-                </div>
-            )}
+            {/* Demo popup eliminado, ahora openClientAccess abre una nueva pestaña */}
         </nav>
     );
 };
