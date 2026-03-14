@@ -101,9 +101,10 @@ async function bulkCreate(req, res) {
     }
     catch (err) {
         console.error(err);
-        if (err && err.insertedDocs)
-            return res.status(201).json({ created: err.insertedDocs, error: err.message });
-        return res.status(err.status || 500).json({ message: err.message || 'Server error' });
+        const e = err;
+        if (e && e.insertedDocs)
+            return res.status(201).json({ created: e.insertedDocs, error: e.message });
+        return res.status(e.status || 500).json({ message: e.message || 'Server error' });
     }
 }
 async function create(req, res) {

@@ -15,7 +15,7 @@ export async function list(req: Request, res: Response) {
       const rawType = String(req.query.type);
       // allow passing either an ObjectId or the legacy type string ('repuestos'|'insumos') or label
       if (mongoose.Types.ObjectId.isValid(rawType)) {
-        q.type = mongoose.Types.ObjectId(rawType);
+        q.type = new mongoose.Types.ObjectId(rawType);
       } else {
         // try to find matching TypePurchase by `type` field or by label (case-insensitive)
         try {
@@ -117,9 +117,9 @@ export async function getById(req: Request, res: Response) {
             try {
               const idStr = String(ii.itemId);
               const p = await Part.findById(idStr).select('name').lean();
-              if (p && p.name) { ii.itemName = p.name; continue; }
+              if (p && p.name) { (ii as any).itemName = p.name; continue; }
               const s = await Supply.findById(idStr).select('name').lean();
-              if (s && s.name) { ii.itemName = s.name; }
+              if (s && s.name) { (ii as any).itemName = s.name; }
             } catch (e) {
               // ignore individual lookup errors
             }

@@ -23,17 +23,17 @@ export async function bulkCreate(req: Request, res: Response) {
 
     // Helper para buscar o crear brand
     async function findOrCreateBrand(name: string) {
-      let doc = await Brand.findOne({ name, orgId }).lean();
+      let doc: any = await Brand.findOne({ name, orgId }).lean();
       if (!doc) {
         doc = await Brand.create({ name, orgId });
-        doc = doc.toObject ? doc.toObject() : doc;
+        doc = (doc as any).toObject ? (doc as any).toObject() : doc;
       }
       return doc;
     }
 
     const docsToInsert = [];
     for (const it of payload) {
-      const doc = { orgId };
+      let doc: any = { orgId };
       // name
       if (it.name) doc.name = it.name;
       // branchIds
@@ -57,37 +57,38 @@ export async function bulkCreate(req: Request, res: Response) {
     }
 
     const created = await Supply.insertMany(docsToInsert, { ordered: false });
-      // Crear lote asociado para cada nuevo insumo
-      for (let i = 0; i < created.length; i++) {
-        const supply = created[i];
-        const it = payload[i];
-        // Generar código aleatorio de máximo 10 caracteres
-        const randomCode = Math.random().toString(36).substring(2, 12);
-        const branchId = supply.branchIds || null;
-        const lot = await Lot.create({
-          orgId,
-          branchId,
-          code: randomCode,
-          items: [{ itemId: supply._id, quantity: 0 }],
-          meta: { createdByBulk: true },
-          createdAt: new Date()
-        });
-        // Crear SupplyInventory
-        const qty = typeof it.quantity === 'number' ? it.quantity : Number(it.quantity) || 0;
-        await SupplyInventory.create({
-          orgId,
-          itemId: supply._id,
-          lotId: lot._id,
-          initialQuantity: qty,
-          remainingQuantity: qty,
-          createdAt: new Date()
-        });
-      }
+    // Crear lote asociado para cada nuevo insumo
+    for (let i = 0; i < created.length; i++) {
+      const supply = created[i];
+      const it = payload[i];
+      // Generar código aleatorio de máximo 10 caracteres
+      const randomCode = Math.random().toString(36).substring(2, 12);
+      const branchId = (supply as any).branchIds || null;
+      const lot = await Lot.create({
+        orgId,
+        branchId,
+        code: randomCode,
+        items: [{ itemId: supply._id, quantity: 0 }],
+        meta: { createdByBulk: true },
+        createdAt: new Date()
+      });
+      // Crear SupplyInventory
+      const qty = typeof it.quantity === 'number' ? it.quantity : Number(it.quantity) || 0;
+      await SupplyInventory.create({
+        orgId,
+        itemId: supply._id,
+        lotId: lot._id,
+        initialQuantity: qty,
+        remainingQuantity: qty,
+        createdAt: new Date()
+      });
+    }
     return res.status(201).json({ created });
   } catch (err) {
     console.error(err);
-    if (err && err.insertedDocs) return res.status(201).json({ created: err.insertedDocs, error: err.message });
-    return res.status(err.status || 500).json({ message: err.message || 'Server error' });
+    const e = err as any;
+    if (e && e.insertedDocs) return res.status(201).json({ created: e.insertedDocs, error: e.message });
+    return res.status(e.status || 500).json({ message: e.message || 'Server error' });
   }
 }
 
