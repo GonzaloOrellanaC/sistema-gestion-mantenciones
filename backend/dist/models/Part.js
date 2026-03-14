@@ -36,16 +36,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const PartSchema = new mongoose_1.Schema({
     orgId: { type: mongoose_1.Schema.Types.ObjectId, required: true, index: true },
-    branchId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Branch' },
-    assetId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Asset' },
+    branchIds: { type: [mongoose_1.Schema.Types.ObjectId], ref: 'Branch', default: [] },
+    assetIds: { type: [mongoose_1.Schema.Types.ObjectId], ref: 'Asset', default: [] },
     name: { type: String, required: true },
     serial: { type: String },
-    quantity: { type: Number, default: 1 },
-    dateEntry: { type: Date },
-    dateInUse: { type: Date },
-    dateRetired: { type: Date },
-    workOrderId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'WorkOrder' },
-    notes: { type: String },
+    minStock: { type: Number, default: 0 },
     docs: { type: [mongoose_1.Schema.Types.ObjectId], ref: 'FileMeta', default: [] },
     createdAt: { type: Date, default: Date.now }
 });

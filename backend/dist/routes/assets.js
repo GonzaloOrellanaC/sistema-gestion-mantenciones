@@ -8,6 +8,8 @@ const auth_1 = __importDefault(require("../middleware/auth"));
 const assetsController_1 = __importDefault(require("../controllers/assetsController"));
 const router = (0, express_1.Router)();
 router.use(auth_1.default);
+// bulk create route (must not conflict with '/:id')
+router.post('/bulk-create', assetsController_1.default.bulkCreate);
 router.post('/', assetsController_1.default.create);
 router.get('/', assetsController_1.default.list);
 router.get('/:id', assetsController_1.default.getOne);

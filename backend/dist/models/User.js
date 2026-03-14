@@ -40,10 +40,13 @@ const UserSchema = new mongoose_1.Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true },
     passwordHash: { type: String, required: true },
+    photoUrl: { type: String },
     roleId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Role' },
     branchId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Branch' },
     isAdmin: { type: Boolean, default: false },
     isSuperAdmin: { type: Boolean, default: false },
+    enteredToRoleCreation: { type: Boolean, default: false },
+    confirmed: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
 });
 // Ensure emails are unique per organization

@@ -81,6 +81,7 @@ async function update(req, res) {
     try {
         const orgId = req.user.orgId;
         const { id } = req.params;
+        console.log({ orgId, id, reqBody: req.body });
         const user = await usersService.updateUser(orgId, id, req.body);
         return res.json(user);
     }

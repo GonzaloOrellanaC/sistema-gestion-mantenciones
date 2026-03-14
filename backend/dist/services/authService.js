@@ -16,6 +16,7 @@ const Organization_1 = __importDefault(require("../models/Organization"));
 const User_1 = __importDefault(require("../models/User"));
 const Role_1 = __importDefault(require("../models/Role"));
 const PasswordResetToken_1 = __importDefault(require("../models/PasswordResetToken"));
+const EmailConfirmationToken_1 = __importDefault(require("../models/EmailConfirmationToken"));
 const mailer_1 = require("../utils/mailer");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -31,13 +32,112 @@ async function registerUser(payload) {
         const trialEnds = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
         org = await Organization_1.default.create({ name: companyName, trialStartsAt: now, trialEndsAt: trialEnds, isPaid: false });
     }
-    let adminRole = await Role_1.default.findOne({ orgId: org._id, name: 'Admin' });
+    let adminRole = await Role_1.default.findOne({ orgId: org._id, name: 'Administrador' });
     if (!adminRole) {
-        adminRole = await Role_1.default.create({ orgId: org._id, name: 'Admin', permissions: {}, hierarchyLevel: 0 });
+        adminRole = await Role_1.default.create({
+            orgId: org._id,
+            name: 'Administrador',
+            permissions: {
+                verTablero: true,
+                verUsuarios: true,
+                crearUsuarios: true,
+                editarUsuarios: true,
+                verPautas: true,
+                crearPautas: true,
+                editarPautas: true,
+                verOT: true,
+                crearOT: true,
+                editarOT: true,
+                asignarOT: true,
+                ejecutarOT: true,
+                supervisar: true,
+                aprobarRechazar: true,
+                verRoles: true,
+                crearRoles: true,
+                editarRoles: true,
+                verOrganizacion: true,
+                editarOrganizacion: true,
+                verOrganization: true,
+                editarOrganization: true,
+                verActivos: true,
+                crearActivos: true,
+                editarActivos: true,
+                verSucursales: true,
+                crearSucursales: true,
+                editarSucursales: true,
+                verInsumos: true,
+                crearInsumos: true,
+                editarInsumos: true,
+                verRepuestos: true,
+                crearRepuestos: true,
+                editarRepuestos: true,
+                verLotes: true,
+                crearLotes: true,
+                editarLotes: true
+            },
+            hierarchyLevel: 0
+        });
     }
     const passwordHash = await bcrypt_1.default.hash(password, 10);
-    const user = await User_1.default.create({ orgId: org._id, firstName, lastName, email, passwordHash, roleId: adminRole._id, isAdmin: true });
+    const user = await User_1.default.create({ orgId: org._id, firstName, lastName, email, passwordHash, roleId: adminRole._id, isAdmin: true, confirmed: false });
     const token = jsonwebtoken_1.default.sign({ userId: user._id, orgId: org._id }, JWT_SECRET, { expiresIn: '7d' });
+    // create a confirmation token record (random token) for email verification
+    const confirmToken = crypto_1.default.randomBytes(24).toString('hex');
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    await EmailConfirmationToken_1.default.create({ userId: user._id, token: confirmToken, expiresAt });
+    // construct confirmation link using FRONTEND_URL and token
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5100';
+    const confirmLink = `${frontendUrl}/auth/confirm-email/${confirmToken}`;
+    // enviar correo de bienvenida y lanzar error si falla
+    async function getPublicIp() {
+        try {
+            const res = await fetch('https://api.ipify.org?format=json');
+            if (!res.ok)
+                throw new Error('No se pudo obtener la IP pública');
+            const data = await res.json();
+            return data.ip;
+        }
+        catch (err) {
+            return '';
+        }
+    }
+    let mailSent = false;
+    let mailError = null;
+    try {
+        await (0, mailer_1.sendWelcomeEmail)(user.email, confirmLink, `${firstName} ${lastName}`);
+        mailSent = true;
+    }
+    catch (e) {
+        mailError = e;
+        // Intentar whitelistear la IP y reenviar
+        const ip = await getPublicIp();
+        if (ip) {
+            try {
+                const desc = `sgm-auto-whitelist-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+                const resp = await fetch('https://add-ip-whitelist-mailgun.omtecnologia.cl/add-ip-to-whitelist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip, mailgunApiKey: process.env.MAILGUN_API_KEY, description: desc })
+                });
+                if (resp.ok) {
+                    try {
+                        await (0, mailer_1.sendWelcomeEmail)(user.email, confirmLink, `${firstName} ${lastName}`);
+                        mailSent = true;
+                    }
+                    catch (e2) {
+                        mailError = e2;
+                    }
+                }
+            }
+            catch (werr) {
+                // No hacer nada, se mantiene mailError
+            }
+        }
+    }
+    if (!mailSent) {
+        console.log('Failed to send welcome email after retry attempts:', mailError);
+        throw { status: 500, message: mailError?.message || 'No se pudo enviar el correo de bienvenida.' };
+    }
     return { token, user: { id: user._id, email: user.email, firstName, lastName }, org: { id: org._id, name: org.name, trialStartsAt: org.trialStartsAt, trialEndsAt: org.trialEndsAt, isPaid: org.isPaid } };
 }
 async function loginUser(payload) {
@@ -49,6 +149,10 @@ async function loginUser(payload) {
     const user = await User_1.default.findOne({ email });
     if (!user)
         throw { status: 401, message: 'Invalid credentials' };
+    // Block login if the user has not confirmed their email
+    if (!user.confirmed) {
+        throw { status: 403, message: 'Email not confirmed' };
+    }
     // Resolve organization from user's orgId
     const org = await Organization_1.default.findById(user.orgId);
     if (!org)
@@ -64,7 +168,7 @@ async function loginUser(payload) {
         }
     }
     const token = jsonwebtoken_1.default.sign({ userId: user._id, orgId: org._id }, JWT_SECRET, { expiresIn: '7d' });
-    return { token, user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName }, org: { id: org._id, name: org.name, trialStartsAt: org.trialStartsAt, trialEndsAt: org.trialEndsAt, isPaid: org.isPaid } };
+    return { token, user: { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, enteredToRoleCreation: user.enteredToRoleCreation }, org: { id: org._id, name: org.name, trialStartsAt: org.trialStartsAt, trialEndsAt: org.trialEndsAt, isPaid: org.isPaid } };
 }
 async function forgotPassword(payload) {
     const { email, companyName } = payload;

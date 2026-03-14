@@ -13,7 +13,7 @@ const Role_1 = __importDefault(require("../models/Role"));
 const Branch_1 = __importDefault(require("../models/Branch"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 async function createUser(orgId, payload) {
-    const { firstName, lastName, email, password, roleId, permissions } = payload;
+    const { firstName, lastName, email, password, roleId, permissions, photoUrl } = payload;
     if (!firstName || !lastName || !email || !password)
         throw { status: 400, message: 'Missing fields' };
     // if roleId provided ensure it belongs to org
@@ -21,7 +21,9 @@ async function createUser(orgId, payload) {
     if (assignedRole && assignedRole.orgId.toString() !== orgId.toString())
         throw { status: 400, message: 'Invalid roleId' };
     const passwordHash = await bcrypt_1.default.hash(password, 10);
-    const userPayload = { orgId, firstName, lastName, email, passwordHash, roleId: assignedRole?._id, isAdmin: false };
+    const userPayload = { orgId, firstName, lastName, email, passwordHash, roleId: assignedRole?._id, isAdmin: false, confirmed: true };
+    if (photoUrl)
+        userPayload.photoUrl = photoUrl;
     if (payload.branchId) {
         const br = await Branch_1.default.findById(payload.branchId);
         if (!br || br.orgId.toString() !== orgId.toString())
@@ -81,6 +83,12 @@ async function updateUser(orgId, userId, payload) {
         if (!br || br.orgId.toString() !== orgId.toString())
             throw { status: 400, message: 'Invalid branchId' };
         toUpdate.branchId = payload.branchId;
+    }
+    if (payload.photoUrl !== undefined) {
+        toUpdate.photoUrl = payload.photoUrl;
+    }
+    if (payload.enteredToRoleCreation !== undefined) {
+        toUpdate.enteredToRoleCreation = payload.enteredToRoleCreation;
     }
     const user = await User_1.default.findOneAndUpdate({ _id: userId, orgId }, { $set: toUpdate }, { new: true }).select('-passwordHash').populate('roleId').populate('branchId');
     if (!user)

@@ -44,6 +44,7 @@ const authController = __importStar(require("../controllers/authController"));
 const router = (0, express_1.Router)();
 const forgotLimiter = (0, express_rate_limit_1.default)({ windowMs: 15 * 60 * 1000, max: 5, message: 'Too many password reset requests, try later.' });
 router.post('/register', authController.register);
+router.get('/confirm-email', authController.confirmEmail);
 router.post('/login', authController.login);
 router.post('/forgot-password', forgotLimiter, async (req, res, next) => {
     // basic validation before controller: email format

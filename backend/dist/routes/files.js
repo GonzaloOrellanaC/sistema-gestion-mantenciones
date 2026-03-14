@@ -46,11 +46,26 @@ const FileMeta_1 = __importDefault(require("../models/FileMeta"));
 const WorkOrder_1 = __importDefault(require("../models/WorkOrder"));
 const router = (0, express_1.Router)();
 // use env var or default
-const FILES_DIR = process.env.FILES_DIR || path_1.default.join(process.cwd(), 'backend', 'files');
+const FILES_DIR = process.env.FILES_DIR || path_1.default.join(process.cwd(), 'files');
 const storage = multer_1.default.diskStorage({
-    destination: (req, file, cb) => {
+    destination: async (req, file, cb) => {
         try {
             const orgId = req.user?.orgId || 'unknown';
+            // If workOrderId provided prefer storing under files/{orgId}/{clientId}/{orgSeq}
+            const workOrderId = req.body && req.body.workOrderId ? String(req.body.workOrderId) : undefined;
+            if (workOrderId) {
+                try {
+                    const wo = await WorkOrder_1.default.findOne({ _id: workOrderId, orgId }).lean();
+                    const clientId = (wo && wo.client && (wo.client._id || wo.client.id)) ? String((wo.client._id || wo.client.id)) : 'unknown-client';
+                    const seq = (wo && typeof wo.orgSeq !== 'undefined') ? String(wo.orgSeq) : String(workOrderId);
+                    const dir = path_1.default.join(FILES_DIR, String(orgId), clientId, seq);
+                    fs_1.default.mkdirSync(dir, { recursive: true });
+                    return cb(null, dir);
+                }
+                catch (e) {
+                    // fallback to default
+                }
+            }
             const type = req.body.type || 'misc';
             const dir = path_1.default.join(FILES_DIR, orgId.toString(), type);
             fs_1.default.mkdirSync(dir, { recursive: true });
@@ -112,11 +127,40 @@ router.post('/upload', exports.upload.single('file'), async (req, res) => {
                 console.warn('thumbnail generation failed', e);
             }
         }
+        // if uploader provided lot info, store in meta
+        try {
+            const lot = (req.body && (req.body.lot || req.body.lote)) ? (req.body.lot || req.body.lote) : undefined;
+            const lotDateRaw = req.body && req.body.lotDate ? req.body.lotDate : (req.body && req.body.loteDate ? req.body.loteDate : undefined);
+            if (lot || lotDateRaw) {
+                metaData.meta = metaData.meta || {};
+                if (lot)
+                    metaData.meta.lot = String(lot);
+                if (lotDateRaw) {
+                    const d = new Date(lotDateRaw);
+                    if (!isNaN(d.getTime()))
+                        metaData.meta.lotDate = d;
+                }
+            }
+        }
+        catch (e) {
+            /* ignore parse errors */
+        }
         const meta = await FileMeta_1.default.create(metaData);
         // if workOrderId provided, attach
         const workOrderId = req.body.workOrderId;
         if (workOrderId) {
             await WorkOrder_1.default.findOneAndUpdate({ _id: workOrderId, orgId }, { $push: { attachments: meta._id } });
+        }
+        // compute public URL for the stored file (if under ./files)
+        try {
+            const filesBase = FILES_DIR; // base folder
+            const rel = path_1.default.relative(filesBase, req.file.path).replace(/\\/g, '/');
+            const publicUrl = `${req.protocol}://${req.get('host')}/files/${rel}`;
+            meta.url = publicUrl;
+            await meta.save();
+        }
+        catch (e) {
+            // ignore
         }
         return res.json({ meta });
     }

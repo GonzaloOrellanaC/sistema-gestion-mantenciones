@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.requirePermission = requirePermission;
 const Role_1 = __importDefault(require("../models/Role"));
 // Simple permission middleware. Permission names match keys inside Role.permissions
-function requirePermission(permission) {
+function requirePermission(...permissions) {
     return async (req, res, next) => {
         try {
             const user = req.user;
@@ -15,15 +15,29 @@ function requirePermission(permission) {
             // Admin bypasses permissions
             if (user.isAdmin)
                 return next();
-            const roleId = user.roleId;
+            const roleId = (user.roleId || '').toString();
             if (!roleId)
                 return res.status(403).json({ message: 'Forbidden - no role assigned' });
             const role = await Role_1.default.findById(roleId).lean();
             if (!role)
                 return res.status(403).json({ message: 'Forbidden - role not found' });
             const perms = role.permissions || {};
-            if (perms[permission])
-                return next();
+            // Normalize if permissions were passed as a single array: requirePermission(['a','b'])
+            let permsToCheck = [];
+            if (permissions && permissions.length === 1 && Array.isArray(permissions[0])) {
+                permsToCheck = permissions[0];
+            }
+            else {
+                permsToCheck = permissions;
+            }
+            // If no permissions were passed, deny by default
+            if (!permsToCheck || permsToCheck.length === 0)
+                return res.status(403).json({ message: 'Forbidden - no permission specified' });
+            // Allow if user has any of the provided permissions
+            for (const p of permsToCheck) {
+                if (perms[p])
+                    return next();
+            }
             return res.status(403).json({ message: 'Forbidden - insufficient permissions' });
         }
         catch (err) {

@@ -43,10 +43,14 @@ exports.resetPassword = resetPassword;
 exports.changePassword = changePassword;
 exports.changePasswordAdmin = changePasswordAdmin;
 exports.me = me;
+exports.confirmEmail = confirmEmail;
 const authService = __importStar(require("../services/authService"));
 const User_1 = __importDefault(require("../models/User"));
 const Role_1 = __importDefault(require("../models/Role"));
 const Organization_1 = __importDefault(require("../models/Organization"));
+const EmailConfirmationToken_1 = __importDefault(require("../models/EmailConfirmationToken"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 async function register(req, res) {
     try {
         const result = await authService.registerUser(req.body);
@@ -139,11 +143,40 @@ async function me(req, res) {
         catch (e) {
             // ignore org lookup errors
         }
-        return res.json({ id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, orgId: user.orgId, org: orgData, isAdmin: user.isAdmin, role: roleData });
+        return res.json({ id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, orgId: user.orgId, org: orgData, isAdmin: user.isAdmin, role: roleData, photoUrl: user.photoUrl || null, enteredToRoleCreation: user.enteredToRoleCreation });
     }
     catch (err) {
         console.error(err);
         return res.status(500).json({ message: 'Server error' });
+    }
+}
+async function confirmEmail(req, res) {
+    try {
+        const { token } = req.query;
+        if (!token)
+            return res.status(400).send('Missing token');
+        const tokenDoc = await EmailConfirmationToken_1.default.findOne({ token });
+        if (!tokenDoc)
+            return res.status(400).send('Invalid or expired token');
+        if (tokenDoc.used)
+            return res.status(400).send('Token already used');
+        if (tokenDoc.expiresAt < new Date())
+            return res.status(400).send('Token expired');
+        const user = await User_1.default.findById(tokenDoc.userId);
+        if (!user)
+            return res.status(404).send('User not found');
+        user.set('confirmed', true);
+        await user.save();
+        tokenDoc.used = true;
+        await tokenDoc.save();
+        const frontend = process.env.FRONTEND_URL || 'http://localhost:5100';
+        // small confirmation page that redirects to login after 5s
+        const html = `<!doctype html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>Correo confirmado</title><style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#F8FAFC;color:#334155;display:flex;align-items:center;justify-content:center;height:100vh;margin:0} .card{background:#fff;padding:24px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.08);text-align:center}</style></head><body><div class="card"><h2>Correo confirmado</h2><p>Gracias — serás redirigido al inicio de sesión en 5 segundos.</p><p><a href="${frontend}/login">Ir ahora</a></p></div><script>setTimeout(()=>{window.location.href='${frontend}/login'},5000);</script></body></html>`;
+        return res.send(html);
+    }
+    catch (err) {
+        console.error(err);
+        return res.status(500).send('Server error');
     }
 }
 exports.default = {
@@ -152,5 +185,7 @@ exports.default = {
     forgotPassword,
     resetPassword,
     changePassword,
-    changePasswordAdmin
+    changePasswordAdmin,
+    confirmEmail,
+    me
 };

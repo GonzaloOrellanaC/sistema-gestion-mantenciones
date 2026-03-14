@@ -38,6 +38,7 @@ const BranchSchema = new mongoose_1.Schema({
     orgId: { type: mongoose_1.Schema.Types.ObjectId, required: true, index: true },
     name: { type: String, required: true },
     address: { type: String },
+    branchType: { type: mongoose_1.Schema.Types.ObjectId, required: true, ref: 'BranchType' },
     meta: { type: mongoose_1.Schema.Types.Mixed }
 });
 exports.default = mongoose_1.default.model('Branch', BranchSchema);
