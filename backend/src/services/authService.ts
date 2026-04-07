@@ -6,7 +6,8 @@ import User from '../models/User';
 import Role from '../models/Role';
 import PasswordResetToken from '../models/PasswordResetToken';
 import EmailConfirmationToken from '../models/EmailConfirmationToken';
-import { sendPasswordResetEmail, sendWelcomeEmail } from '../utils/mailer';
+import Mailgun from '../utils/mailgun';
+import NodeMailer from '../utils/nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -111,7 +112,11 @@ export async function registerUser(payload: any) {
   let mailSent = false;
   let mailError = null;
   try {
-    await sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+    if (process.env.MAIL_SYS === 'mailgun') {
+      await Mailgun.sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+    } else {
+      await NodeMailer.sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+    }
     mailSent = true;
   } catch (e: any) {
     mailError = e;
@@ -127,7 +132,11 @@ export async function registerUser(payload: any) {
         });
         if (resp.ok) {
           try {
-            await sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+            if (process.env.MAIL_SYS === 'mailgun') {
+              await Mailgun.sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+            } else {
+              await NodeMailer.sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+            }
             mailSent = true;
           } catch (e2: any) {
             mailError = e2;
@@ -197,7 +206,11 @@ export async function forgotPassword(payload: any) {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5100';
   const resetLink = `${frontendUrl}/reset-password?token=${token}`;
 
-  await sendPasswordResetEmail(user.email, resetLink);
+  if (process.env.MAIL_SYS === 'mailgun') {
+    await Mailgun.sendPasswordResetEmail(user.email, resetLink);
+  } else {
+    await NodeMailer.sendPasswordResetEmail(user.email, resetLink);
+  }
 }
 
 export async function resetPassword(payload: any) {

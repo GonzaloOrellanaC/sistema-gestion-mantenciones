@@ -43,6 +43,7 @@ const costs_1 = __importDefault(require("./routes/costs"));
 const metrics_1 = __importDefault(require("./routes/metrics"));
 const reporting_1 = __importDefault(require("./routes/reporting"));
 const public_1 = __importDefault(require("./routes/public"));
+const dev_1 = __importDefault(require("./routes/dev"));
 const BranchType_1 = __importDefault(require("./models/BranchType"));
 const PORT = process.env.PORT || 5102;
 const app = (0, express_1.default)();
@@ -98,6 +99,10 @@ app.use('/api/costs', costs_1.default);
 app.use('/api/metrics', metrics_1.default);
 app.use('/api/reporting', reporting_1.default);
 app.use('/api/branch-types', branchTypes_1.default);
+// Dev-only routes (protected at runtime)
+if (process.env.NODE_ENV !== 'production') {
+    app.use('/api/dev', dev_1.default);
+}
 // Public endpoints (token-based access)
 app.use('/public', public_1.default);
 // Serve uploaded images publicly from backend/files/images

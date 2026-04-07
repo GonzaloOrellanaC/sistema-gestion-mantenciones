@@ -44,12 +44,14 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { listOutline, personOutline, notificationsOutline } from 'ionicons/icons';
+import { listOutline, personOutline, notificationsOutline, layersOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import NotificationToast from './components/NotificationToast';
 import MyAssignations from './pages/MyAssignations';
 import Notifications from './pages/Notifications';
 import { WorkOrderProvider } from './context/WorkOrderContext';
+import Assets from './pages/Assets';
+import ActiveForm from './pages/AssetForm';
 
 setupIonicReact();
 
@@ -111,6 +113,21 @@ const App: React.FC = () => (
                 <Settings />
               </ProtectedRoute>
             </Route>
+            <Route exact path="/assets">
+              <ProtectedRoute>
+                <Assets />
+              </ProtectedRoute>
+            </Route>
+            <Route exact path="/assets/new">
+              <ProtectedRoute>
+                <ActiveForm />
+              </ProtectedRoute>
+            </Route>
+            <Route exact path="/assets/:id/edit" >
+              <ProtectedRoute>
+                <ActiveForm />
+              </ProtectedRoute>
+            </Route>
             <Route exact path="/editar-perfil">
               <ProtectedRoute>
                 <EditarPerfil />
@@ -128,10 +145,11 @@ const App: React.FC = () => (
 export default App;
 
 const BottomTabs = () => {
-  const { token, unreadCount } = useAuth() as any;
+  const { token, unreadCount, user } = useAuth() as any;
   if (!token) return null;
   const { t } = useTranslation();
-
+  const permissions = (user && user.role && user.role.permissions) || {};
+  const canSeeAssets = !!(permissions.verActivos || permissions.crearActivos || permissions.editarActivos);
   return (
     <IonTabBar slot="bottom">
       <IonTabButton tab='my-assignations' href='/my-assignations'>
@@ -143,6 +161,12 @@ const BottomTabs = () => {
         <span style={{ fontSize: 12 }}>{t('nav.notifications')}</span>
         {unreadCount > 0 && <div style={{ position: 'absolute', right: 8, top: 6 }}><IonBadge color='danger'>{unreadCount}</IonBadge></div>}
       </IonTabButton>
+      {canSeeAssets && (
+        <IonTabButton tab='assets' href='/assets'>
+          <IonIcon icon={layersOutline} />
+          <span style={{ fontSize: 12 }}>{t('nav.assets') || 'Assets'}</span>
+        </IonTabButton>
+      )}
       <IonTabButton tab='profile' href='/profile'>
         <IonIcon icon={personOutline} />
         <span style={{ fontSize: 12 }}>{t('nav.profile')}</span>

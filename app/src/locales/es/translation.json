@@ -1,4 +1,9 @@
 {
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "saving": "Guardando..."
+  },
   "hello_technician": "Hola, Técnico",
   "pending_orders": "Órdenes Pendientes: {{count}}",
   "no_orders": "No hay órdenes.",
@@ -59,7 +64,30 @@
   "nav": {
     "orders": "Órdenes",
     "notifications": "Notificaciones",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "assets": "Activos"
+  },
+  "pages": {
+    "assets": "Activos"
+  },
+  "assets": {
+    "intro": "Aquí podrás ver y gestionar los activos.",
+    "subtitle": "Lista y gestión de activos",
+    "add": "Agregar activo",
+    "edit": "Editar activo",
+    "add_sub": "Completa el formulario para crear un nuevo activo",
+    "edit_sub": "Modifica los datos del activo",
+    "scan": {
+      "start": "Iniciar escaneo",
+      "stop": "Detener",
+      "scanning": "Escaneando...",
+      "unsupported": "Escáner no soportado"
+    },
+    "fields": {
+      "code": "Código",
+      "name": "Nombre",
+      "description": "Descripción"
+    }
   },
   "difficulty": {
     "title": "Dificultad",

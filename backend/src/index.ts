@@ -38,6 +38,7 @@ import costsRoutes from './routes/costs';
 import metricsRoutes from './routes/metrics';
 import reportingRoutes from './routes/reporting';
 import publicRoutes from './routes/public';
+import devRoutes from './routes/dev';
 import BranchType from './models/BranchType';
 
 const PORT = process.env.PORT || 5102;
@@ -100,6 +101,11 @@ app.use('/api/costs', costsRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/reporting', reportingRoutes);
 app.use('/api/branch-types', branchTypesRoutes);
+
+// Dev-only routes (protected at runtime)
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api/dev', devRoutes);
+}
 
 // Public endpoints (token-based access)
 app.use('/public', publicRoutes);

@@ -205,7 +205,7 @@ async function assignWorkOrder(req, res) {
         if (assignee && assignee.email) {
             const subject = `You were assigned work order #${wo.orgSeq}`;
             const body = `<p>Hello ${assignee.firstName},</p><p>You have been assigned work order #${wo.orgSeq}.</p>`;
-            (0, mailer_1.sendNotificationEmail)(assignee.email, subject, body).catch((e) => console.error('email err', e));
+            Promise.resolve((0, mailer_1.sendNotificationEmail)(assignee.email, subject, body)).catch((e) => console.error('email err', e));
         }
         return res.json(wo);
     }

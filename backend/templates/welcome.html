@@ -7,20 +7,24 @@
     <title>Bienvenido</title>
   </head>
   <body style="margin:0;background-color:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#4A5568;">
+    <!-- Preheader: visible in inbox preview; keep short and provided by renderer -->
+    <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;color:#ffffff;line-height:1px;opacity:0;">{{preheader}}</div>
+    <!-- Plain-text fallback for clients that prefer text (kept hidden) -->
+    <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">{{plainText}}</div>
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
       <tr>
         <td align="center" style="padding:28px 12px;">
           <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(137,194,217,0.12);">
             <tr>
               <td style="padding:24px 28px;text-align:center;">
-                <img src="{{logoUrl}}" alt="SGM" width="140" style="display:block;margin:0 auto 12px auto;object-fit:contain;" />
+                <img src="{{logoUrl}}" alt="SGM" width="140" style="display:block;margin:0 auto 12px auto;object-fit:contain;border:0;-ms-interpolation-mode:bicubic;" />
                 <h1 style="margin:8px 0 4px 0;font-size:20px;color:#0b5cff;">Bienvenido a Sistema de Gestión</h1>
                 <p style="margin:0;color:#4A5568;">¡Gracias por registrarte{{nameSection}}! Para completar el registro confirma tu cuenta haciendo clic en el siguiente botón.</p>
               </td>
             </tr>
             <tr>
               <td style="padding:0 28px 32px 28px;text-align:center;">
-                <a href="{{confirmLink}}" style="display:inline-block;margin-top:18px;padding:12px 24px;border-radius:12px;background:#89C2D9;color:#ffffff;font-weight:700;text-decoration:none;">Confirmar mi cuenta</a>
+                <a href="{{confirmLink}}" role="button" aria-label="Confirmar mi cuenta" style="display:inline-block;margin-top:18px;padding:12px 24px;border-radius:12px;background:#89C2D9;color:#ffffff;font-weight:700;text-decoration:none;-webkit-text-size-adjust:none;">Confirmar mi cuenta</a>
                 <p style="margin-top:18px;font-size:13px;color:#667085;">Si no solicitaste este correo, ignora este mensaje.</p>
               </td>
             </tr>

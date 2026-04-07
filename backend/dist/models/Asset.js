@@ -44,6 +44,25 @@ const AssetSchema = new mongoose_1.Schema({
     branchId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Branch' },
     notes: { type: String },
     docs: { type: [mongoose_1.Schema.Types.ObjectId], ref: 'FileMeta', default: [] },
+    images: { type: [String], default: [] },
+    indexImage: {
+        type: Number,
+        validate: {
+            validator: function (v) {
+                // `this` is the document. indexImage must be undefined when no images,
+                // otherwise must be integer between 0 and images.length - 1
+                // allow null/undefined
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const doc = this;
+                if (!doc.images || doc.images.length === 0) {
+                    return v === null || v === undefined;
+                }
+                // must be an integer within range
+                return Number.isInteger(v) && v >= 0 && v < doc.images.length;
+            },
+            message: 'indexImage must be an integer between 0 and images.length-1 (or undefined if no images)'
+        }
+    },
     createdAt: { type: Date, default: Date.now }
 });
 AssetSchema.index({ orgId: 1, name: 1 }, { unique: false });

@@ -15,7 +15,14 @@ function buildUrl(path: string) {
 }
 
 // Axios fallback instance for web or if Capacitor Http isn't available
-const axiosInstance = axios.create({ baseURL, withCredentials: true });
+export const axiosInstance = axios.create({ 
+  baseURL, 
+  withCredentials: true,
+  headers: { 
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+  },
+});
 
 export function setAuthToken(token: string | null) {
   authToken = token;

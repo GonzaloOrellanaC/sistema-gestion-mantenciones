@@ -17,7 +17,8 @@ const User_1 = __importDefault(require("../models/User"));
 const Role_1 = __importDefault(require("../models/Role"));
 const PasswordResetToken_1 = __importDefault(require("../models/PasswordResetToken"));
 const EmailConfirmationToken_1 = __importDefault(require("../models/EmailConfirmationToken"));
-const mailer_1 = require("../utils/mailer");
+const mailgun_1 = __importDefault(require("../utils/mailgun"));
+const nodemailer_1 = __importDefault(require("../utils/nodemailer"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
@@ -104,7 +105,12 @@ async function registerUser(payload) {
     let mailSent = false;
     let mailError = null;
     try {
-        await (0, mailer_1.sendWelcomeEmail)(user.email, confirmLink, `${firstName} ${lastName}`);
+        if (process.env.MAIL_SYS === 'mailgun') {
+            await mailgun_1.default.sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+        }
+        else {
+            await nodemailer_1.default.sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+        }
         mailSent = true;
     }
     catch (e) {
@@ -121,7 +127,12 @@ async function registerUser(payload) {
                 });
                 if (resp.ok) {
                     try {
-                        await (0, mailer_1.sendWelcomeEmail)(user.email, confirmLink, `${firstName} ${lastName}`);
+                        if (process.env.MAIL_SYS === 'mailgun') {
+                            await mailgun_1.default.sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+                        }
+                        else {
+                            await nodemailer_1.default.sendWelcomeEmail(user.email, confirmLink, `${firstName} ${lastName}`);
+                        }
                         mailSent = true;
                     }
                     catch (e2) {
@@ -185,7 +196,12 @@ async function forgotPassword(payload) {
     await PasswordResetToken_1.default.create({ userId: user._id, token, expiresAt });
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5100';
     const resetLink = `${frontendUrl}/reset-password?token=${token}`;
-    await (0, mailer_1.sendPasswordResetEmail)(user.email, resetLink);
+    if (process.env.MAIL_SYS === 'mailgun') {
+        await mailgun_1.default.sendPasswordResetEmail(user.email, resetLink);
+    }
+    else {
+        await nodemailer_1.default.sendPasswordResetEmail(user.email, resetLink);
+    }
 }
 async function resetPassword(payload) {
     const { token, newPassword } = payload;

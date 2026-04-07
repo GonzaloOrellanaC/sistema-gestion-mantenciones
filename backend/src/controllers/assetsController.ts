@@ -110,6 +110,7 @@ export async function bulkCreate(req: Request, res: Response) {
 
 export async function list(req: Request, res: Response) {
   try {
+    console.log('List assets with query', req.user);
     const orgId = (req as any).user.orgId;
     const q: any = { orgId };
     if (req.query.branchId) q.branchId = String(req.query.branchId);
@@ -143,6 +144,7 @@ export async function list(req: Request, res: Response) {
         }
       }
     }
+    console.log('Querying assets with filter', q);
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Number(req.query.limit) || 10);
     const skip = (page - 1) * limit;

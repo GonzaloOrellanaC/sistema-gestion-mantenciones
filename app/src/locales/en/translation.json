@@ -1,4 +1,9 @@
 {
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving..."
+  },
   "hello_technician": "Hello, Technician",
   "pending_orders": "Pending Orders: {{count}}",
   "no_orders": "No orders.",
@@ -59,7 +64,30 @@
   "nav": {
     "orders": "Orders",
     "notifications": "Notifications",
-    "profile": "Profile"
+    "profile": "Profile",
+    "assets": "Assets"
+  },
+  "pages": {
+    "assets": "Assets"
+  },
+  "assets": {
+    "intro": "Here you can view and manage assets.",
+    "subtitle": "List and manage assets",
+    "add": "Add asset",
+    "edit": "Edit asset",
+    "add_sub": "Fill the form to create a new asset",
+    "edit_sub": "Edit asset details",
+    "scan": {
+      "start": "Start scan",
+      "stop": "Stop",
+      "scanning": "Scanning...",
+      "unsupported": "Scanner not supported"
+    },
+    "fields": {
+      "code": "Code",
+      "name": "Name",
+      "description": "Description"
+    }
   },
   "difficulty": {
     "title": "Difficulty",
