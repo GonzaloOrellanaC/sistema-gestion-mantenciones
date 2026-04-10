@@ -162,7 +162,7 @@ const FormRenderer: React.FC<{ schema: Field[]; showSaveButton?: boolean; onSave
       pages.forEach((page, pidx) => {
         page.forEach((field, fidx) => {
           const uid = `${field.id || 'field'}-${pidx}-${fidx}`;
-          const fieldId = field && (field.id || field._id || field.key || field.name) || uid;
+          const fieldId = field && (field.id) || uid;
           map[uid] = fieldId;
         });
       });

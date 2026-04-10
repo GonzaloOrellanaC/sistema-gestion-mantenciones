@@ -10,6 +10,11 @@ export default defineConfig({
     react(),
     legacy()
   ],
+  preview: {
+    port: 5101,
+    host: true,
+    allowedHosts: ['app-sgm-field.omtecnologia.cl']
+  },
   server: {
     port: 5101
   },

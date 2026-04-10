@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --host --port 5101",
+    "preview:pm2": "pm2 start npm --name sgm-app-field -- run preview",
+    "pm2:stop": "pm2 stop sgm-app-field",
+    "pm2:restart": "pm2 restart sgm-app-field",
     "test.e2e": "cypress run",
     "test.unit": "vitest",
     "lint": "eslint"

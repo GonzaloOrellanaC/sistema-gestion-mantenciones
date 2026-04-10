@@ -70,7 +70,7 @@ const Notifications: React.FC = () => {
           const raw = localStorage.getItem('notifications');
           const list = raw ? JSON.parse(raw) : [];
 
-          const ids = Array.from(new Set(list.map((n: any) => n.meta && n.meta.workOrderId).filter(Boolean)));
+          const ids: any[] = Array.from(new Set(list.map((n: any) => n.meta && n.meta.workOrderId).filter(Boolean)));
           const map: Record<string, any> = {};
           await Promise.all(ids.map(async (id: string) => {
             try {
